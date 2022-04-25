@@ -12,8 +12,8 @@ import logging
 import multiprocessing as mp
 
 
-def amlr_gdm(project, deployment, mode, num_cores = 1, 
-             gdm_path = "C:/SMW/Gliders_Moorings/Gliders/gdm", 
+def amlr_gdm(project, deployment, mode, deployments_path, gdm_path, 
+             num_cores = 1, 
              load_from_tmp = False, remove_19700101 = True, 
              save_trajectory = False, save_ngdac = False):
     # Process AMLR glider data and save data to nc files.
@@ -30,13 +30,14 @@ def amlr_gdm(project, deployment, mode, num_cores = 1,
     # deployment: string; name of deployment, eg 'amlr03-20220308'. 
     #   The year is expected to be in characters 7:11
     # mode: string; data mode must be either 'rt' or 'delayed'
-    
+    # deployments_path: string, path to glider deployments folder
+    # gdm_path: path to gdm module
+
     # OPTIONAL PARAMETERS:
     # num_cores: numeric: indicates the number of cores to use. 
     #   If greater than one, parallel processing via mp.Pool.map will be used
     #   for load_slocum_dbas and (todo) writing individual (profile) nc files
     #   This argument must be between 1 and mp.cpu_count()
-    # gdm_path: path to gdm module
     # load_from_tmp: boolean; indicates gdm object should be loaded from 
     #   parquet files in glider/data/tmp directory 
     # remove_19700101: boolean; indicates if data with the timestamp 1970-01-01
@@ -81,7 +82,7 @@ def amlr_gdm(project, deployment, mode, num_cores = 1,
     year = deployment[7:11]
     logging.info('Year extracted from deployment name: {:}'.format(year))
     deployment_mode = deployment + '-' + mode
-    deployment_path = os.path.join(project, year, deployment, 'glider')
+    deployment_path = os.path.join(deployments_path, project, year, deployment, 'glider')
     logging.info('Deployment path: {:}'.format(deployment_path))
 
     ascii_path  = os.path.join(deployment_path, 'data', 'in', 'ascii', binary_folder)
