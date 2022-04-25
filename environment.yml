@@ -16,5 +16,6 @@ dependencies:
   - pyyaml=6.0
   - scipy=1.7
   - shapely=1.8
+  - spyder=5.3
   - xarray=0.20
   - yaml=0.2
