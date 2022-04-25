@@ -3,7 +3,7 @@ channels:
   - conda-forge
   - default
 dependencies:
-  - python=3.8
+  - python=3.10
   - arrow=1.2
   - gsw=3.4
   - ipykernel=6.13
