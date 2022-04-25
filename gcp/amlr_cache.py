@@ -1,7 +1,10 @@
 import os
 import logging
 
-# PRrep
+logging.basicConfig(level=logging.INFO)
+
+
+# Prep
 home_path = "/home/sam_woodman_noaa_gov"
 bucket_cache = "amlr-gliders-deployments-dev/cache"
 
