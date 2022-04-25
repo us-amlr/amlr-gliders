@@ -8,8 +8,7 @@ bucket_cache = "amlr-gliders-deployments-dev/cache"
 folder_cache = os.path.join(home_path, bucket_cache)
 files_list = os.listdir(folder_cache)
 files_list_CAC = list(filter(lambda i: i.endswith(".CAC"), files_list))
-logging.info("CAC files to be renamed:")
-logging.info(*files_list_CAC, sep = "\n")
+logging.info("{:} .CAC files will be renamed".format(len(files_list_CAC)))
 
 # Run shell script
 os.system("/opt/slocum/bin2ascii/cac2lower.sh " + os.path.join(folder_cache, "*"))
