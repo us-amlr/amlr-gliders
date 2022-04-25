@@ -2,6 +2,14 @@
 """
 Created on Wed Mar 16 10:15:26 2022
 
+Script to process raw AMLR glider data and save data to parquet and nc files.
+
+This script depends requires the directory structure specified in the 
+AMLR glider data management readme:
+https://docs.google.com/document/d/1X5DB4rQRBhBqnFdAAY_5Eyh_yPjG3UZ43Ga7ZGWcSsg
+
+Returns the gdm object.
+
 @author: sam.woodman
 """
 
@@ -13,15 +21,14 @@ import multiprocessing as mp
 
 
 def amlr_gdm(project, deployment, mode, deployments_path, gdm_path, 
-             num_cores = 1, 
-             load_from_tmp = False, remove_19700101 = True, 
+             num_cores = 1, load_from_tmp = False, remove_19700101 = True, 
              save_trajectory = False, save_ngdac = False):
     # Process AMLR glider data and save data to nc files.
     # This script depends requires the directory structure specified in the 
     #   AMLR glider data management readme:
     #   https://docs.google.com/document/d/1X5DB4rQRBhBqnFdAAY_5Eyh_yPjG3UZ43Ga7ZGWcSsg
     # Returns gdm object
-    # Note the gdm object in the pkl file has not 
+    # Note the gdm object in the tmp file has not 
     #   removed 1970-01-01 timestamps or made column names lowercase
     
     # PARAMETERS:
@@ -70,7 +77,12 @@ def amlr_gdm(project, deployment, mode, deployments_path, gdm_path,
     if not (1 <= num_cores and num_cores < mp.cpu_count()):
         logging.error('num_cores must be between 1 and {:}'.format(mp.cpu_count()))
         return 
-        
+    
+    if not all(x in os.listdir(deployments_path) for x in ['FREEBYRD', 'REFOCUS', 'SANDIEGO', 'cache']):
+        str1 = 'The expected folders (FREEBYRD, REFOCUS, SANDIEGO, cache) were not found in the provided directory'
+        str2 = 'Did you provide the right path to deployments_path?'
+        logging.error((str1 + ' ({:}). ' + str2).format(deployments_path))
+        return 
         
     if mode == 'delayed':
         binary_folder = 'debd'
@@ -78,7 +90,7 @@ def amlr_gdm(project, deployment, mode, deployments_path, gdm_path,
         binary_folder = 'stbd'
         
 
-    ### Set path/file variables
+    ### Set path/file variables, and create file paths if necessary
     year = deployment[7:11]
     logging.info('Year extracted from deployment name: {:}'.format(year))
     deployment_mode = deployment + '-' + mode
@@ -93,14 +105,31 @@ def amlr_gdm(project, deployment, mode, deployments_path, gdm_path,
     tmp_path = os.path.join(deployment_path, 'data', 'tmp')
     pq_data_file = os.path.join(tmp_path, deployment_mode + '-data.parquet')
     pq_profiles_file = os.path.join(tmp_path, deployment_mode + '-profiles.parquet')
+    
+    # This is for GCP because buckets don't do implicit directories well on upload
+    if not os.path.exists(tmp_path):
+        logging.info('Creating directory at: {:}'.format(tmp_path))
+        os.makedirs(tmp_path)
+        
+    if save_trajectory and (not os.path.exists(nc_trajectory_path)):
+        logging.info('Creating directory at: {:}'.format(nc_trajectory_path))
+        os.makedirs(nc_trajectory_path)
+        
+    if save_ngdac and (not os.path.exists(nc_ngdac_path)):
+        logging.info('Creating directory at: {:}'.format(nc_ngdac_path))
+        os.makedirs(nc_ngdac_path)
 
 
-    # # Read dba files - not necessary
+    # ### Read dba files - not necessary
     # logging.info('Getting dba files from: {:}'.format(ascii_path))
     # dba_files = get_dbas(ascii_path)
     # # logging.info('dba file info: {:}'.format(dba_files.info()))
 
     ### Create and process gdm object
+    if not os.path.exists(config_path):
+        logging.error('The config path does not exist {:}'.format(config_path))
+        return 
+                        
     gdm = GliderDataModel(config_path)
     if load_from_tmp:        
         logging.info('Loading gdm data from parquet files in: {:}'.format(tmp_path))
