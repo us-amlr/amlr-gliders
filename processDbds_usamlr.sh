@@ -36,7 +36,7 @@ cacPerms=775;
 
 # Path to the WRC executables (dbd2asc, dba2_orig_matlab, etc)
 # EXE_DIR='/home/coolgroup/gliderData/deployments-meta/linux-bin';
-EXE_DIR='/home/jupyter/slocum/linux-bin';
+EXE_DIR='/opt/slocum/linux-bin';
 
 # Soure and destination default to current directory
 dbdRoot=$(pwd);
