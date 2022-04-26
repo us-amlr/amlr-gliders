@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # Python wrapper around cac2lower.sh script for AMLR glider path
 
 import os
