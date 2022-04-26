@@ -1,37 +1,54 @@
 #!/usr/bin/env python
-# Python wrapper around cac2lower.sh script for AMLR glider path
 
-import os
-import logging
+def amlr_cache(
+    cache_path = "/home/sam_woodman_noaa_gov/amlr-gliders-deployments-dev/cache"
+):
+    """
+    Wrapper around cac2lower.sh; makes cac files lowercase
+    Requires Linux system with kerfoot/slocum cloned to /opt
 
-logging.basicConfig(level=logging.INFO)
+    PARAMETERS:
+    cache_path: string, path to folder with cache files. 
+        Default corresponds to path on GCP VM.
 
+    Returns none
+    """
 
-# Prep
-home_path = "/home/sam_woodman_noaa_gov"
-bucket_cache = "amlr-gliders-deployments-dev/cache"
+    import os
+    import logging
 
-folder_cache = os.path.join(home_path, bucket_cache)
-files_list = os.listdir(folder_cache)
-files_list_CAC = list(filter(lambda i: i.endswith(".CAC"), files_list))
+    logging.basicConfig(level=logging.INFO)
 
-if len(files_list_CAC) > 0:
-    logging.info("{:} .CAC files will be renamed".format(len(files_list_CAC)))
-    os.system("/opt/slocum/bin2ascii/cac2lower.sh " + os.path.join(folder_cache, "*"))
+    cac2lower_file = "/opt/slocum/bin2ascii/cac2lower.sh"
+    if not os.path.isfile(cac2lower_file):
+        logging.error(cac2lower_file + " does not exist")
+        return
 
-    # Make sure that all .CAC files have corresponding .cac files before deleting
-    delete_ok = True
-    files_list_new = os.listdir(folder_cache)
+    if not os.path.isfile(cache_path):
+        logging.error(cache_path + " does not exist")
+        return
 
-    for i in files_list_CAC:
-        if i.lower() not in files_list_new:
-            delete_ok = False
+    # Get CAC files
+    files_list = os.listdir(cache_path)
+    files_list_CAC = list(filter(lambda i: i.endswith(".CAC"), files_list))
 
-    if delete_ok: 
-        os.system("find " + folder_cache + " -name '*.CAC' -delete")
-        logging.info("{:} uppercase .CAC files were deleted".format(len(files_list_CAC)))
+    if len(files_list_CAC) > 0:
+        logging.info("{:} .CAC files will be renamed".format(len(files_list_CAC)))
+        os.system(cac2lower_file + " " + os.path.join(cache_path, "*"))
+
+        # Make sure that all .CAC files have corresponding .cac files before deleting
+        delete_ok = True
+        files_list_new = os.listdir(cache_path)
+
+        for i in files_list_CAC:
+            if i.lower() not in files_list_new:
+                delete_ok = False
+
+        if delete_ok: 
+            os.system("find " + cache_path + " -name '*.CAC' -delete")
+            logging.info("{:} uppercase .CAC files were deleted".format(len(files_list_CAC)))
+        else:
+            logging.warn("Not all '.CAC' files have a corresponding '.cac' file, and thus the .CAC files were not deleted")
+
     else:
-        logging.warn("Not all '.CAC' files have a corresponding '.cac' file, and thus the .CAC files were not deleted")
-
-else:
-    logging.info('There are no .CAC files to rename')
+        logging.info('There are no .CAC files to rename')

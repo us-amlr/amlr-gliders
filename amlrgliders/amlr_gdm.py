@@ -1,67 +1,62 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Mar 16 10:15:26 2022
+#!/usr/bin/env python
 
-Script to process raw AMLR glider data and save data to parquet and nc files.
-
-This script depends requires the directory structure specified in the 
-AMLR glider data management readme:
-https://docs.google.com/document/d/1X5DB4rQRBhBqnFdAAY_5Eyh_yPjG3UZ43Ga7ZGWcSsg
-
-Returns the gdm object.
-
-@author: sam.woodman
-"""
-
-import os
-import sys
-import pandas as pd
-import logging
-import multiprocessing as mp
-
-
-def amlr_gdm(project, deployment, mode, deployments_path, gdm_path, 
-             num_cores = 1, load_from_tmp = False, remove_19700101 = True, 
-             save_trajectory = False, save_ngdac = False):
-    # Process AMLR glider data and save data to nc files.
-    # This script depends requires the directory structure specified in the 
-    #   AMLR glider data management readme:
-    #   https://docs.google.com/document/d/1X5DB4rQRBhBqnFdAAY_5Eyh_yPjG3UZ43Ga7ZGWcSsg
-    # Returns gdm object
-    # Note the gdm object in the tmp file has not 
-    #   removed 1970-01-01 timestamps or made column names lowercase
+def amlr_gdm(
+    project, 
+    deployment, 
+    mode, 
+    deployments_path, 
+    gdm_path = "/opt/", 
+    num_cores = 1, 
+    load_from_tmp = False, 
+    remove_19700101 = True, 
+    save_trajectory = False, 
+    save_ngdac = False
+):
     
-    # PARAMETERS:
-    # project: string; name of project. 
-    #   Should be one of FREEBYRD, REFOCUS, or SANDIEGO
-    # deployment: string; name of deployment, eg 'amlr03-20220308'. 
-    #   The year is expected to be in characters 7:11
-    # mode: string; data mode must be either 'rt' or 'delayed'
-    # deployments_path: string, path to glider deployments folder
-    # gdm_path: path to gdm module
+    """
+    Process raw AMLR glider data and write data to parquet and nc files.
 
-    # OPTIONAL PARAMETERS:
-    # num_cores: numeric: indicates the number of cores to use. 
-    #   If greater than one, parallel processing via mp.Pool.map will be used
-    #   for load_slocum_dbas and (todo) writing individual (profile) nc files
-    #   This argument must be between 1 and mp.cpu_count()
-    # load_from_tmp: boolean; indicates gdm object should be loaded from 
-    #   parquet files in glider/data/tmp directory 
-    # remove_19700101: boolean; indicates if data with the timestamp 1970-01-01
-    #   should be removed, before writing to pkl file. 
-    #   Will be ignored if load_from_tmp = True
-    #   For when there is a 'Not enough timestamps for yo interpolation' warning
-    # save_trajectory: boolean; indicates if trajectory should be saved to a nc file
-            
-            
-    # logger = logging.getLogger()
-    # logger.setLevel(logging.INFO)
-    # console_handler = logging.StreamHandler()
-    # logger.addHandler(console_handler)
+    This script depends requires the directory structure specified in the 
+    AMLR glider data management readme:
+    https://docs.google.com/document/d/1X5DB4rQRBhBqnFdAAY_5Eyh_yPjG3UZ43Ga7ZGWcSsg
+
+    Returns a gdm object. Note the gdm object in the tmp file has not 
+    removed 1970-01-01 timestamps or made column names lowercase. 
     
+    PARAMETERS:
+    project: string; name of project. 
+        Should be one of FREEBYRD, REFOCUS, or SANDIEGO
+    deployment: string; name of deployment, eg 'amlr03-20220308'. 
+        The year is expected to be in characters 7:11
+    mode: string; data mode must be either 'rt' or 'delayed'
+    deployments_path: string, path to glider deployments folder
+    gdm_path: path to gdm module
+
+    OPTIONAL PARAMETERS:
+    num_cores: numeric: indicates the number of cores to use. 
+        If greater than one, parallel processing via mp.Pool.map will be used
+        for load_slocum_dbas and (todo) writing individual (profile) nc files
+        This argument must be between 1 and mp.cpu_count()
+    load_from_tmp: boolean; indicates gdm object should be loaded from 
+        parquet files in glider/data/tmp directory 
+    remove_19700101: boolean; indicates if data with the timestamp 1970-01-01
+        should be removed, before writing to pkl file. 
+        Will be ignored if load_from_tmp = True
+        For when there is a 'Not enough timestamps for yo interpolation' warning
+    save_trajectory: boolean; indicates if trajectory should be saved to a nc file
+    """
+
+    import os
+    import sys
+    import pandas as pd
+    import logging
+    import multiprocessing as mp
+
     sys.path.append(gdm_path)
     from gdm import GliderDataModel
     from gdm.gliders.slocum import load_slocum_dba #, get_dbas
+
+    
 
     logging.basicConfig(level=logging.INFO)
     
