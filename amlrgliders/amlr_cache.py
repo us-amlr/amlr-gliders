@@ -24,7 +24,7 @@ def amlr_cache(
         logging.error(cac2lower_file + " does not exist")
         return
 
-    if not os.path.isfile(cache_path):
+    if not os.path.isdir(cache_path):
         logging.error(cache_path + " does not exist")
         return
 
