@@ -65,7 +65,7 @@ def main(
     remove_19700101 = bool(remove_19700101) 
     save_trajectory = bool(save_trajectory)
     save_ngdac = bool(save_ngdac)
-    
+
     
     ### Argument checks
     if not (project in ['FREEBYRD', 'REFOCUS', 'SANDIEGO']):
@@ -100,7 +100,7 @@ def main(
     logging.info('Deployment path: {:}'.format(deployment_path))
 
     ascii_path  = os.path.join(deployment_path, 'data', 'in', 'ascii', binary_folder)
-    config_path = os.path.join(deployment_path, 'config', 'ngdac')
+    config_path = os.path.join(deployment_path, 'config', 'gdm')
     nc_ngdac_path = os.path.join(deployment_path, 'data', 'out', 'nc', 'ngdac', mode)
     nc_trajectory_path = os.path.join(deployment_path, 'data', 'out', 'nc', 'trajectory', mode)
 
