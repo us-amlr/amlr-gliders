@@ -4,8 +4,8 @@ import os
 import sys
 import logging
 
-from ipdb import launch_ipdb_on_exception
-    
+import pdb
+
 def main(
     project, 
     deployment, 
@@ -58,7 +58,10 @@ def main(
     logging.basicConfig(level=logging.INFO)
 
     logging.info('gdm path: {:}'.format(gdm_path))
+    pdb.set_trace()
     sys.path.append(gdm_path)
+
+
     from gdm import GliderDataModel
     from gdm.gliders.slocum import load_slocum_dba #, get_dbas
 
