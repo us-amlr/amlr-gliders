@@ -1,25 +1,25 @@
 #!/usr/bin/env python
 
-def amlr_cache(
-    cache_path = "/home/sam_woodman_noaa_gov/amlr-gliders-deployments-dev/cache"
-):
+import os
+import sys
+import logging
+
+    
+def main(cache_path, cac2lower_file):
     """
     Wrapper around cac2lower.sh; makes cac files lowercase
     Requires Linux system with kerfoot/slocum cloned to /opt
 
     PARAMETERS:
-    cache_path: string, path to folder with cache files. 
-        Default corresponds to path on GCP VM.
+    cache_path: string; path to folder with cache files
+    cac2lower_file: string; path to cac2lower.sh file 
 
     Returns none
     """
 
-    import os
-    import logging
-
     logging.basicConfig(level=logging.INFO)
 
-    cac2lower_file = "/opt/slocum/bin2ascii/cac2lower.sh"
+
     if not os.path.isfile(cac2lower_file):
         logging.error('The provided cac2lower_file does not exist: {:}'.format(cac2lower_file))
         return
@@ -52,3 +52,7 @@ def amlr_cache(
 
     else:
         logging.info('There are no .CAC files to rename')
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1], sys.argv[2]))
