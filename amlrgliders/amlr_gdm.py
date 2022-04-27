@@ -4,8 +4,6 @@ import os
 import sys
 import logging
 
-import pdb
-
 def main(
     project, 
     deployment, 
@@ -58,7 +56,6 @@ def main(
     logging.basicConfig(level=logging.INFO)
 
     logging.info('gdm path: {:}'.format(gdm_path))
-    pdb.set_trace()
     sys.path.append(gdm_path)
 
 
