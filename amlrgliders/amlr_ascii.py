@@ -30,7 +30,7 @@ def amlr_process_binary(processDbds_file, cache_path, binary_path, ascii_path):
         return
 
     if not os.path.isdir(binary_path):
-        logging.error('"'{:} does not exist'"'.format(binary_path))
+        logging.error('{:} does not exist'.format(binary_path))
         return
     
     if not os.path.isdir(ascii_path):
