@@ -4,6 +4,8 @@ import os
 import sys
 import logging
 
+logging.basicConfig(level=logging.INFO)
+
 def main(
     project, 
     deployment, 
@@ -53,17 +55,17 @@ def main(
     import pandas as pd
     import multiprocessing as mp
 
-    logging.basicConfig(level=logging.INFO)
-
-    logging.info('gdm path: {:}'.format(gdm_path))
     sys.path.append(gdm_path)
-
-
     from gdm import GliderDataModel
     from gdm.gliders.slocum import load_slocum_dba #, get_dbas
 
-    
 
+    num_cores = int(num_cores)
+    load_from_tmp = bool(load_from_tmp)
+    remove_19700101 = bool(remove_19700101) 
+    save_trajectory = bool(save_trajectory)
+    save_ngdac = bool(save_ngdac)
+    
     
     ### Argument checks
     if not (project in ['FREEBYRD', 'REFOCUS', 'SANDIEGO']):
