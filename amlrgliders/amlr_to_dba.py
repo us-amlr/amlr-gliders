@@ -73,20 +73,20 @@ def main(processDbds_file, cache_path, binary_path, ascii_path):
 
     ### Checks
     if not os.path.isfile(processDbds_file):
-        logging.error('{:} does not exist'.format(processDbds_file))
+        logging.error('processDbds_file ({:}) does not exist'.format(processDbds_file))
         return
 
     if not os.path.isdir(cache_path):
-        logging.error('{:} does not exist'.format(cache_path))
+        logging.error('cache_path ({:}) does not exist'.format(cache_path))
         return
 
     if not os.path.isdir(binary_path):
-        logging.error('{:} does not exist'.format(binary_path))
+        logging.error('binary_path ({:}) does not exist'.format(binary_path))
         return
     
     if not os.path.isdir(ascii_path):
         logging.info('Making path at: {:}'.format(ascii_path))
-        os.mkdir(ascii_path)
+        os.makedirs(ascii_path)
         return
 
     ### Make sure cache files are lowercase
