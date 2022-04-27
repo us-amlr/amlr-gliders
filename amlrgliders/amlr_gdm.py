@@ -51,6 +51,8 @@ def main(
         For when there is a 'Not enough timestamps for yo interpolation' warning
     save_trajectory: boolean; indicates if trajectory should be saved to a nc file
     """
+    logging.info("Argument List:", str(sys.argv))
+
 
     import pandas as pd
     import multiprocessing as mp
@@ -65,6 +67,11 @@ def main(
     remove_19700101 = bool(remove_19700101) 
     save_trajectory = bool(save_trajectory)
     save_ngdac = bool(save_ngdac)
+
+    logging.info("load_from_tmp:", str(load_from_tmp))
+    logging.info("remove_19700101:", str(remove_19700101))
+    logging.info("save_trajectory:", str(save_trajectory))
+    logging.info("save_ngdac:", str(save_ngdac))
 
     
     ### Argument checks
