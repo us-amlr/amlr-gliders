@@ -4,10 +4,8 @@ import os
 import sys
 import logging
 
-import pdb
-
-
 logging.basicConfig(level=logging.INFO)
+
 
 def main(
     project, 
@@ -54,8 +52,6 @@ def main(
         For when there is a 'Not enough timestamps for yo interpolation' warning
     save_trajectory: boolean; indicates if trajectory should be saved to a nc file
     """
-    pdb.set_trace()
-    logging.info("Argument List:", str(sys.argv))
 
 
     import pandas as pd
@@ -65,20 +61,8 @@ def main(
     from gdm import GliderDataModel
     from gdm.gliders.slocum import load_slocum_dba #, get_dbas
 
-
-    num_cores = int(num_cores)
-    load_from_tmp = bool(load_from_tmp)
-    remove_19700101 = bool(remove_19700101) 
-    save_trajectory = bool(save_trajectory)
-    save_ngdac = bool(save_ngdac)
-
-    logging.info("load_from_tmp:", str(load_from_tmp))
-    logging.info("remove_19700101:", str(remove_19700101))
-    logging.info("save_trajectory:", str(save_trajectory))
-    logging.info("save_ngdac:", str(save_ngdac))
-
-    
-    ### Argument checks
+   
+    ### Argument checks and processing
     if not (project in ['FREEBYRD', 'REFOCUS', 'SANDIEGO']):
         logging.error("project must be one of 'FREEBYRD', 'REFOCUS', or 'SANDIEGO'")
         return 
@@ -87,6 +71,7 @@ def main(
         logging.error("mode must be either 'delayed' or 'rt'")
         return
     
+    num_cores = int(num_cores)
     if not (1 <= num_cores and num_cores <= mp.cpu_count()):
         logging.error('num_cores must be between 1 and {:}'.format(mp.cpu_count()))
         return 
@@ -96,11 +81,34 @@ def main(
         str2 = 'Did you provide the right path to deployments_path?'
         logging.error((str1 + ' ({:}). ' + str2).format(deployments_path))
         return 
+
+    if not (load_from_tmp in ['True', 'False']):
+        logging.error("load_from_tmp must be either 'True' or 'False'")
+        return
+
+    if not (remove_19700101 in ['True', 'False']):
+        logging.error("remove_19700101 must be either 'True' or 'False'")
+        return
+
+    if not (save_trajectory in ['True', 'False']):
+        logging.error("save_trajectory must be either 'True' or 'False'")
+        return
+
+    if not (save_ngdac in ['True', 'False']):
+        logging.error("save_ngdac must be either 'True' or 'False'")
+        return
+
         
     if mode == 'delayed':
         binary_folder = 'debd'
     else: 
         binary_folder = 'stbd'
+
+    load_from_tmp   = (load_from_tmp == "True")
+    remove_19700101 = (remove_19700101 == "True")
+    save_trajectory = (save_trajectory == "True")
+    save_ngdac      = (save_ngdac == "True")
+
         
 
     ### Set path/file variables, and create file paths if necessary
