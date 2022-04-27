@@ -4,6 +4,7 @@ import os
 import sys
 import logging
 
+from ipdb import launch_ipdb_on_exception
     
 def main(
     project, 
