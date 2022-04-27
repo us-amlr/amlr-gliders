@@ -87,7 +87,6 @@ def main(processDbds_file, cache_path, binary_path, ascii_path):
     if not os.path.isdir(ascii_path):
         logging.info('Making path at: {:}'.format(ascii_path))
         os.makedirs(ascii_path)
-        return
 
     ### Make sure cache files are lowercase
     logging.info('Running cac2lower to ensure cache files are lowercase')
