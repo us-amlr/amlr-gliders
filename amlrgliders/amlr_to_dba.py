@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 
-def amlr_process_binary(processDbds_file, cache_path, binary_path, ascii_path):
+import os
+import sys
+import logging
+    
+def main(processDbds_file, cache_path, binary_path, ascii_path):
     """
     Wrapper around cac2lower.sh; makes cac files lowercase
     Requires Linux system with kerfoot/slocum cloned to /opt
@@ -14,8 +18,6 @@ def amlr_process_binary(processDbds_file, cache_path, binary_path, ascii_path):
     Returns none
     """
 
-    import os
-    import logging
     from . import amlr_cache
 
     logging.basicConfig(level=logging.INFO)
@@ -40,7 +42,7 @@ def amlr_process_binary(processDbds_file, cache_path, binary_path, ascii_path):
 
     ### Make sure cache files are lowercase
     logging.info('Running amlr_cache to ensure cache files are lowercase')
-    amlr_cache.amlr_cache(cache_path)
+    amlr_cache.main(cache_path)
 
     ### Create and run command line command
     sys_command = processDbds_file + " -c " + cache_path + " " + \
@@ -48,3 +50,7 @@ def amlr_process_binary(processDbds_file, cache_path, binary_path, ascii_path):
     logging.info('Running command: {:}'.format(sys_command))
 
     os.system(sys_command)
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]))
