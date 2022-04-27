@@ -4,6 +4,9 @@ import os
 import sys
 import logging
 
+import pdb
+
+
 logging.basicConfig(level=logging.INFO)
 
 def main(
@@ -51,6 +54,7 @@ def main(
         For when there is a 'Not enough timestamps for yo interpolation' warning
     save_trajectory: boolean; indicates if trajectory should be saved to a nc file
     """
+    pdb.set_trace()
     logging.info("Argument List:", str(sys.argv))
 
 
