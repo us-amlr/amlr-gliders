@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 
-def amlr_gdm(
+import os
+import sys
+import logging
+
+    
+def main(
     project, 
     deployment, 
     mode, 
@@ -46,10 +51,7 @@ def amlr_gdm(
     save_trajectory: boolean; indicates if trajectory should be saved to a nc file
     """
 
-    import os
-    import sys
     import pandas as pd
-    import logging
     import multiprocessing as mp
 
     sys.path.append(gdm_path)
@@ -205,3 +207,10 @@ def amlr_gdm(
         
     logging.info('amlr_gdm processing complete for {:}'.format(deployment_mode))
     return gdm
+
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], 
+                    sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], 
+                    sys.argv[9], sys.argv[10]))
