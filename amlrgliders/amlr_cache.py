@@ -21,11 +21,11 @@ def amlr_cache(
 
     cac2lower_file = "/opt/slocum/bin2ascii/cac2lower.sh"
     if not os.path.isfile(cac2lower_file):
-        logging.error(cac2lower_file + " does not exist")
+        logging.error('The provided cac2lower_file does not exist: {:}'.format(cac2lower_file))
         return
 
     if not os.path.isdir(cache_path):
-        logging.error(cache_path + " does not exist")
+        logging.error('The provided cache_path does not exist: {:}'.format(cache_path))
         return
 
     # Get CAC files
@@ -33,7 +33,7 @@ def amlr_cache(
     files_list_CAC = list(filter(lambda i: i.endswith(".CAC"), files_list))
 
     if len(files_list_CAC) > 0:
-        logging.info("{:} .CAC files will be renamed".format(len(files_list_CAC)))
+        logging.info('{:} .CAC files will be renamed'.format(len(files_list_CAC)))
         os.system(cac2lower_file + " " + os.path.join(cache_path, "*"))
 
         # Make sure that all .CAC files have corresponding .cac files before deleting

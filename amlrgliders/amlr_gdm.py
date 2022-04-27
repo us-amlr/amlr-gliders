@@ -69,7 +69,7 @@ def amlr_gdm(
         logging.error("mode must be either 'delayed' or 'rt'")
         return
     
-    if not (1 <= num_cores and num_cores < mp.cpu_count()):
+    if not (1 <= num_cores and num_cores <= mp.cpu_count()):
         logging.error('num_cores must be between 1 and {:}'.format(mp.cpu_count()))
         return 
     
