@@ -10,7 +10,7 @@ def main(
     deployment, 
     mode, 
     deployments_path, 
-    gdm_path = "/opt/", 
+    gdm_path, 
     num_cores = 1, 
     load_from_tmp = False, 
     remove_19700101 = True, 
@@ -54,13 +54,15 @@ def main(
     import pandas as pd
     import multiprocessing as mp
 
+    logging.basicConfig(level=logging.INFO)
+
+    logging.info('gdm path: {:}'.format(gdm_path))
     sys.path.append(gdm_path)
     from gdm import GliderDataModel
     from gdm.gliders.slocum import load_slocum_dba #, get_dbas
 
     
 
-    logging.basicConfig(level=logging.INFO)
     
     ### Argument checks
     if not (project in ['FREEBYRD', 'REFOCUS', 'SANDIEGO']):
