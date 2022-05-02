@@ -120,6 +120,12 @@ if __name__ == '__main__':
                             default = '/opt/slocum/bin2ascii/cac2lower.sh', 
                             help='Location of cache files')
 
+    arg_parser.add_argument('-l', '--loglevel',
+                            help='Verbosity level',
+                            type=str,
+                            choices=['debug', 'info', 'warning', 'error', 'critical'],
+                            default='info')
+
     parsed_args = arg_parser.parse_args()
 
     sys.exit(main(parsed_args))
