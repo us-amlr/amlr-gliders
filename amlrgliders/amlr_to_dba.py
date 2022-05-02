@@ -108,7 +108,8 @@ def main(processDbds_file, cache_path, binary_path, ascii_path):
     # logging.info('Running command: {:}'.format(sys_command))
 
     # os.system(sys_command)
-    run_out = subprocess.run([processDbds_file, "-c", cache_path, binary_path, ascii_path], capture_output=True)    if run_out.returncode != 0:
+    run_out = subprocess.run([processDbds_file, "-c", cache_path, binary_path, ascii_path], capture_output=True)    
+    if run_out.returncode != 0:
         logging.error('Error running `{:}`'.format(processDbds_file))
         logging.error('Args: {:}'.format(run_out.args))
         logging.error('stderr: {:}'.format(run_out.stderr))
