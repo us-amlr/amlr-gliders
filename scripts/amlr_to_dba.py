@@ -12,7 +12,6 @@ def main(args):
     Wrapper around cac2lower.sh and processDbds.sh; makes cac files lowercase
     Requires Linux system with kerfoot/slocum cloned to /opt
 
-    test
     Returns none
     """
 
