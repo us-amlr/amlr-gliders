@@ -34,7 +34,7 @@ def main(args):
         logging.error('processDbds_file ({:}) does not exist'.format(processDbds_file))
         return
 
-     if not os.path.isfile(cac2lower_file):
+    if not os.path.isfile(cac2lower_file):
         logging.error('cac2lower_file ({:}) does not exist'.format(cac2lower_file))
         return
 
