@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import subprocess
 import sys
 import logging
 
@@ -36,7 +37,12 @@ def cac2lower(
 
     if len(files_list_CAC) > 0:
         logging.info('{:} .CAC files will be renamed'.format(len(files_list_CAC)))
-        os.system(cac2lower_file + " " + os.path.join(cache_path, "*"))
+        run_out = subprocess.run([cac2lower_file, os.path.join(cache_path, "*")])
+
+        if run_out.returncode != 0:
+            logging.error('Error running `{:} {:}`'.format(cac2lower_file, os.path.join(cache_path, "*")))
+            return
+
 
         # Make sure that all .CAC files have corresponding .cac files before deleting
         delete_ok = True
@@ -47,7 +53,11 @@ def cac2lower(
                 delete_ok = False
 
         if delete_ok: 
-            os.system("find " + cache_path + " -name '*.CAC' -delete")
+            run_out = subprocess.run(["find", cache_path, '-name', '*.CAC', '-delete'])
+            if run_out.returncode != 0:
+                logging.error('Error running `find {:} -name *.CAC -delete`'.format(cache_path))
+                return
+
             logging.info("{:} uppercase .CAC files were deleted".format(len(files_list_CAC)))
         else:
             logging.warn("Not all '.CAC' files have a corresponding '.cac' file, and thus the .CAC files were not deleted")
@@ -56,7 +66,7 @@ def cac2lower(
         logging.info('There are no .CAC files to rename')
 
 
-    
+
 def main(processDbds_file, cache_path, binary_path, ascii_path):
     """
     Wrapper around cac2lower.sh; makes cac files lowercase
@@ -98,6 +108,7 @@ def main(processDbds_file, cache_path, binary_path, ascii_path):
     logging.info('Running command: {:}'.format(sys_command))
 
     os.system(sys_command)
+
 
 
 if __name__ == "__main__":
