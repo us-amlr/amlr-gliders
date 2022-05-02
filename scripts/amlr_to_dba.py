@@ -9,9 +9,9 @@ import argparse
 
 def main(args):
     """
-    Wrapper around cac2lower.sh and processDbds.sh; makes cac files lowercase
-    Requires Linux system with kerfoot/slocum cloned to /opt
-
+    Wrapper around cac2lower.sh and processDbds.sh; 
+    Makes cac files lowercase and creates dbas;
+    Requires Linux system with kerfoot/slocum cloned to /opt;
     Returns 0
     """
 
@@ -88,6 +88,7 @@ def main(args):
 
     #--------------------------------------------
     # Make dba files
+    logging.info(f'Running processDbds script and writing dba files to {ascii_path}')
     run_out = subprocess.run([processDbds_file, "-c", cache_path, binary_path, ascii_path], capture_output=True)    
     if run_out.returncode != 0:
         logging.error('Error running `{:}`'.format(processDbds_file))
@@ -118,7 +119,7 @@ if __name__ == '__main__':
     arg_parser.add_argument('processDbds_file', type=str,
                             help='Path to processDbds shell script')
 
-    arg_parser.add_argument('cac2lower_file', type=str,
+    arg_parser.add_argument('--cac2lower_file', type=str,
                             default = '/opt/slocum/bin2ascii/cac2lower.sh', 
                             help='Location of cache files')
 
