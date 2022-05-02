@@ -4,6 +4,7 @@ import os
 import subprocess
 import sys
 import logging
+import ipdb
 
 logging.basicConfig(level=logging.INFO)
 
@@ -98,6 +99,8 @@ def main(processDbds_file, cache_path, binary_path, ascii_path):
         logging.info('Making path at: {:}'.format(ascii_path))
         os.makedirs(ascii_path)
 
+    ipdb.set_trace()
+
     ### Make sure cache files are lowercase
     logging.info('Running cac2lower to ensure cache files are lowercase')
     cac2lower(cache_path)
@@ -115,7 +118,7 @@ def main(processDbds_file, cache_path, binary_path, ascii_path):
         logging.error('stderr: {:}'.format(run_out.stderr))
         return
     else:
-        logging.info('Successfully completed run of {:}'.format(processDbds_file))
+        logging.info('Successfully completed run of `{:}`'.format(processDbds_file))
 
 
 
