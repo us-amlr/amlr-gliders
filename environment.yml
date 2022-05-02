@@ -4,6 +4,7 @@ channels:
   - default
 dependencies:
   - python=3.10
+  - argparse
   - arrow=1.2
   - gsw=3.4
   - ipykernel=6.13
