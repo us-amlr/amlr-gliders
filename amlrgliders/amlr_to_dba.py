@@ -111,6 +111,7 @@ def main(processDbds_file, cache_path, binary_path, ascii_path):
     # logging.info('Running command: {:}'.format(sys_command))
 
     # os.system(sys_command)
+    ipdb.set_trace()
     run_out = subprocess.run([processDbds_file, "-c", cache_path, binary_path, ascii_path], capture_output=True)    
     if run_out.returncode != 0:
         logging.error('Error running `{:}`'.format(processDbds_file))
