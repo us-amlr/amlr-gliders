@@ -55,10 +55,12 @@ def main(args):
 
     deployment = args.deployment
     bucket_path = args.bucket_path
+
     sfmc_path = args.sfmc_path
-    # cache_path = args.cache_path
-    # processDbds_file = args.processDbds_file
-    # cac2lower_file = args.cac2lower_file
+    sfmc_pwd_file = args.sfmc_pwd_file
+    project_id = args.project_id
+    secret_id = args.secret_id
+
     logging.info('Pulling files from SFMC for deployment {:}'.format(deployment))
 
 
@@ -91,15 +93,23 @@ def main(args):
         # os.mkdir(os.path.join(sfmc_depl_path, 'stbd'))
         # os.mkdir(os.path.join(sfmc_depl_path, 'ad2'))
 
+    if not os.path.isfile(sfmc_pwd_file):
+        logging.info('Writing SFMC ssh pwd to file')
+        file = open(sfmc_pwd_file, 'w+')
+        file.write(access_secret_version(project_id, secret_id))
+        file.close
+
+
+
     # Todo: create .sfmcpass.txt file, if necessary
 
 
     #--------------------------------------------
     # rsync with SFMC, and send files to their places in the bucket
     # access_secret_version('ggn-nmfs-usamlr-dev-7b99', 'sfmc-swoodman')
-    sfmc_server_path = os.path.join('/var/opt/sfmc-dockserver/stations/noaa/gliders', glider, 'from-glider', "*")
-    sfmc_server = 'swoodman@sfmc.webbresearch.com:' + sfmc_server_path
-    run_out = subprocess.run(['rsync', sfmc_server, sfmc_depl_path])
+    # sfmc_server_path = os.path.join('/var/opt/sfmc-dockserver/stations/noaa/gliders', glider, 'from-glider', "*")
+    # sfmc_server = 'swoodman@sfmc.webbresearch.com:' + sfmc_server_path
+    # run_out = subprocess.run(['rsync', sfmc_server, sfmc_depl_path])
 
     # todo:
     # sshpass -p $(cat ~/.sfmcpass.txt) rsync swoodman@sfmc.webbresearch.com:/var/opt/sfmc-dockserver/stations/noaa/gliders/amlr03/from-glider/* tmp-sfmc
@@ -137,11 +147,26 @@ if __name__ == '__main__':
     arg_parser.add_argument('--sfmcpath', 
         type=str,
         dest='sfmc_path', 
-        help='Path to the glider data bucket', 
+        help='The SFMC directory on the local machine where the files from the SFMC will be copied', 
         default='/home/sam_woodman_noaa_gov/sfmc')
 
-    # arg_parser.add_argument('ascii_path', type=str,
-    #                         help='Path to write ascii (dba) files. If it does not exist, this path will be created')
+    arg_parser.add_argument('--sfmcpwd', 
+        type=str,
+        dest='sfmc_pwd_file', 
+        help='Path to write ascii (dba) files. If it does not exist, this path will be created', 
+        default='/home/sam_woodman_noaa_gov/sfmc/.sfmcpwd.txt')
+
+    arg_parser.add_argument('--project', 
+        type=str,
+        dest='project_id', 
+        help='GCP project ID', 
+        default='ggn-nmfs-usamlr-dev-7b99')
+
+    arg_parser.add_argument('--secret', 
+        type=str,
+        dest='secret_id', 
+        help='GCP project ID', 
+        default='sfmc-swoodman')
 
     # arg_parser.add_argument('cache_path', type=str,
     #                         help='Location of cache files')
