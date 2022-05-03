@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import stat
 import subprocess
 import sys
 import logging
@@ -100,6 +101,7 @@ def main(args):
         file = open(sfmc_pwd_file, 'w+')
         file.write(access_secret_version(project_id, secret_id))
         file.close
+        os.chmod(sfmc_pwd_file, stat.S_IREAD)
 
 
 
