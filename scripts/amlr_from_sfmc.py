@@ -59,6 +59,7 @@ def main(args):
     # cache_path = args.cache_path
     # processDbds_file = args.processDbds_file
     # cac2lower_file = args.cac2lower_file
+    logging.info('Pulling files from SFMC for deployment {:}'.format(deployment))
 
 
     #--------------------------------------------
@@ -83,7 +84,7 @@ def main(args):
     #--------------------------------------------
     # Create sfmc directory structure, if needed
     sfmc_depl_path = f'sfmc-{deployment}'
-    if not os.path.isdir(os.path.join(sfmc_path, sfmc_depl_path))
+    if not os.path.isdir(os.path.join(sfmc_path, sfmc_depl_path)):
         logging.info('Making sfmc deployment directory at {:}'.format(sfmc_depl_path))
         os.mkdir(sfmc_depl_path)
         # os.mkdir(os.path.join(sfmc_depl_path, 'cache'))
