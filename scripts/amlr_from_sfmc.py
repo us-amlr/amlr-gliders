@@ -112,6 +112,7 @@ def main(args):
     sfmc_server = f'swoodman@sfmc.webbresearch.com:{sfmc_server_path}'
 
     # retcode = subprocess.run(['rsync', sfmc_server, sfmc_local_path])
+    logging.info(f'Starting rsync with SFMC dockerver for {glider}')
     retcode = subprocess.run(['sshpass', '-f', sfmc_pwd_file, 'rsync', sfmc_server, sfmc_local_path], 
         capture_output=True)
     logging.debug(retcode.args)
@@ -127,16 +128,16 @@ def main(args):
 
 
     # Copy files to subfolders to use rsyncing with bucket
-    p1 = Popen(["find", sfmc_local_path, "-iname", ".cac"], stdout=PIPE)
-    p2 = Popen(["cp", os.path.join(sfmc_local_path, sfmc_local_cache)], 
+    p1 = subprocess.Popen(["find", sfmc_local_path, "-iname", ".cac"], stdout=PIPE)
+    p2 = subprocess.Popen(["cp", os.path.join(sfmc_local_path, sfmc_local_cache)], 
         stdin=p1.stdout, stdout=PIPE)
 
-    p1 = Popen(["find", sfmc_local_path, "-iname", ".[st]bd"], stdout=PIPE)
-    p2 = Popen(["cp", os.path.join(sfmc_local_path, sfmc_local_stbd)], 
+    p1 = subprocess.Popen(["find", sfmc_local_path, "-iname", ".[st]bd"], stdout=PIPE)
+    p2 = subprocess.Popen(["cp", os.path.join(sfmc_local_path, sfmc_local_stbd)], 
         stdin=p1.stdout, stdout=PIPE)
 
-    p1 = Popen(["find", sfmc_local_path, "-iname", ".ad2"], stdout=PIPE)
-    p2 = Popen(["cp", os.path.join(sfmc_local_path, "ad2")], 
+    p1 = subprocess.Popen(["find", sfmc_local_path, "-iname", ".ad2"], stdout=PIPE)
+    p2 = subprocess.Popen(["cp", os.path.join(sfmc_local_path, "ad2")], 
         stdin=p1.stdout, stdout=PIPE)
 
     bucket_binary = f'gs://{bucket}/{project}/{year}/{deployment}/glider/data/in/binary'
@@ -224,16 +225,6 @@ if __name__ == '__main__':
         dest='secret_id', 
         help='GCP secret ID that contains the SFMC password for the rsync', 
         default='sfmc-swoodman')
-
-    # arg_parser.add_argument('cache_path', type=str,
-    #                         help='Location of cache files')
-
-    # arg_parser.add_argument('processDbds_file', type=str,
-    #                         help='Path to processDbds shell script')
-
-    # arg_parser.add_argument('--cac2lower_file', type=str,
-    #                         default = '/opt/slocum/bin2ascii/cac2lower.sh', 
-    #                         help='Location of cache files')
 
     arg_parser.add_argument('-l', '--loglevel',
         type=str,
