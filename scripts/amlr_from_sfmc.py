@@ -79,7 +79,7 @@ def main(args):
         year = deployment_split[1][0:4]
 
     if not os.path.isdir(bucket_path):
-        logging.error(f'bucket_path ({bucket_path}) does not exist'.)
+        logging.error(f'bucket_path ({bucket_path}) does not exist')
         return
 
     if not os.path.isdir(sfmc_path):
@@ -118,6 +118,8 @@ def main(args):
     # retcode = subprocess.run(['rsync', sfmc_server, sfmc_local_path])
     retcode = subprocess.run(['sshpass', '-f', sfmc_pwd_file, 'rsync', sfmc_server, sfmc_local_path], 
         capture_output=True)
+    logging.debug(retcode.args)
+
     if retcode.returncode != 0:
         logging.error('Error rsyncing with SFMC dockserver')
         logging.error(f'Args: {retcode.args}')
@@ -127,27 +129,32 @@ def main(args):
         logging.info(f'Successfully completed rsync with SFMC dockerver for {glider}')
 
 
+
     # Copy files to subfolders to use rsyncing with bucket
     p1 = Popen(["find", sfmc_local_path, "-iname", ".cac"], stdout=PIPE)
-    p2 = Popen(["cp", os.path.join(sfmc_local_path, sfmc_local_cache)], stdin=p1.stdout, stdout=PIPE)
+    p2 = Popen(["cp", os.path.join(sfmc_local_path, sfmc_local_cache)], 
+        stdin=p1.stdout, stdout=PIPE)
 
     p1 = Popen(["find", sfmc_local_path, "-iname", ".[st]bd"], stdout=PIPE)
-    p2 = Popen(["cp", os.path.join(sfmc_local_path, sfmc_local_stbd)], stdin=p1.stdout, stdout=PIPE)
+    p2 = Popen(["cp", os.path.join(sfmc_local_path, sfmc_local_stbd)], 
+        stdin=p1.stdout, stdout=PIPE)
 
     p1 = Popen(["find", sfmc_local_path, "-iname", ".ad2"], stdout=PIPE)
-    p2 = Popen(["cp", os.path.join(sfmc_local_path, "ad2")], stdin=p1.stdout, stdout=PIPE)
+    p2 = Popen(["cp", os.path.join(sfmc_local_path, "ad2")], 
+        stdin=p1.stdout, stdout=PIPE)
 
+    bucket_binary = f'gs://{bucket}/{project}/{year}/{deployment}/glider/data/in/binary'
+    logging.debug(f"GCP bucket: {bucket_binary}")
 
     retcode_cache = subprocess.run('gsutil', '-m', 'rsync', 
         os.path.join(sfmc_local_path, sfmc_local_cache), 
         f'gs://{bucket}/{sfmc_local_cache}')
     retcode_stbd = subprocess.run('gsutil', '-m', 'rsync', 
         os.path.join(sfmc_local_path, sfmc_local_stbd), 
-        f'gs://{bucket}/{project}/{year}/{deployment}/glider/data/in/binary/{sfmc_local_stbd}')
+        f'bucket_binary/{sfmc_local_stbd}')
     retcode_ad2 = subprocess.run('gsutil', '-m', 'rsync', 
         os.path.join(sfmc_local_path, sfmc_local_ad2), 
-        f'gs://{bucket}/{project}/{year}/{deployment}/glider/data/in/binary/{sfmc_local_ad2}')
-
+        f'bucket_binary/{sfmc_local_ad2}')
 
     if retcode_cache.returncode != 0:
         logging.error('Error rsyncing with SFMC dockserver')
