@@ -7,7 +7,7 @@ import logging
 import argparse
 
 
-def access_secret_version(project_id, secret_id, version_id):
+def access_secret_version(project_id, secret_id, version_id = 'latest'):
     """
     Access the payload for the given secret version if one exists. The version
     can be a version number as a string (e.g. "5") or an alias (e.g. "latest").
@@ -37,7 +37,7 @@ def access_secret_version(project_id, secret_id, version_id):
     # WARNING: Do not print the secret in a production environment - this
     # snippet is showing how to access the secret material.
     payload = response.payload.data.decode("UTF-8")
-    print("Plaintext: {}".format(payload))
+    # print("Plaintext: {}".format(payload))
 
 
 
@@ -90,12 +90,31 @@ def main(args):
         # os.mkdir(os.path.join(sfmc_depl_path, 'stbd'))
         # os.mkdir(os.path.join(sfmc_depl_path, 'ad2'))
 
+    # Todo: create .sfmcpass.txt file, if necessary
+
 
     #--------------------------------------------
-    # Run rsync
+    # rsync with SFMC, and send files to their places in the bucket
+    # access_secret_version('ggn-nmfs-usamlr-dev-7b99', 'sfmc-swoodman')
     sfmc_server_path = os.path.join('/var/opt/sfmc-dockserver/stations/noaa/gliders', glider, 'from-glider')
     sfmc_server = 'swoodman@sfmc.webbresearch.com:' + sfmc_server_path
     run_out = subprocess.run(['rsync', sfmc_server, sfmc_depl_path])
+
+    # todo:
+    # sshpass -p $(cat ~/.sfmcpass.txt) rsync swoodman@sfmc.webbresearch.com:/var/opt/sfmc-dockserver/stations/noaa/gliders/amlr03/from-glider/* tmp-sfmc
+
+    # find sfmc_depl_path -iname *.cac | mv sfmc_depl_path/cache
+    # find sfmc_depl_path -iname *.[st]bd | mv sfmc_depl_path/stbd
+    # find sfmc_depl_path -iname *.ad2 | mv sfmc_depl_path/ad2
+
+    # run_out_cache = subprocess.run('gsutil', '-m', 'rsync', os.path.join(sfmc_depl_path, '*.[Cc][Aa][Cc]'), todo)
+    # run_out_stbd = subprocess.run('gsutil', '-m', 'rsync', os.path.join(sfmc_depl_path, '*.[st]bd'), todo)
+
+
+    #--------------------------------------------
+    # S
+
+
 
 
     return 0

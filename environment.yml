@@ -6,8 +6,8 @@ dependencies:
   - python=3.10
   - arrow=1.2
   - gsw=3.4
-  - google-crc32c
-  - google-cloud-secret-manager
+  - google-crc32c>1.1.2
+  - google-cloud-secret-manager>2.10
   - ipykernel=6.13
   - ipython=7.31
   - jupyterlab
