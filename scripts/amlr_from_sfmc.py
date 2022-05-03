@@ -128,17 +128,20 @@ def main(args):
 
 
     # Copy files to subfolders to use rsyncing with bucket
-    p1 = subprocess.Popen(["find", sfmc_local_path, "-iname", ".cac"], stdout=PIPE)
+    p1 = subprocess.Popen(["find", sfmc_local_path, "-iname", ".cac"], 
+        stdout=subprocess.PIPE)
     p2 = subprocess.Popen(["cp", os.path.join(sfmc_local_path, sfmc_local_cache)], 
-        stdin=p1.stdout, stdout=PIPE)
+        stdin=p1.stdout, stdout=subprocess.PIPE)
 
-    p1 = subprocess.Popen(["find", sfmc_local_path, "-iname", ".[st]bd"], stdout=PIPE)
+    p1 = subprocess.Popen(["find", sfmc_local_path, "-iname", ".[st]bd"], 
+        stdout=subprocess.PIPE)
     p2 = subprocess.Popen(["cp", os.path.join(sfmc_local_path, sfmc_local_stbd)], 
-        stdin=p1.stdout, stdout=PIPE)
+        stdin=p1.stdout, stdout=subprocess.PIPE)
 
-    p1 = subprocess.Popen(["find", sfmc_local_path, "-iname", ".ad2"], stdout=PIPE)
+    p1 = subprocess.Popen(["find", sfmc_local_path, "-iname", ".ad2"], 
+        stdout=subprocess.PIPE)
     p2 = subprocess.Popen(["cp", os.path.join(sfmc_local_path, "ad2")], 
-        stdin=p1.stdout, stdout=PIPE)
+        stdin=p1.stdout, stdout=subprocess.PIPE)
 
     bucket_binary = f'gs://{bucket}/{project}/{year}/{deployment}/glider/data/in/binary'
     logging.debug(f"GCP bucket: {bucket_binary}")
