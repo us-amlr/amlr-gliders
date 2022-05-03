@@ -104,30 +104,35 @@ def main(args):
 
 
 if __name__ == '__main__':
-    arg_parser = argparse.ArgumentParser(description=main.__doc__,
-                                         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    arg_parser = argparse.ArgumentParser(description=main.__doc__, 
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    arg_parser.add_argument('binary_path', type=str,
-                            help='Location of binary ([dest]bd) files')
+    arg_parser.add_argument('binary_path', 
+        type=str,
+        help='Location of binary ([dest]bd) files')
 
-    arg_parser.add_argument('ascii_path', type=str,
-                            help='Path to write ascii (dba) files. If it does not exist, this path will be created')
+    arg_parser.add_argument('ascii_path', 
+        type=str,
+        help='Path to write ascii (dba) files. If it does not exist, this path will be created')
 
-    arg_parser.add_argument('cache_path', type=str,
-                            help='Location of cache files')
+    arg_parser.add_argument('cache_path', 
+        type=str,
+        help='Location of cache files')
 
-    arg_parser.add_argument('processDbds_file', type=str,
-                            help='Path to processDbds shell script')
+    arg_parser.add_argument('processDbds_file', 
+        type=str,
+        help='Path to processDbds shell script')
 
-    arg_parser.add_argument('--cac2lower_file', type=str,
-                            default = '/opt/slocum/bin2ascii/cac2lower.sh', 
-                            help='Location of cache files')
+    arg_parser.add_argument('--cac2lower_file', 
+        type=str, 
+        help='Location of cache files',
+        default = '/opt/slocum/bin2ascii/cac2lower.sh')
 
     arg_parser.add_argument('-l', '--loglevel',
-                            help='Verbosity level',
-                            type=str,
-                            choices=['debug', 'info', 'warning', 'error', 'critical'],
-                            default='info')
+        type=str,
+        help='Verbosity level',
+        choices=['debug', 'info', 'warning', 'error', 'critical'],
+        default='info')
 
     parsed_args = arg_parser.parse_args()
 
