@@ -6,6 +6,7 @@ import sys
 import logging
 import argparse
 
+
 def access_secret_version(project_id, secret_id, version_id):
     """
     Access the payload for the given secret version if one exists. The version
@@ -39,6 +40,7 @@ def access_secret_version(project_id, secret_id, version_id):
     print("Plaintext: {}".format(payload))
 
 
+
 def main(args):
     """
     rsync files from sfmc, and send them to correct bucket directories;
@@ -51,8 +53,9 @@ def main(args):
     log_format = '%(module)s:%(levelname)s:%(message)s [line %(lineno)d]'
     logging.basicConfig(format=log_format, level=log_level)
 
-    # binary_path = args.binary_path
-    # ascii_path = args.ascii_path
+    deployment = args.deployment
+    bucket_path = args.bucket_path
+    sfmc_path = args.sfmc_path
     # cache_path = args.cache_path
     # processDbds_file = args.processDbds_file
     # cac2lower_file = args.cac2lower_file
@@ -60,6 +63,42 @@ def main(args):
 
     #--------------------------------------------
     # Checks
+    deployment_split = deployment.split('-')
+    if len(deployment_split[1]) != 8:
+        logging.error('The deployment must be the glider name followed by the deployment date')
+        return
+    else:
+        glider = deployment_split[0]
+        year = deployment_split[1][0:4]
+
+    if not os.path.isdir(bucket_path):
+        logging.error('bucket_path ({:}) does not exist'.format(bucket_path))
+        return
+
+    if not os.path.isdir(sfmc_path):
+        logging.error('sfmc_path ({:}) does not exist'.format(sfmc_path))
+        return
+
+
+    #--------------------------------------------
+    # Create sfmc directory structure, if needed
+    sfmc_depl_path = f'sfmc-{deployment}'
+    if not os.path.isdir(os.path.join(sfmc_path, sfmc_depl_path))
+        logging.info('Making sfmc deployment directory at {:}'.format(sfmc_depl_path))
+        os.mkdir(sfmc_depl_path)
+        # os.mkdir(os.path.join(sfmc_depl_path, 'cache'))
+        # os.mkdir(os.path.join(sfmc_depl_path, 'stbd'))
+        # os.mkdir(os.path.join(sfmc_depl_path, 'ad2'))
+
+
+    #--------------------------------------------
+    # Run rsync
+    sfmc_server_path = os.path.join('/var/opt/sfmc-dockserver/stations/noaa/gliders', glider, 'from-glider')
+    sfmc_server = 'swoodman@sfmc.webbresearch.com:' + sfmc_server_path
+    run_out = subprocess.run(['rsync', sfmc_server, sfmc_depl_path])
+
+
+    return 0
 
 
 
@@ -67,8 +106,19 @@ if __name__ == '__main__':
     arg_parser = argparse.ArgumentParser(description=main.__doc__,
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    # arg_parser.add_argument('binary_path', type=str,
-    #                         help='Location of binary ([dest]bd) files')
+    arg_parser.add_argument('deployment', 
+        type=str,
+        help='Deployment name, eg amlr03-20220425')
+
+    arg_parser.add_argument('bucket_path', 
+        type=str,
+        help='Path to the glider data bucket')
+
+    arg_parser.add_argument('--sfmcpath', 
+        type=str,
+        dest='sfmc_path', 
+        help='Path to the glider data bucket', 
+        default='/home/sam_woodman_noaa_gov/sfmc')
 
     # arg_parser.add_argument('ascii_path', type=str,
     #                         help='Path to write ascii (dba) files. If it does not exist, this path will be created')
