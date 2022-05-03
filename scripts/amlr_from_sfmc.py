@@ -57,14 +57,15 @@ def main(args):
     logging.basicConfig(format=log_format, level=log_level)
 
     deployment = args.deployment
-    bucket_path = args.bucket_path
+    project = args.project
 
     sfmc_path = args.sfmc_path
     sfmc_pwd_file = args.sfmc_pwd_file
-    project_id = args.project_id
+    gcpproject_id = args.gcpproject_id
+    bucket = args.bucket
     secret_id = args.secret_id
 
-    logging.info('Pulling files from SFMC for deployment {:}'.format(deployment))
+    logging.info(f'Pulling files from SFMC for deployment {deployment}')
 
 
     #--------------------------------------------
@@ -78,60 +79,102 @@ def main(args):
         year = deployment_split[1][0:4]
 
     if not os.path.isdir(bucket_path):
-        logging.error('bucket_path ({:}) does not exist'.format(bucket_path))
+        logging.error(f'bucket_path ({bucket_path}) does not exist'.)
         return
 
     if not os.path.isdir(sfmc_path):
-        logging.error('sfmc_path ({:}) does not exist'.format(sfmc_path))
+        logging.error(f'sfmc_path ({sfmc_path}) does not exist')
         return
 
 
     #--------------------------------------------
     # Create sfmc directory structure, if needed
-    sfmc_depl_path = os.path.join(sfmc_path, f'sfmc-{deployment}')
-    if not os.path.isdir(sfmc_depl_path):
-        logging.info('Making sfmc deployment directory at {:}'.format(sfmc_depl_path))
-        os.mkdir(sfmc_depl_path)
-        # os.mkdir(os.path.join(sfmc_depl_path, 'cache'))
-        # os.mkdir(os.path.join(sfmc_depl_path, 'stbd'))
-        # os.mkdir(os.path.join(sfmc_depl_path, 'ad2'))
+    sfmc_local_path = os.path.join(sfmc_path, f'sfmc-{deployment}')
+    sfmc_local_cache = 'cache'
+    sfmc_local_stbd = 'stbd'
+    sfmc_local_ad2 = 'ad2'
+
+    if not os.path.isdir(sfmc_local_path):
+        logging.info(f'Making sfmc deployment directory at {sfmc_local_path}')
+        os.mkdir(sfmc_local_path)
+        os.mkdir(os.path.join(sfmc_local_path, sfmc_local_cache))
+        os.mkdir(os.path.join(sfmc_local_path, sfmc_local_stbd))
+        os.mkdir(os.path.join(sfmc_local_path, sfmc_local_ad2))
 
     if not os.path.isfile(sfmc_pwd_file):
         logging.info('Writing SFMC ssh pwd to file')
         file = open(sfmc_pwd_file, 'w+')
-        file.write(access_secret_version(project_id, secret_id))
+        file.write(access_secret_version(gcpproject_id, secret_id))
         file.close
         os.chmod(sfmc_pwd_file, stat.S_IREAD)
 
 
-
-    # Todo: create .sfmcpass.txt file, if necessary
-
-
     #--------------------------------------------
     # rsync with SFMC, and send files to their places in the bucket
-    # access_secret_version('ggn-nmfs-usamlr-dev-7b99', 'sfmc-swoodman')
-    # sfmc_server_path = os.path.join('/var/opt/sfmc-dockserver/stations/noaa/gliders', glider, 'from-glider', "*")
-    # sfmc_server = 'swoodman@sfmc.webbresearch.com:' + sfmc_server_path
-    # run_out = subprocess.run(['rsync', sfmc_server, sfmc_depl_path])
+    sfmc_server_path = os.path.join('/var/opt/sfmc-dockserver/stations/noaa/gliders', 
+        glider, 'from-glider', "*")
+    sfmc_server = f'swoodman@sfmc.webbresearch.com:{sfmc_server_path}'
 
-    # todo:
-    # sshpass -p $(cat ~/.sfmcpass.txt) rsync swoodman@sfmc.webbresearch.com:/var/opt/sfmc-dockserver/stations/noaa/gliders/amlr03/from-glider/* tmp-sfmc
+    # retcode = subprocess.run(['rsync', sfmc_server, sfmc_local_path])
+    retcode = subprocess.run(['sshpass', '-f', sfmc_pwd_file, 'rsync', sfmc_server, sfmc_local_path], 
+        capture_output=True)
+    if retcode.returncode != 0:
+        logging.error('Error rsyncing with SFMC dockserver')
+        logging.error(f'Args: {retcode.args}')
+        logging.error(f'stderr: {retcode.stderr}')
+        return
+    else:
+        logging.info(f'Successfully completed rsync with SFMC dockerver for {glider}')
 
-    # find sfmc_depl_path -iname *.cac | mv sfmc_depl_path/cache
-    # find sfmc_depl_path -iname *.[st]bd | mv sfmc_depl_path/stbd
-    # find sfmc_depl_path -iname *.ad2 | mv sfmc_depl_path/ad2
 
-    # run_out_cache = subprocess.run('gsutil', '-m', 'rsync', os.path.join(sfmc_depl_path, '*.[Cc][Aa][Cc]'), todo)
-    # run_out_stbd = subprocess.run('gsutil', '-m', 'rsync', os.path.join(sfmc_depl_path, '*.[st]bd'), todo)
+    # Copy files to subfolders to use rsyncing with bucket
+    p1 = Popen(["find", sfmc_local_path, "-iname", ".cac"], stdout=PIPE)
+    p2 = Popen(["cp", os.path.join(sfmc_local_path, sfmc_local_cache)], stdin=p1.stdout, stdout=PIPE)
+
+    p1 = Popen(["find", sfmc_local_path, "-iname", ".[st]bd"], stdout=PIPE)
+    p2 = Popen(["cp", os.path.join(sfmc_local_path, sfmc_local_stbd)], stdin=p1.stdout, stdout=PIPE)
+
+    p1 = Popen(["find", sfmc_local_path, "-iname", ".ad2"], stdout=PIPE)
+    p2 = Popen(["cp", os.path.join(sfmc_local_path, "ad2")], stdin=p1.stdout, stdout=PIPE)
+
+
+    retcode_cache = subprocess.run('gsutil', '-m', 'rsync', 
+        os.path.join(sfmc_local_path, sfmc_local_cache), 
+        f'gs://{bucket}/{sfmc_local_cache}')
+    retcode_stbd = subprocess.run('gsutil', '-m', 'rsync', 
+        os.path.join(sfmc_local_path, sfmc_local_stbd), 
+        f'gs://{bucket}/{project}/{year}/{deployment}/glider/data/in/binary/{sfmc_local_stbd}')
+    retcode_ad2 = subprocess.run('gsutil', '-m', 'rsync', 
+        os.path.join(sfmc_local_path, sfmc_local_ad2), 
+        f'gs://{bucket}/{project}/{year}/{deployment}/glider/data/in/binary/{sfmc_local_ad2}')
+
+
+    if retcode_cache.returncode != 0:
+        logging.error('Error rsyncing with SFMC dockserver')
+        logging.error(f'Args: {retcode_cache.args}')
+        logging.error(f'stderr: {retcode_cache.stderr}')
+        return
+    else:
+        logging.info(f'Successfully rsyncd cache files to bucket')
+
+    if retcode_stbd.returncode != 0:
+        logging.error('Error rsyncing with SFMC dockserver')
+        logging.error(f'Args: {retcode_stbd.args}')
+        logging.error(f'stderr: {retcode_stbd.stderr}')
+        return
+    else:
+        logging.info(f'Successfully rsyncd [st]bd files to bucket')
+
+    if retcode_ad2.returncode != 0:
+        logging.error('Error rsyncing with SFMC dockserver')
+        logging.error(f'Args: {retcode_ad2.args}')
+        logging.error(f'stderr: {retcode_ad2.stderr}')
+        return
+    else:
+        logging.info(f'Successfully rsyncd ad2 files to bucket')
 
 
     #--------------------------------------------
-    # S
-
-
-
-
     return 0
 
 
@@ -144,9 +187,10 @@ if __name__ == '__main__':
         type=str,
         help='Deployment name, eg amlr03-20220425')
 
-    arg_parser.add_argument('bucket_path', 
+    arg_parser.add_argument('project', 
         type=str,
-        help='Path to the glider data bucket')
+        help='Glider project name', 
+        choices=['FREEBYRD', 'REFOCUS', 'SANDIEGO'])
 
     arg_parser.add_argument('--sfmcpath', 
         type=str,
@@ -157,19 +201,25 @@ if __name__ == '__main__':
     arg_parser.add_argument('--sfmcpwd', 
         type=str,
         dest='sfmc_pwd_file', 
-        help='Path to write ascii (dba) files. If it does not exist, this path will be created', 
+        help='The file that contains the SFMC password for the rsync', 
         default='/home/sam_woodman_noaa_gov/sfmc/.sfmcpwd.txt')
 
-    arg_parser.add_argument('--project', 
+    arg_parser.add_argument('--gcpproject', 
         type=str,
-        dest='project_id', 
+        dest='gcpproject_id', 
         help='GCP project ID', 
         default='ggn-nmfs-usamlr-dev-7b99')
 
-    arg_parser.add_argument('--secret', 
+    arg_parser.add_argument('--gcpbucket', 
+        type=str,
+        dest='bucket', 
+        help='GCP glider deployments bucket name', 
+        default='amlr-gliders-deployments-dev')
+
+    arg_parser.add_argument('--gcpsecret', 
         type=str,
         dest='secret_id', 
-        help='GCP project ID', 
+        help='GCP secret ID that contains the SFMC password for the rsync', 
         default='sfmc-swoodman')
 
     # arg_parser.add_argument('cache_path', type=str,
