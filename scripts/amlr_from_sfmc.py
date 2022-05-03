@@ -78,10 +78,6 @@ def main(args):
         glider = deployment_split[0]
         year = deployment_split[1][0:4]
 
-    if not os.path.isdir(bucket_path):
-        logging.error(f'bucket_path ({bucket_path}) does not exist')
-        return
-
     if not os.path.isdir(sfmc_path):
         logging.error(f'sfmc_path ({sfmc_path}) does not exist')
         return
