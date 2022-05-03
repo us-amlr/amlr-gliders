@@ -83,8 +83,8 @@ def main(args):
 
     #--------------------------------------------
     # Create sfmc directory structure, if needed
-    sfmc_depl_path = f'sfmc-{deployment}'
-    if not os.path.isdir(os.path.join(sfmc_path, sfmc_depl_path)):
+    sfmc_depl_path = os.path.join(sfmc_path, f'sfmc-{deployment}')
+    if not os.path.isdir(sfmc_depl_path):
         logging.info('Making sfmc deployment directory at {:}'.format(sfmc_depl_path))
         os.mkdir(sfmc_depl_path)
         # os.mkdir(os.path.join(sfmc_depl_path, 'cache'))
@@ -97,7 +97,7 @@ def main(args):
     #--------------------------------------------
     # rsync with SFMC, and send files to their places in the bucket
     # access_secret_version('ggn-nmfs-usamlr-dev-7b99', 'sfmc-swoodman')
-    sfmc_server_path = os.path.join('/var/opt/sfmc-dockserver/stations/noaa/gliders', glider, 'from-glider')
+    sfmc_server_path = os.path.join('/var/opt/sfmc-dockserver/stations/noaa/gliders', glider, 'from-glider', "*")
     sfmc_server = 'swoodman@sfmc.webbresearch.com:' + sfmc_server_path
     run_out = subprocess.run(['rsync', sfmc_server, sfmc_depl_path])
 
