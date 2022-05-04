@@ -20,15 +20,11 @@ def main(args):
     log_level = getattr(logging, args.loglevel.upper())
     log_format = '%(module)s:%(levelname)s:%(message)s [line %(lineno)d]'
     logging.basicConfig(format=log_format, level=log_level)
-
-    # binary_path = args.binary_path
-    # ascii_path = args.ascii_path
-    # cache_path = args.cache_path
     
     deployment = args.deployment
     project = args.project
     mode = args.mode
-    bucket_path = args.bucket_path
+    deployments_path = args.deployments_path
 
     processDbds_file = args.processDbds_file
     cac2lower_file = args.cac2lower_file    
@@ -48,15 +44,16 @@ def main(args):
     if len(deployment_split[1]) != 8:
         logging.error("The deployment string format must be 'glider-YYYYmmdd', eg amlr03-20220101")
         return
-        
+
     else:
         logging.info(f'Writing dba files for deployment {deployment}, mode {mode}')
+        glider = deployment_split[0]
         year = deployment_split[1][0:4]
-        glider_data_in = os.path.join(bucket_path, project, year, deployment, 
+        glider_data_in = os.path.join(deployments_path, project, year, deployment, 
             'glider', 'data', 'in')
         binary_path = os.path.join(glider_data_in, 'binary', binary_type)
         ascii_path = os.path.join(glider_data_in, 'ascii', binary_type)
-        cache_path = os.path.join(bucket_path, 'cache')
+        cache_path = os.path.join(deployments_path, 'cache')
 
         logging.debug(f'Binary path: {binary_path}')
         logging.debug(f'Ascii path: {ascii_path}')
@@ -67,8 +64,8 @@ def main(args):
 
     #--------------------------------------------
     # Checks, and create files paths
-    if not os.path.isdir(bucket_path):
-        logging.error(f'bucket_path ({bucket_path}) does not exist')
+    if not os.path.isdir(deployments_path):
+        logging.error(f'deployments_path ({deployments_path}) does not exist')
         return
 
     if not os.path.isfile(processDbds_file):
@@ -165,21 +162,9 @@ if __name__ == '__main__':
         help="Specify which binary files will be converted to dbas. 'delayed' means [de]bd files will be converted, and 'rt' means [st]bd files will be converted", 
         choices=['delayed', 'rt'])
 
-    arg_parser.add_argument('bucket_path', 
+    arg_parser.add_argument('deployments_path', 
         type=str,
         help='Path to glider deployments directory. In GCP, this will be the mounted bucket path')
-
-    # arg_parser.add_argument('binary_path', 
-    #     type=str,
-    #     help='Location of binary ([dest]bd) files')
-
-    # arg_parser.add_argument('ascii_path', 
-    #     type=str,
-    #     help='Path to write ascii (dba) files. If it does not exist, this path will be created')
-
-    # arg_parser.add_argument('cache_path', 
-    #     type=str,
-    #     help='Location of cache files')
 
     arg_parser.add_argument('processDbds_file', 
         type=str,
