@@ -6,6 +6,7 @@ import subprocess
 import sys
 import logging
 import argparse
+import pathlib
 
 
 def access_secret_version(project_id, secret_id, version_id = 'latest'):
@@ -42,6 +43,18 @@ def access_secret_version(project_id, secret_id, version_id = 'latest'):
     # print("Plaintext: {}".format(payload))
 
     return response.payload.data.decode("UTF-8")
+
+
+# From https://stackoverflow.com/questions/45256250
+def find_extensions(dir_path): #,  excluded = ['', '.txt', '.lnk']):
+    extensions = set()
+    for _, _, files in os.walk(dir_path):   
+        for f in files:
+            extensions.add(pathlib.Path(f).suffix)
+            # ext = Path(f).suffix.lower()
+            # if not ext in excluded:
+            #     extensions.add(ext)
+    return list(extensions)
 
 
 def main(args):
@@ -86,14 +99,14 @@ def main(args):
     #--------------------------------------------
     # Create sfmc directory structure, if needed
     sfmc_local_path = os.path.join(sfmc_path, f'sfmc-{deployment}')
-    sfmc_local_cache = 'cache'
+    # sfmc_local_cache = 'cache'
     sfmc_local_stbd = 'stbd'
     sfmc_local_ad2 = 'ad2'
 
     if not os.path.isdir(sfmc_local_path):
         logging.info(f'Making sfmc deployment directory at {sfmc_local_path}')
         os.mkdir(sfmc_local_path)
-        os.mkdir(os.path.join(sfmc_local_path, sfmc_local_cache))
+        # os.mkdir(os.path.join(sfmc_local_path, sfmc_local_cache))
         os.mkdir(os.path.join(sfmc_local_path, sfmc_local_stbd))
         os.mkdir(os.path.join(sfmc_local_path, sfmc_local_ad2))
 
@@ -126,46 +139,61 @@ def main(args):
         logging.info(f'Successfully completed rsync with SFMC dockerver for {glider}')
 
 
+    # for root, dirs, files in os.walk(sfmc_local_path):
+    #     for f in files:
+    #         ext = pathlib.Path(f).suffix.lower()
+    #         if ext == '.cac':
+    #             shutil.copy2(os.path.join())
+
 
     # Copy files to subfolders to use rsyncing with bucket
-    p1 = subprocess.Popen(["find", sfmc_local_path, "-iname", ".cac"], 
-        stdout=subprocess.PIPE)
-    p2 = subprocess.Popen(["cp", os.path.join(sfmc_local_path, sfmc_local_cache)], 
-        stdin=p1.stdout, stdout=subprocess.PIPE)
+    # https://docs.python.org/3/library/subprocess.html#replacing-bin-sh-shell-command-substitution
+    # p1 = Popen(['find', sfmc_local_path, '-iname', '*.cac'], stdout=PIPE)
+    # p2 = Popen(["xargs", "cp", "-t", os.path.join(sfmc_local_path, sfmc_local_cache)], 
+    #     stdin=p1.stdout, stdout=PIPE)
+    # p1.stdout.close()
 
-    p1 = subprocess.Popen(["find", sfmc_local_path, "-iname", ".[st]bd"], 
-        stdout=subprocess.PIPE)
-    p2 = subprocess.Popen(["cp", os.path.join(sfmc_local_path, sfmc_local_stbd)], 
-        stdin=p1.stdout, stdout=subprocess.PIPE)
+    p1 = Popen(['find', sfmc_local_path, '-iname', '*.[st]bd'], stdout=PIPE)
+    p2 = Popen(["xargs", "cp", "-t", os.path.join(sfmc_local_path, sfmc_local_stbd)], 
+        stdin=p1.stdout, stdout=PIPE)
+    p1.stdout.close()
 
-    p1 = subprocess.Popen(["find", sfmc_local_path, "-iname", ".ad2"], 
-        stdout=subprocess.PIPE)
-    p2 = subprocess.Popen(["cp", os.path.join(sfmc_local_path, "ad2")], 
-        stdin=p1.stdout, stdout=subprocess.PIPE)
+    p1 = Popen(['find', sfmc_local_path, '-iname', '*.ad2'], stdout=PIPE)
+    p2 = Popen(["xargs", "cp", "-t", os.path.join(sfmc_local_path, sfmc_local_ad2)], 
+        stdin=p1.stdout, stdout=PIPE)
+    p1.stdout.close()
 
-    bucket_binary = f'gs://{bucket}/{project}/{year}/{deployment}/glider/data/in/binary'
-    logging.debug(f"GCP bucket: {bucket_binary}")
 
-    retcode_cache = subprocess.run('gsutil', '-m', 'rsync', 
-        os.path.join(sfmc_local_path, sfmc_local_cache), 
-        f'gs://{bucket}/{sfmc_local_cache}')
-    retcode_stbd = subprocess.run('gsutil', '-m', 'rsync', 
+    file_ext = find_extensions(sfmc_local_path)
+    # TODO: add checks if other file extensions are in here
+
+    # retcode_cp_cache = subprocess.call(f"find {sfmc_local_path} -iname *.cac | xargs cp -t {os.path.join(sfmc_local_path, sfmc_local_cache)}", shell=True)
+    # retcode_cp_stbd  = subprocess.call(f"find {sfmc_local_path} -iname *.[st]bd | xargs cp -t {os.path.join(sfmc_local_path, sfmc_local_stbd)}", shell=True)
+    # retcode_cp_ad2   = subprocess.call(f"find {sfmc_local_path} -iname *.ad2 | xargs cp -t {os.path.join(sfmc_local_path, sfmc_local_ad2)}", shell=True)
+
+    bucket_data_in = f'gs://{bucket}/{project}/{year}/{deployment}/glider/data/in'
+    logging.debug(f"GCP bucket data/in folder: {bucket_data_in}")
+
+    retcode_cache = subprocess.run(['gsutil', '-m', 'cp', 
+        os.path.join(sfmc_local_path, '*.[Cc][Aa][Cc]'), 
+        f'gs://{bucket}/cache'])
+    retcode_stbd = subprocess.run(['gsutil', '-m', 'rsync', 
         os.path.join(sfmc_local_path, sfmc_local_stbd), 
-        f'bucket_binary/{sfmc_local_stbd}')
-    retcode_ad2 = subprocess.run('gsutil', '-m', 'rsync', 
+        f'{bucket_data_in}/binary/{sfmc_local_stbd}'])
+    retcode_ad2 = subprocess.run(['gsutil', '-m', 'rsync', 
         os.path.join(sfmc_local_path, sfmc_local_ad2), 
-        f'bucket_binary/{sfmc_local_ad2}')
+        f'{bucket_data_in}/{sfmc_local_ad2}'])
 
     if retcode_cache.returncode != 0:
-        logging.error('Error rsyncing with SFMC dockserver')
+        logging.error('Error copying cache files to bucket')
         logging.error(f'Args: {retcode_cache.args}')
         logging.error(f'stderr: {retcode_cache.stderr}')
         return
     else:
-        logging.info(f'Successfully rsyncd cache files to bucket')
+        logging.info(f'Successfully copied cache files to bucket')
 
     if retcode_stbd.returncode != 0:
-        logging.error('Error rsyncing with SFMC dockserver')
+        logging.error('Error rsyncing stbd files to bucket')
         logging.error(f'Args: {retcode_stbd.args}')
         logging.error(f'stderr: {retcode_stbd.stderr}')
         return
@@ -173,7 +201,7 @@ def main(args):
         logging.info(f'Successfully rsyncd [st]bd files to bucket')
 
     if retcode_ad2.returncode != 0:
-        logging.error('Error rsyncing with SFMC dockserver')
+        logging.error('Error rsyncing ad2 files to bukcet')
         logging.error(f'Args: {retcode_ad2.args}')
         logging.error(f'stderr: {retcode_ad2.stderr}')
         return
