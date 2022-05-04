@@ -27,10 +27,36 @@ def main(args):
     
     deployment = args.deployment
     project = args.project
+    mode = args.mode
     bucket_path = args.bucket_path
 
     processDbds_file = args.processDbds_file
-    cac2lower_file = args.cac2lower_file
+    cac2lower_file = args.cac2lower_file    
+
+
+    if not (mode in ['delayed', 'rt']):
+        logging.error("mode must be either 'delayed' or 'rt'")
+        return
+    else:
+        if mode == 'delayed':
+            binary_type = 'debd'
+        else: 
+            binary_type = 'stbd'
+
+
+    deployment_split = deployment.split('-')
+    if len(deployment_split[1]) != 8:
+        logging.error("The deployment string format must be 'glider-YYYYmmdd', eg amlr03-20220101")
+        return
+    else:
+        logging.info(f'Writing dba files for deployment {deployment}, mode {mode}')
+        year = deployment_split[1][0:4]
+        glider_data_in = os.path.join(bucket_path, project, year, deployment, 
+            'glider', 'data', 'in')
+        binary_path = os.path.join(glider_data_in, 'binary', binary_type)
+        ascii_path = os.path.join(glider_data_in, 'ascii', binary_type)
+        cache_path = os.path.join(bucket_path, 'cache')
+
 
 
     #--------------------------------------------
@@ -38,20 +64,6 @@ def main(args):
     if not os.path.isdir(bucket_path):
         logging.error(f'bucket_path ({bucket_path}) does not exist')
         return
-
-    deployment_split = deployment.split('-')
-    if len(deployment_split[1]) != 8:
-        logging.error("The deployment string format must be 'glider-YYYYmmdd', eg amlr03-20220101")
-        return
-    else:
-        glider = deployment_split[0]
-        year = deployment_split[1][0:4]
-        glider_data_in = os.path.join(bucket_path, project, year, deployment, 
-            'glider', 'data', 'in')
-        binary_path = os.path.join(glider_data_in, 'binary', 'stbd')
-        ascii_path = os.path.join(glider_data_in, 'ascii', 'stbd')
-        cache_path = os.path.join(bucket_path, 'cache')
-
 
     if not os.path.isfile(processDbds_file):
         logging.error(f'processDbds_file ({processDbds_file}) does not exist')
@@ -72,6 +84,8 @@ def main(args):
     if not os.path.isdir(ascii_path):
         logging.info(f'Making path at: {ascii_path}')
         os.makedirs(ascii_path)
+
+
 
 
     #--------------------------------------------
@@ -139,6 +153,11 @@ if __name__ == '__main__':
         type=str,
         help='Glider project name', 
         choices=['FREEBYRD', 'REFOCUS', 'SANDIEGO'])
+
+    arg_parser.add_argument('mode', 
+        type=str,
+        help="Specify which binary files will be converted to dbas. 'delayed' means [de]bd files will be converted, and 'rt' means [st]bd files will be converted", 
+        choices=['delayed', 'rt'])
 
     arg_parser.add_argument('bucket_path', 
         type=str,
