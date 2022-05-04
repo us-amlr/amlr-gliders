@@ -159,12 +159,15 @@ if __name__ == '__main__':
 
     arg_parser.add_argument('mode', 
         type=str,
-        help="Specify which binary files will be converted to dbas. 'delayed' means [de]bd files will be converted, and 'rt' means [st]bd files will be converted", 
+        help="Specify which binary files will be converted to dbas. " + 
+            "'delayed' means [de]bd files will be converted, " + 
+            "and 'rt' means [st]bd files will be converted", 
         choices=['delayed', 'rt'])
 
     arg_parser.add_argument('deployments_path', 
         type=str,
-        help='Path to glider deployments directory. In GCP, this will be the mounted bucket path')
+        help='Path to glider deployments directory. ' + 
+            'In GCP, this will be the mounted bucket path')
 
     arg_parser.add_argument('processDbds_file', 
         type=str,

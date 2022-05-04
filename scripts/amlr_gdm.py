@@ -99,35 +99,42 @@ if __name__ == '__main__':
 
     arg_parser.add_argument('mode', 
         type=str,
-        help="Specify which binary files will be converted to dbas. 'delayed' means [de]bd files will be converted, and 'rt' means [st]bd files will be converted", 
+        help="Specify which binary files will be converted to dbas. " + 
+            "'delayed' means [de]bd files will be converted, " + 
+            "and 'rt' means [st]bd files will be converted", 
         choices=['delayed', 'rt'])
 
     arg_parser.add_argument('deployments_path', 
         type=str,
-        help='Path to glider deployments directory. In GCP, this will be the mounted bucket path')
+        help='Path to glider deployments directory. ' + 
+            'In GCP, this will be the mounted bucket path')
 
     
     arg_parser.add_argument('--gdm_path', 
         type=str,
-        help='Path to gdm module; this path will be appended to import gdm functions', 
+        help='Path to gdm module', 
         default='/opt/gdm')
 
     arg_parser.add_argument('--numcores',
         type=int,
         help='Number of cores to use when processing. ' + 
-            'If greater than one, parallel processing via mp.Pool.map will be used ' + 
-            'for load_slocum_dbas and (todo) writing individual (profile) nc files. ' +
+            'If greater than 1, parallel processing via mp.Pool.map will ' + 
+            'be used for load_slocum_dbas and ' + 
+            '(todo) writing individual (profile) nc files. ' +
             'This argument must be between 1 and mp.cpu_count()',
         default=1)
 
     arg_parser.add_argument('--load_from_tmp',
-        help='boolean; indicates gdm object should be loaded from parquet files in glider/data/tmp directory',
+        help='boolean; indicates gdm object should be loaded from ' + 
+            'parquet files in glider/data/tmp directory',
         action='store_false')
 
     arg_parser.add_argument('--remove_19700101',
-        help='boolean; indicates if data with the timestamp 1970-01-01 should be removed, ' + 
-            'before writing to pkl file. Will be ignored if load_from_tmp = True. ' + 
-            "For when there is a 'Not enough timestamps for yo interpolation' warning",
+        help='boolean; indicates if data with the timestamp 1970-01-01 '  + 
+            'should be removed (before writing to pkl file). ' + 
+            'Will be ignored if load_from_tmp is True. ' + 
+            "Removing these timestamps is for situations when there is a " + 
+            "'Not enough timestamps for yo interpolation' warning",
         action='store_true')
 
     arg_parser.add_argument('--write_trajectory',
