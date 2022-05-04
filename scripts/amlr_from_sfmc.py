@@ -151,73 +151,89 @@ def main(args):
 
     # Check for unexpected file extensions
     sfmc_file_ext = find_extensions(sfmc_local_path)
-    file_ext_expected = {".cac", ".cac", ".ad2"}
-    file_ext_weird = file_ext_expected.difference(sfmc_file_ext)
+    file_ext_expected = {".cac", ".sbd", ".tbd", ".ad2"}
+    file_ext_weird = sfmc_file_ext.difference(file_ext_expected)
     if len(file_ext_weird) > 0:
         x = os.listdir(sfmc_local_path)
-        logging.warn(f'File with unexpected extensions ({file_ext_weird}) were downloaded from the SFMC')
-        logging.warn(f'File list: TODO')
+        logging.warning(f'File with unexpected extensions ({file_ext_weird}) were downloaded from the SFMC')
+        logging.warning(f'File list: TODO')
     # TODO: Print warning message if there are other file extensions are in here
 
 
-    # Copy files to subfolders to use rsyncing with bucket
+    # Copy files to subfolders, and rsync with bucket
     # https://docs.python.org/3/library/subprocess.html#replacing-bin-sh-shell-command-substitution
-    logging.info('Copying [st]bd and ad2 files from into their subdirectories')
-    p1 = Popen(['find', sfmc_local_path, '-iname', '*.[st]bd'], stdout=PIPE)
-    p2 = Popen(["xargs", "cp", "-t", os.path.join(sfmc_local_path, sfmc_local_stbd)], 
-        stdin=p1.stdout, stdout=PIPE)
-    p1.stdout.close()
-
-    p1 = Popen(['find', sfmc_local_path, '-iname', '*.ad2'], stdout=PIPE)
-    p2 = Popen(["xargs", "cp", "-t", os.path.join(sfmc_local_path, sfmc_local_ad2)], 
-        stdin=p1.stdout, stdout=PIPE)
-    p1.stdout.close()
-
-
     # retcode_cp_cache = call(f"find {sfmc_local_path} -iname *.cac | xargs cp -t {os.path.join(sfmc_local_path, sfmc_local_cache)}", shell=True)
     # retcode_cp_stbd  = call(f"find {sfmc_local_path} -iname *.[st]bd | xargs cp -t {os.path.join(sfmc_local_path, sfmc_local_stbd)}", shell=True)
     # retcode_cp_ad2   = call(f"find {sfmc_local_path} -iname *.ad2 | xargs cp -t {os.path.join(sfmc_local_path, sfmc_local_ad2)}", shell=True)
 
-    logging.info('Sending cache, [st]bd, and ad2 files to the bucket')
+    logging.info('Starting file management')
     bucket_data_in = f'gs://{bucket}/{project}/{year}/{deployment}/glider/data/in'
     logging.debug(f"GCP bucket data/in folder: {bucket_data_in}")
 
-    retcode_cache = run(['gsutil', '-m', 'cp', 
+    if ('.cac' in sfmc_file_ext):
+        retcode_cache = run(['gsutil', '-m', 'cp', 
             os.path.join(sfmc_local_path, '*.[Cc][Aa][Cc]'), 
             f'gs://{bucket}/cache'], 
         capture_output = True)
-    retcode_stbd = run(['gsutil', '-m', 'rsync', 
+
+        if retcode_cache.returncode != 0:
+            logging.error('Error copying cache files to bucket')
+            logging.error(f'Args: {retcode_cache.args}')
+            logging.error(f'stderr: {retcode_cache.stderr}')
+            return
+        else:
+            logging.info(f'Successfully copied cache files to bucket')
+
+    else: 
+        logging.info('No cache files to copy')
+
+
+    if ('.sbd' in sfmc_file_ext) or ('.tbd' in sfmc_file_ext):
+        logging.info('Copying [st]bd files into their subdirectory')
+        p1 = Popen(['find', sfmc_local_path, '-iname', '*.[st]bd'], stdout=PIPE)
+        p2 = Popen(["xargs", "cp", "-t", os.path.join(sfmc_local_path, sfmc_local_stbd)], 
+            stdin=p1.stdout, stdout=PIPE)
+        p1.stdout.close()
+
+        retcode_stbd = run(['gsutil', '-m', 'rsync', 
             os.path.join(sfmc_local_path, sfmc_local_stbd), 
             f'{bucket_data_in}/binary/{sfmc_local_stbd}'], 
         capture_output = True)
-    retcode_ad2 = run(['gsutil', '-m', 'rsync', 
+
+        if retcode_stbd.returncode != 0:
+            logging.error('Error rsyncing stbd files to bucket')
+            logging.error(f'Args: {retcode_stbd.args}')
+            logging.error(f'stderr: {retcode_stbd.stderr}')
+            return
+        else:
+            logging.info(f'Successfully rsyncd [st]bd files to bucket')
+
+    else:
+        logging.info('No [st]bd files to copy')
+
+
+    if ('.ad2' in sfmc_file_ext):
+        logging.info('Copying ad2 files into their subdirectory')
+        p1 = Popen(['find', sfmc_local_path, '-iname', '*.ad2'], stdout=PIPE)
+        p2 = Popen(["xargs", "cp", "-t", os.path.join(sfmc_local_path, sfmc_local_ad2)], 
+            stdin=p1.stdout, stdout=PIPE)
+        p1.stdout.close()
+
+        retcode_ad2 = run(['gsutil', '-m', 'rsync', 
             os.path.join(sfmc_local_path, sfmc_local_ad2), 
             f'{bucket_data_in}/{sfmc_local_ad2}'], 
         capture_output = True)
 
-    if retcode_cache.returncode != 0:
-        logging.error('Error copying cache files to bucket')
-        logging.error(f'Args: {retcode_cache.args}')
-        logging.error(f'stderr: {retcode_cache.stderr}')
-        return
-    else:
-        logging.info(f'Successfully copied cache files to bucket')
+        if retcode_ad2.returncode != 0:
+            logging.error('Error rsyncing ad2 files to bukcet')
+            logging.error(f'Args: {retcode_ad2.args}')
+            logging.error(f'stderr: {retcode_ad2.stderr}')
+            return
+        else:
+            logging.info(f'Successfully rsyncd ad2 files to bucket')
 
-    if retcode_stbd.returncode != 0:
-        logging.error('Error rsyncing stbd files to bucket')
-        logging.error(f'Args: {retcode_stbd.args}')
-        logging.error(f'stderr: {retcode_stbd.stderr}')
-        return
     else:
-        logging.info(f'Successfully rsyncd [st]bd files to bucket')
-
-    if retcode_ad2.returncode != 0:
-        logging.error('Error rsyncing ad2 files to bukcet')
-        logging.error(f'Args: {retcode_ad2.args}')
-        logging.error(f'stderr: {retcode_ad2.stderr}')
-        return
-    else:
-        logging.info(f'Successfully rsyncd ad2 files to bucket')
+        logging.info('No ad2 files to copy')
 
 
     #--------------------------------------------
