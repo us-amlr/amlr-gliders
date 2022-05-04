@@ -100,7 +100,7 @@ def main(args):
     else:
         dir_expected = prj_list + ['cache']
         if not all(x in os.listdir(deployments_path) for x in dir_expected):
-            logging.error(f'The expected folders ({', '.join(dir_expected)}) ' + 
+            logging.error(f"The expected folders ({', '.join(dir_expected)}) " + 
                 f'were not found in the provided directory ({deployments_path}). ' + 
                 'Did you provide the right path via deployments_path?')
             return 
