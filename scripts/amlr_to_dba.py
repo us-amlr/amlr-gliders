@@ -48,6 +48,7 @@ def main(args):
     if len(deployment_split[1]) != 8:
         logging.error("The deployment string format must be 'glider-YYYYmmdd', eg amlr03-20220101")
         return
+        
     else:
         logging.info(f'Writing dba files for deployment {deployment}, mode {mode}')
         year = deployment_split[1][0:4]
@@ -56,6 +57,11 @@ def main(args):
         binary_path = os.path.join(glider_data_in, 'binary', binary_type)
         ascii_path = os.path.join(glider_data_in, 'ascii', binary_type)
         cache_path = os.path.join(bucket_path, 'cache')
+
+        logging.debug(f'Binary path: {binary_path}')
+        logging.debug(f'Ascii path: {ascii_path}')
+        logging.debug(f'Cache path: {cache_path}')
+
 
 
 
