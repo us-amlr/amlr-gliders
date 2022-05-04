@@ -57,7 +57,7 @@ def main(args):
     files_list_CAC = list(filter(lambda i: i.endswith(".CAC"), files_list))
 
     if len(files_list_CAC) > 0:
-        logging.info(f'{len(files_list_CAC)} .CAC files will be renamed'.)
+        logging.info(f'{len(files_list_CAC)} .CAC files will be renamed')
         run_out = run([cac2lower_file, os.path.join(cache_path, "*")])
 
         if run_out.returncode != 0:
