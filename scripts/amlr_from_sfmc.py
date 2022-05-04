@@ -45,16 +45,26 @@ def access_secret_version(project_id, secret_id, version_id = 'latest'):
     return response.payload.data.decode("UTF-8")
 
 
+
 # From https://stackoverflow.com/questions/45256250
 def find_extensions(dir_path): #,  excluded = ['', '.txt', '.lnk']):
     extensions = set()
     for _, _, files in os.walk(dir_path):   
         for f in files:
-            extensions.add(pathlib.Path(f).suffix)
+            extensions.add(pathlib.Path(f).suffix.lower())
             # ext = Path(f).suffix.lower()
             # if not ext in excluded:
             #     extensions.add(ext)
-    return list(extensions)
+    return extensions
+
+
+  
+# https://www.geeksforgeeks.org/python-filter-list-of-strings-based-on-the-substring-list/
+def Filter(string, substr):
+    import re
+    return [str for str in string 
+    if re.match(r'[^\d]+|^', str).group(0) in substr]
+
 
 
 def main(args):
@@ -139,20 +149,20 @@ def main(args):
         logging.info(f'Successfully completed rsync with SFMC dockerver for {glider}')
 
 
-    # for root, dirs, files in os.walk(sfmc_local_path):
-    #     for f in files:
-    #         ext = pathlib.Path(f).suffix.lower()
-    #         if ext == '.cac':
-    #             shutil.copy2(os.path.join())
+    # Check for unexpected file extensions
+    sfmc_file_ext = find_extensions(sfmc_local_path)
+    file_ext_expected = {".cac", ".cac", ".ad2"}
+    file_ext_weird = file_ext_expected.difference(sfmc_file_ext)
+    if len(file_ext_weird) > 0:
+        x = os.listdir(sfmc_local_path)
+        logging.warn(f'File with unexpected extensions ({file_ext_weird}) were downloaded from the SFMC')
+        logging.warn(f'File list: TODO')
+    # TODO: Print warning message if there are other file extensions are in here
 
 
     # Copy files to subfolders to use rsyncing with bucket
     # https://docs.python.org/3/library/subprocess.html#replacing-bin-sh-shell-command-substitution
-    # p1 = Popen(['find', sfmc_local_path, '-iname', '*.cac'], stdout=PIPE)
-    # p2 = Popen(["xargs", "cp", "-t", os.path.join(sfmc_local_path, sfmc_local_cache)], 
-    #     stdin=p1.stdout, stdout=PIPE)
-    # p1.stdout.close()
-
+    logging.info('Copying [st]bd and ad2 files from into their subdirectories')
     p1 = Popen(['find', sfmc_local_path, '-iname', '*.[st]bd'], stdout=PIPE)
     p2 = Popen(["xargs", "cp", "-t", os.path.join(sfmc_local_path, sfmc_local_stbd)], 
         stdin=p1.stdout, stdout=PIPE)
@@ -164,25 +174,26 @@ def main(args):
     p1.stdout.close()
 
 
-    file_ext = find_extensions(sfmc_local_path)
-    # TODO: add checks if other file extensions are in here
-
     # retcode_cp_cache = call(f"find {sfmc_local_path} -iname *.cac | xargs cp -t {os.path.join(sfmc_local_path, sfmc_local_cache)}", shell=True)
     # retcode_cp_stbd  = call(f"find {sfmc_local_path} -iname *.[st]bd | xargs cp -t {os.path.join(sfmc_local_path, sfmc_local_stbd)}", shell=True)
     # retcode_cp_ad2   = call(f"find {sfmc_local_path} -iname *.ad2 | xargs cp -t {os.path.join(sfmc_local_path, sfmc_local_ad2)}", shell=True)
 
+    logging.info('Sending cache, [st]bd, and ad2 files to the bucket')
     bucket_data_in = f'gs://{bucket}/{project}/{year}/{deployment}/glider/data/in'
     logging.debug(f"GCP bucket data/in folder: {bucket_data_in}")
 
     retcode_cache = run(['gsutil', '-m', 'cp', 
-        os.path.join(sfmc_local_path, '*.[Cc][Aa][Cc]'), 
-        f'gs://{bucket}/cache'])
+            os.path.join(sfmc_local_path, '*.[Cc][Aa][Cc]'), 
+            f'gs://{bucket}/cache'], 
+        capture_output = True)
     retcode_stbd = run(['gsutil', '-m', 'rsync', 
-        os.path.join(sfmc_local_path, sfmc_local_stbd), 
-        f'{bucket_data_in}/binary/{sfmc_local_stbd}'])
+            os.path.join(sfmc_local_path, sfmc_local_stbd), 
+            f'{bucket_data_in}/binary/{sfmc_local_stbd}'], 
+        capture_output = True)
     retcode_ad2 = run(['gsutil', '-m', 'rsync', 
-        os.path.join(sfmc_local_path, sfmc_local_ad2), 
-        f'{bucket_data_in}/{sfmc_local_ad2}'])
+            os.path.join(sfmc_local_path, sfmc_local_ad2), 
+            f'{bucket_data_in}/{sfmc_local_ad2}'], 
+        capture_output = True)
 
     if retcode_cache.returncode != 0:
         logging.error('Error copying cache files to bucket')
