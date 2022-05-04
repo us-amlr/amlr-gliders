@@ -60,17 +60,6 @@ def main(args):
 
     else:
         logging.info(f'Processing glider data for deployment {deployment}, mode {mode}')
-        glider = deployment_split[0]
-        year = deployment_split[1][0:4]
-        # glider_data_in = os.path.join(deployments_path, project, year, deployment, 
-        #     'glider', 'data', 'in')
-        # binary_path = os.path.join(glider_data_in, 'binary', binary_type)
-        # ascii_path = os.path.join(glider_data_in, 'ascii', binary_type)
-        # cache_path = os.path.join(deployments_path, 'cache')
-
-        # logging.debug(f'Binary path: {binary_path}')
-        # logging.debug(f'Ascii path: {ascii_path}')
-        # logging.debug(f'Cache path: {cache_path}')
 
 
     # Append gdm path, and import functions
@@ -107,15 +96,18 @@ def main(args):
 
 
     #--------------------------------------------
-    ### Set path/file variables, and create file paths if necessary
+    # Set path/file variables, and create file paths if necessary
     deployment_mode = deployment + '-' + mode
+    glider = deployment_split[0]
+    year = deployment_split[1][0:4]
+
     glider_path = os.path.join(deployments_path, project, year, deployment, 'glider')
     logging.info(f'Gldier path: {glider_path}')
 
     ascii_path  = os.path.join(glider_path, 'data', 'in', 'ascii', binary_type)
     config_path = os.path.join(glider_path, 'config', 'gdm')
     nc_ngdac_path = os.path.join(glider_path, 'data', 'out', 'nc', 'ngdac', mode)
-    nc_trajectory_path = os.path.join(glider_path, 'data', 'out', 'nc', 'trajectory', mode)
+    nc_trajectory_path = os.path.join(glider_path, 'data', 'out', 'nc', 'trajectory')
 
     tmp_path = os.path.join(glider_path, 'data', 'tmp')
     pq_data_file = os.path.join(tmp_path, deployment_mode + '-data.parquet')
