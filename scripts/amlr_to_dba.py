@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import os
-import subprocess
+from subprocess import run
 import sys
 import logging
 import argparse
@@ -31,23 +31,23 @@ def main(args):
     #--------------------------------------------
     # Checks
     if not os.path.isfile(processDbds_file):
-        logging.error('processDbds_file ({:}) does not exist'.format(processDbds_file))
+        logging.error(f'processDbds_file ({processDbds_file}) does not exist')
         return
 
     if not os.path.isfile(cac2lower_file):
-        logging.error('cac2lower_file ({:}) does not exist'.format(cac2lower_file))
+        logging.error(f'cac2lower_file ({cac2lower_file}) does not exist')
         return
 
     if not os.path.isdir(cache_path):
-        logging.error('cache_path ({:}) does not exist'.format(cache_path))
+        logging.error(f'cache_path ({cache_path}) does not exist')
         return
 
     if not os.path.isdir(binary_path):
-        logging.error('binary_path ({:}) does not exist'.format(binary_path))
+        logging.error(f'binary_path ({binary_path}) does not exist')
         return
     
     if not os.path.isdir(ascii_path):
-        logging.info('Making path at: {:}'.format(ascii_path))
+        logging.info(f'Making path at: {ascii_path}')
         os.makedirs(ascii_path)
 
 
@@ -57,11 +57,11 @@ def main(args):
     files_list_CAC = list(filter(lambda i: i.endswith(".CAC"), files_list))
 
     if len(files_list_CAC) > 0:
-        logging.info('{:} .CAC files will be renamed'.format(len(files_list_CAC)))
-        run_out = subprocess.run([cac2lower_file, os.path.join(cache_path, "*")])
+        logging.info(f'{len(files_list_CAC)} .CAC files will be renamed'.)
+        run_out = run([cac2lower_file, os.path.join(cache_path, "*")])
 
         if run_out.returncode != 0:
-            logging.error('Error running `{:} {:}`'.format(cac2lower_file, os.path.join(cache_path, "*")))
+            logging.error(f'Error running `{cac2lower_file} {os.path.join(cache_path, "*")}`')
             return
 
         # Make sure that all .CAC files have corresponding .cac files before deleting
@@ -73,12 +73,12 @@ def main(args):
                 delete_ok = False
 
         if delete_ok: 
-            run_out = subprocess.run(["find", cache_path, '-name', '*.CAC', '-delete'])
+            run_out = run(["find", cache_path, '-name', '*.CAC', '-delete'])
             if run_out.returncode != 0:
-                logging.error('Error running `find {:} -name *.CAC -delete`'.format(cache_path))
+                logging.error(f'Error running `find {cache_path} -name *.CAC -delete`')
                 return
 
-            logging.info("{:} uppercase .CAC files were deleted".format(len(files_list_CAC)))
+            logging.info(f"{len(files_list_CAC)} uppercase .CAC files were deleted")
         else:
             logging.warn("Not all '.CAC' files have a corresponding '.cac' file, and thus the .CAC files were not deleted")
 
@@ -89,14 +89,15 @@ def main(args):
     #--------------------------------------------
     # Make dba files
     logging.info(f'Running processDbds script and writing dba files to {ascii_path}')
-    run_out = subprocess.run([processDbds_file, "-c", cache_path, binary_path, ascii_path], capture_output=True)    
+    run_out = run([processDbds_file, "-c", cache_path, binary_path, ascii_path], 
+        capture_output=True)    
     if run_out.returncode != 0:
-        logging.error('Error running `{:}`'.format(processDbds_file))
-        logging.error('Args: {:}'.format(run_out.args))
-        logging.error('stderr: {:}'.format(run_out.stderr))
+        logging.error(f'Error running `{processDbds_file}`'.)
+        logging.error(f'Args: {run_out.args}'.)
+        logging.error(f'stderr: {run_out.stderr}'.)
         return
     else:
-        logging.info('Successfully completed run of `{:}`'.format(processDbds_file))
+        logging.info(f'Successfully completed run of `{processDbds_file}`')
 
     return 0
 
