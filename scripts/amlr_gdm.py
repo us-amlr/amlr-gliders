@@ -34,7 +34,7 @@ def main(args):
     deployments_path = args.deployments_path
 
     gdm_path = args.gdm_path
-    num_cores = args.num_cores
+    numcores = args.numcores
 
     load_from_tmp = args.load_from_tmp
     remove_19700101 = args.remove_19700101
@@ -90,8 +90,8 @@ def main(args):
         logging.error(f"project must be one of {', '.join(prj_list)}")
         return 
     
-    if not (1 <= num_cores and num_cores <= mp.cpu_count()):
-        logging.error(f'num_cores must be between 1 and {mp.cpu_count()}')
+    if not (1 <= numcores and numcores <= mp.cpu_count()):
+        logging.error(f'numcores must be between 1 and {mp.cpu_count()}')
         return 
     
     if not os.path.isdir(deployments_path):
@@ -161,10 +161,10 @@ def main(args):
         dba_files_list = list(map(lambda x: os.path.join(ascii_path, x), os.listdir(ascii_path)))
         dba_files = pd.DataFrame(dba_files_list, columns = ['dba_file'])
         
-        logging.info(f'Reading ascii data into gdm object using {num_cores} core(s)')
-        if num_cores > 1:
-            # If num_cores is greater than 1, run load_slocum_dba in parallel
-            pool = mp.Pool(num_cores)
+        logging.info(f'Reading ascii data into gdm object using {numcores} core(s)')
+        if numcores > 1:
+            # If numcores is greater than 1, run load_slocum_dba in parallel
+            pool = mp.Pool(numcores)
             load_slocum_dba_list = pool.map(load_slocum_dba, dba_files_list)
             pool.close()   
             
@@ -176,7 +176,7 @@ def main(args):
             gdm.profiles = pro_meta
 
         else :        
-            # If num_cores == 1, run load_slocum_dba in normal for loop
+            # If numcores == 1, run load_slocum_dba in normal for loop
             for index, row in dba_files.iterrows():
                 # dba_file = os.path.join(row['path'], row['file'])
                 dba, pro_meta = load_slocum_dba(row['dba_file'])
