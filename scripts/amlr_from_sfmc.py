@@ -2,7 +2,7 @@
 
 import os
 import stat
-from subprocess import Popen, run, PIPE
+from subprocess import call, run
 import sys
 import logging
 import argparse
@@ -51,7 +51,7 @@ def find_extensions(dir_path): #,  excluded = ['', '.txt', '.lnk']):
     extensions = set()
     for _, _, files in os.walk(dir_path):   
         for f in files:
-            extensions.add(pathlib.Path(f).suffix.lower())
+            extensions.add(pathlib.Path(f).suffix)
             # ext = Path(f).suffix.lower()
             # if not ext in excluded:
             #     extensions.add(ext)
@@ -151,7 +151,7 @@ def main(args):
 
     # Check for unexpected file extensions
     sfmc_file_ext = find_extensions(sfmc_local_path)
-    file_ext_expected = {".cac", ".sbd", ".tbd", ".ad2"}
+    file_ext_expected = {".cac", ".CAC", ".sbd", ".tbd", ".ad2"}
     file_ext_weird = sfmc_file_ext.difference(file_ext_expected)
     if len(file_ext_weird) > 0:
         x = os.listdir(sfmc_local_path)
@@ -190,10 +190,14 @@ def main(args):
 
     if ('.sbd' in sfmc_file_ext) or ('.tbd' in sfmc_file_ext):
         logging.info('Copying [st]bd files into their subdirectory')
-        p1 = Popen(['find', sfmc_local_path, '-iname', '*.[st]bd'], stdout=PIPE)
-        p2 = Popen(["xargs", "cp", "-t", os.path.join(sfmc_local_path, sfmc_local_stbd)], 
-            stdin=p1.stdout, stdout=PIPE)
-        p1.stdout.close()
+        tmp = os.path.join(sfmc_local_path, '*.[st]bd')
+        retcode_tmp = call(f'rsync {tmp} {os.path.join(sfmc_local_path, sfmc_local_stbd)}', 
+            shell = True)
+
+        # p1 = Popen(['find', sfmc_local_path, '-iname', '*.[st]bd'], stdout=PIPE)
+        # p2 = Popen(["xargs", "cp", "-t", os.path.join(sfmc_local_path, sfmc_local_stbd)], 
+        #     stdin=p1.stdout, stdout=PIPE)
+        # p1.stdout.close()
 
         retcode_stbd = run(['gsutil', '-m', 'rsync', 
             os.path.join(sfmc_local_path, sfmc_local_stbd), 
@@ -214,10 +218,13 @@ def main(args):
 
     if ('.ad2' in sfmc_file_ext):
         logging.info('Copying ad2 files into their subdirectory')
-        p1 = Popen(['find', sfmc_local_path, '-iname', '*.ad2'], stdout=PIPE)
-        p2 = Popen(["xargs", "cp", "-t", os.path.join(sfmc_local_path, sfmc_local_ad2)], 
-            stdin=p1.stdout, stdout=PIPE)
-        p1.stdout.close()
+        tmp = os.path.join(sfmc_local_path, '*.ad2')
+        retcode_tmp = call(f'rsync {tmp} {os.path.join(sfmc_local_path, sfmc_local_ad2)}', 
+            shell = True)
+        # p1 = Popen(['find', sfmc_local_path, '-iname', '*.ad2'], stdout=PIPE)
+        # p2 = Popen(["xargs", "cp", "-t", os.path.join(sfmc_local_path, sfmc_local_ad2)], 
+        #     stdin=p1.stdout, stdout=PIPE)
+        # p1.stdout.close()
 
         retcode_ad2 = run(['gsutil', '-m', 'rsync', 
             os.path.join(sfmc_local_path, sfmc_local_ad2), 
