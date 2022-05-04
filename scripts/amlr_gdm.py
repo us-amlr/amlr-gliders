@@ -138,22 +138,20 @@ def main(args):
         logging.error(f'The config path does not exist {config_path}')
         return 
                         
+    logging.info(f'Creating GliderDataModel object from configs: {config_path}')
     gdm = GliderDataModel(config_path)
     if load_from_tmp:        
         logging.info(f'Loading gdm data from parquet files in: {tmp_path}')
         gdm.data = pd.read_parquet(pq_data_file)
         gdm.profiles = pd.read_parquet(pq_profiles_file)
-        logging.info('gdm from parquet files:\n {gdm}')
+        logging.info(f'gdm from parquet files:\n {gdm}')
 
     else:    
-        logging.info(f'Creating GliderDataModel object from configs: {config_path}')
-        gdm = GliderDataModel(config_path)
-    
+        logging.info(f'Reading ascii data into gdm object using {numcores} core(s)')
         # Add data from dba files to gdm
         dba_files_list = list(map(lambda x: os.path.join(ascii_path, x), os.listdir(ascii_path)))
         dba_files = pd.DataFrame(dba_files_list, columns = ['dba_file'])
         
-        logging.info(f'Reading ascii data into gdm object using {numcores} core(s)')
         if numcores > 1:
             # If numcores is greater than 1, run load_slocum_dba in parallel
             pool = mp.Pool(numcores)
@@ -186,7 +184,7 @@ def main(args):
     if not keep_19700101:
         row_count_orig = len(gdm.data.index)
         gdm.data = gdm.data[gdm.data.index != '1970-01-01']
-        num_records_diff = len(gdm.data.index) - row_count_orig
+        num_records_diff = row_count_orig - len(gdm.data.index)
         logging.info(f'Removed {num_records_diff} invalid timestamps of 1970-01-01')
 
         
@@ -201,7 +199,7 @@ def main(args):
         logging.info("Creating timeseries")
         ds = gdm.to_timeseries_dataset()
 
-        logging.info("Writing full timeseries to nc file")
+        logging.info("Writing full trajectory timeseries to nc file")
         ds.to_netcdf(os.path.join(nc_trajectory_path, deployment_mode + '-trajectory-full.nc'))
 
         vars_list = ['time', 'lat', 'latitude', 'lon', 'longitude', 
@@ -214,7 +212,7 @@ def main(args):
         subset = sorted(set(vars_list).intersection(list(gdm.data.keys())), key = vars_list.index)
 
         ds_subset = ds[subset]
-        logging.info("Writing timeseries for most commonly used variables to nc file")
+        logging.info("Writing trajectory timeseries for most commonly used variables to nc file")
         ds_subset.to_netcdf(os.path.join(nc_trajectory_path, deployment_mode + '-trajectory.nc'))
 
 

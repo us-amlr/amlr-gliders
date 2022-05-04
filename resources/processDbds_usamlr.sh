@@ -33,6 +33,7 @@ cacPerms=775;
 # Otherwise, they are written to the temporary directory used to do the 
 # conversions
 # CACHE_DIR='/home/coolgroup/gliderData/deployments-meta/cac';
+CACHE_DIR='/home/sam_woodman_noaa_gov/amlr-gliders-deployments/cache';
 
 # Path to the WRC executables (dbd2asc, dba2_orig_matlab, etc)
 # EXE_DIR='/home/coolgroup/gliderData/deployments-meta/linux-bin';
