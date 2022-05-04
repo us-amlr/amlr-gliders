@@ -21,15 +21,38 @@ def main(args):
     log_format = '%(module)s:%(levelname)s:%(message)s [line %(lineno)d]'
     logging.basicConfig(format=log_format, level=log_level)
 
-    binary_path = args.binary_path
-    ascii_path = args.ascii_path
-    cache_path = args.cache_path
+    # binary_path = args.binary_path
+    # ascii_path = args.ascii_path
+    # cache_path = args.cache_path
+    
+    deployment = args.deployment
+    project = args.project
+    bucket_path = args.bucket_path
+
     processDbds_file = args.processDbds_file
     cac2lower_file = args.cac2lower_file
 
 
     #--------------------------------------------
-    # Checks
+    # Checks, and create files paths
+    if not os.path.isdir(bucket_path):
+        logging.error(f'bucket_path ({bucket_path}) does not exist')
+        return
+
+    deployment_split = deployment.split('-')
+    if len(deployment_split[1]) != 8:
+        logging.error("The deployment string format must be 'glider-YYYYmmdd', eg amlr03-20220101")
+        return
+    else:
+        glider = deployment_split[0]
+        year = deployment_split[1][0:4]
+        glider_data_in = os.path.join(bucket_path, project, year, deployment, 
+            'glider', 'data', 'in')
+        binary_path = os.path.join(glider_data_in, 'binary', 'stbd')
+        ascii_path = os.path.join(glider_data_in, 'ascii', 'stbd')
+        cache_path = os.path.join(bucket_path, 'cache')
+
+
     if not os.path.isfile(processDbds_file):
         logging.error(f'processDbds_file ({processDbds_file}) does not exist')
         return
@@ -108,17 +131,30 @@ if __name__ == '__main__':
     arg_parser = argparse.ArgumentParser(description=main.__doc__, 
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    arg_parser.add_argument('binary_path', 
+    arg_parser.add_argument('deployment', 
         type=str,
-        help='Location of binary ([dest]bd) files')
+        help='Deployment name, eg amlr03-20220425')
 
-    arg_parser.add_argument('ascii_path', 
+    arg_parser.add_argument('project', 
         type=str,
-        help='Path to write ascii (dba) files. If it does not exist, this path will be created')
+        help='Glider project name', 
+        choices=['FREEBYRD', 'REFOCUS', 'SANDIEGO'])
 
-    arg_parser.add_argument('cache_path', 
+    arg_parser.add_argument('bucket_path', 
         type=str,
-        help='Location of cache files')
+        help='Path to glider deployments directory. In GCP, this will be the mounted bucket path')
+
+    # arg_parser.add_argument('binary_path', 
+    #     type=str,
+    #     help='Location of binary ([dest]bd) files')
+
+    # arg_parser.add_argument('ascii_path', 
+    #     type=str,
+    #     help='Path to write ascii (dba) files. If it does not exist, this path will be created')
+
+    # arg_parser.add_argument('cache_path', 
+    #     type=str,
+    #     help='Location of cache files')
 
     arg_parser.add_argument('processDbds_file', 
         type=str,
