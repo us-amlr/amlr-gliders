@@ -37,7 +37,7 @@ def main(args):
     numcores = args.numcores
 
     load_from_tmp = args.load_from_tmp
-    remove_19700101 = args.remove_19700101
+    keep_19700101 = args.keep_19700101
     write_trajectory = args.write_trajectory
     write_ngdac = args.write_ngdac
 
@@ -191,7 +191,7 @@ def main(args):
         gdm.profiles.to_parquet(pq_profiles_file, version="2.6", index = True)
 
     # Remove garbage data, if specified
-    if remove_19700101:
+    if not keep_19700101:
         row_count_orig = len(gdm.data.index)
         gdm.data = gdm.data[gdm.data.index != '1970-01-01']
         num_records_diff = len(gdm.data.index) - row_count_orig
@@ -272,24 +272,23 @@ if __name__ == '__main__':
         default=1)
 
     arg_parser.add_argument('--load_from_tmp',
-        help='boolean; indicates gdm object should be loaded from ' + 
+        help='flag; indicates gdm object should be loaded from ' + 
             'parquet files in glider/data/tmp directory',
         action='store_true')
 
-    arg_parser.add_argument('--remove_19700101',
-        help='boolean; indicates if data with the timestamp 1970-01-01 '  + 
-            'should be removed (before writing to pkl file). ' + 
-            'Will be ignored if load_from_tmp is True. ' + 
+    arg_parser.add_argument('--keep_19700101',
+        help='flag; indicates if data with the timestamp 1970-01-01 '  + 
+            'should be KEPT. Will be ignored if load_from_tmp is True. ' + 
             "Removing these timestamps is for situations when there is a " + 
             "'Not enough timestamps for yo interpolation' warning",
-        action='store_false')
+        action='store_true')
 
     arg_parser.add_argument('--write_trajectory',
-        help='boolean; indicates if trajectory nc file should be written',
+        help='flag; indicates if trajectory nc file should be written',
         action='store_true')
 
     arg_parser.add_argument('--write_ngdac',
-        help='boolean; indicates if ngdac nc files should be written',
+        help='flag; indicates if ngdac nc files should be written',
         action='store_true')
 
     arg_parser.add_argument('-l', '--loglevel',
