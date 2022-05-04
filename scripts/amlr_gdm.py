@@ -5,6 +5,10 @@ import sys
 import logging
 import argparse
 
+import multiprocessing as mp
+import pandas as pd
+
+
 
 def main(args):
     """
@@ -30,6 +34,7 @@ def main(args):
     deployments_path = args.deployments_path
 
 
+    # Check mode and deployment and set related variables
     if not (mode in ['delayed', 'rt']):
         logging.error("mode must be either 'delayed' or 'rt'")
         return
@@ -47,6 +52,7 @@ def main(args):
 
     else:
         logging.info(f'Writing dba files for deployment {deployment}, mode {mode}')
+        glider = deployment_split[0]
         year = deployment_split[1][0:4]
         # glider_data_in = os.path.join(deployments_path, project, year, deployment, 
         #     'glider', 'data', 'in')
@@ -54,12 +60,26 @@ def main(args):
         # ascii_path = os.path.join(glider_data_in, 'ascii', binary_type)
         # cache_path = os.path.join(deployments_path, 'cache')
 
-        logging.debug(f'Binary path: {binary_path}')
-        logging.debug(f'Ascii path: {ascii_path}')
-        logging.debug(f'Cache path: {cache_path}')
+        # logging.debug(f'Binary path: {binary_path}')
+        # logging.debug(f'Ascii path: {ascii_path}')
+        # logging.debug(f'Cache path: {cache_path}')
+
+
+    # Append gdm path, and import functions
+    gdm_path = args.gdm_path
+    if not os.path.isdir(gdm_path):
+        logging.error(f'gdm_path ({gdm_path}) does not exist')
+        return
+    else:
+        sys.path.append(gdm_path)
+        from gdm import GliderDataModel
+        from gdm.gliders.slocum import load_slocum_dba #, get_dbas
+
+
 
     #--------------------------------------------
-    return gdm
+    logging.info('all good')
+    # return gdm
 
 
 
@@ -86,9 +106,18 @@ if __name__ == '__main__':
         type=str,
         help='Path to glider deployments directory. In GCP, this will be the mounted bucket path')
 
+    
+    arg_parser.add_argument('--gdm_path', 
+        type=str,
+        help='Path to gdm module; this path will be appended to import gdm functions', 
+        default='/opt/gdm')
+
     arg_parser.add_argument('--numcores',
         type=int,
-        help='Number of cores to use when processing',
+        help='Number of cores to use when processing. ' + 
+            'If greater than one, parallel processing via mp.Pool.map will be used ' + 
+            'for load_slocum_dbas and (todo) writing individual (profile) nc files. ' +
+            'This argument must be between 1 and mp.cpu_count()',
         default=1)
 
     arg_parser.add_argument('--load_from_tmp',
@@ -105,7 +134,7 @@ if __name__ == '__main__':
         help='boolean; indicates if trajectory nc file should be written',
         action='store_false')
 
-    arg_parser.add_argument('--write_trajectory',
+    arg_parser.add_argument('--write_ngdac',
         help='boolean; indicates if ngdac nc files should be written',
         action='store_false')
 
