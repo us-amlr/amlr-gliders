@@ -112,7 +112,7 @@ def main(args):
     glider_path = os.path.join(deployments_path, project, year, deployment, 'glider')
     logging.info(f'Gldier path: {glider_path}')
 
-    ascii_path  = os.path.join(glider_path, 'data', 'in', 'ascii', binary_folder)
+    ascii_path  = os.path.join(glider_path, 'data', 'in', 'ascii', binary_type)
     config_path = os.path.join(glider_path, 'config', 'gdm')
     nc_ngdac_path = os.path.join(glider_path, 'data', 'out', 'nc', 'ngdac', mode)
     nc_trajectory_path = os.path.join(glider_path, 'data', 'out', 'nc', 'trajectory', mode)
