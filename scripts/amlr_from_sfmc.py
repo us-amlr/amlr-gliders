@@ -2,7 +2,7 @@
 
 import os
 import stat
-import subprocess
+from subprocess import Popen, run, PIPE
 import sys
 import logging
 import argparse
@@ -124,9 +124,9 @@ def main(args):
         glider, 'from-glider', "*")
     sfmc_server = f'swoodman@sfmc.webbresearch.com:{sfmc_server_path}'
 
-    # retcode = subprocess.run(['rsync', sfmc_server, sfmc_local_path])
+    # retcode = run(['rsync', sfmc_server, sfmc_local_path])
     logging.info(f'Starting rsync with SFMC dockerver for {glider}')
-    retcode = subprocess.run(['sshpass', '-f', sfmc_pwd_file, 'rsync', sfmc_server, sfmc_local_path], 
+    retcode = run(['sshpass', '-f', sfmc_pwd_file, 'rsync', sfmc_server, sfmc_local_path], 
         capture_output=True)
     logging.debug(retcode.args)
 
@@ -167,20 +167,20 @@ def main(args):
     file_ext = find_extensions(sfmc_local_path)
     # TODO: add checks if other file extensions are in here
 
-    # retcode_cp_cache = subprocess.call(f"find {sfmc_local_path} -iname *.cac | xargs cp -t {os.path.join(sfmc_local_path, sfmc_local_cache)}", shell=True)
-    # retcode_cp_stbd  = subprocess.call(f"find {sfmc_local_path} -iname *.[st]bd | xargs cp -t {os.path.join(sfmc_local_path, sfmc_local_stbd)}", shell=True)
-    # retcode_cp_ad2   = subprocess.call(f"find {sfmc_local_path} -iname *.ad2 | xargs cp -t {os.path.join(sfmc_local_path, sfmc_local_ad2)}", shell=True)
+    # retcode_cp_cache = call(f"find {sfmc_local_path} -iname *.cac | xargs cp -t {os.path.join(sfmc_local_path, sfmc_local_cache)}", shell=True)
+    # retcode_cp_stbd  = call(f"find {sfmc_local_path} -iname *.[st]bd | xargs cp -t {os.path.join(sfmc_local_path, sfmc_local_stbd)}", shell=True)
+    # retcode_cp_ad2   = call(f"find {sfmc_local_path} -iname *.ad2 | xargs cp -t {os.path.join(sfmc_local_path, sfmc_local_ad2)}", shell=True)
 
     bucket_data_in = f'gs://{bucket}/{project}/{year}/{deployment}/glider/data/in'
     logging.debug(f"GCP bucket data/in folder: {bucket_data_in}")
 
-    retcode_cache = subprocess.run(['gsutil', '-m', 'cp', 
+    retcode_cache = run(['gsutil', '-m', 'cp', 
         os.path.join(sfmc_local_path, '*.[Cc][Aa][Cc]'), 
         f'gs://{bucket}/cache'])
-    retcode_stbd = subprocess.run(['gsutil', '-m', 'rsync', 
+    retcode_stbd = run(['gsutil', '-m', 'rsync', 
         os.path.join(sfmc_local_path, sfmc_local_stbd), 
         f'{bucket_data_in}/binary/{sfmc_local_stbd}'])
-    retcode_ad2 = subprocess.run(['gsutil', '-m', 'rsync', 
+    retcode_ad2 = run(['gsutil', '-m', 'rsync', 
         os.path.join(sfmc_local_path, sfmc_local_ad2), 
         f'{bucket_data_in}/{sfmc_local_ad2}'])
 
