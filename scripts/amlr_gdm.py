@@ -200,9 +200,23 @@ def main(args):
     if write_trajectory:
         logging.info("Creating timeseries")
         ds = gdm.to_timeseries_dataset()
-        
-        logging.info("Writing timeseries to nc file")
-        ds.to_netcdf(os.path.join(nc_trajectory_path, deployment_mode + '-trajectory.nc'))
+
+        logging.info("Writing full timeseries to nc file")
+        ds.to_netcdf(os.path.join(nc_trajectory_path, deployment_mode + '-trajectory-full.nc'))
+
+        vars_list = ['time', 'lat', 'latitude', 'lon', 'longitude', 
+            'depth', 'm_heading', 'm_pitch', 'm_roll', 
+            'cdom', 'conductivity', 'density', 'pressure', 
+            'salinity', 'temperature', 'beta700', 'chlorophyll_a', 
+            'oxy4_oxygen', 'oxy4_saturation', 
+            'oxy4_temp', 'sci_flbbcd_therm', 'ctd41cp_timestamp', 
+            'm_final_water_vx', 'm_final_water_vy', 'c_wpt_lat', 'c_wpt_lon']
+        subset = sorted(set(vars_list).intersection(list(gdm.data.keys())), key = vars_list.index)
+
+        ds_subset = ds[subset]
+        logging.info("Writing timeseries for most commonly used variables to nc file")
+        ds_subset.to_netcdf(os.path.join(nc_trajectory_path, deployment_mode + '-trajectory.nc'))
+
 
     # Write individual (profile) nc files
     # TODO: make parallel, when applicable
