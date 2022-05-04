@@ -46,8 +46,8 @@ def access_secret_version(project_id, secret_id, version_id = 'latest'):
 
 
 
-# From https://stackoverflow.com/questions/45256250
 def find_extensions(dir_path): #,  excluded = ['', '.txt', '.lnk']):
+    # From https://stackoverflow.com/questions/45256250
     extensions = set()
     for _, _, files in os.walk(dir_path):   
         for f in files:
@@ -59,11 +59,11 @@ def find_extensions(dir_path): #,  excluded = ['', '.txt', '.lnk']):
 
 
   
-# https://www.geeksforgeeks.org/python-filter-list-of-strings-based-on-the-substring-list/
-def Filter(string, substr):
-    import re
-    return [str for str in string 
-    if re.match(r'[^\d]+|^', str).group(0) in substr]
+# # https://www.geeksforgeeks.org/python-filter-list-of-strings-based-on-the-substring-list/
+# def Filter(string, substr):
+#     import re
+#     return [str for str in string 
+#     if re.match(r'[^\d]+|^', str).group(0) in substr]
 
 
 
@@ -129,7 +129,7 @@ def main(args):
 
 
     #--------------------------------------------
-    # rsync with SFMC, and send files to their places in the bucket
+    # rsync with SFMC
     sfmc_server_path = os.path.join('/var/opt/sfmc-dockserver/stations/noaa/gliders', 
         glider, 'from-glider', "*")
     sfmc_server = f'swoodman@sfmc.webbresearch.com:{sfmc_server_path}'
@@ -160,12 +160,9 @@ def main(args):
     # TODO: Print warning message if there are other file extensions are in here
 
 
+    #--------------------------------------------
     # Copy files to subfolders, and rsync with bucket
     # https://docs.python.org/3/library/subprocess.html#replacing-bin-sh-shell-command-substitution
-    # retcode_cp_cache = call(f"find {sfmc_local_path} -iname *.cac | xargs cp -t {os.path.join(sfmc_local_path, sfmc_local_cache)}", shell=True)
-    # retcode_cp_stbd  = call(f"find {sfmc_local_path} -iname *.[st]bd | xargs cp -t {os.path.join(sfmc_local_path, sfmc_local_stbd)}", shell=True)
-    # retcode_cp_ad2   = call(f"find {sfmc_local_path} -iname *.ad2 | xargs cp -t {os.path.join(sfmc_local_path, sfmc_local_ad2)}", shell=True)
-
     logging.info('Starting file management')
     bucket_data_in = f'gs://{bucket}/{project}/{year}/{deployment}/glider/data/in'
     logging.debug(f"GCP bucket data/in folder: {bucket_data_in}")
@@ -194,11 +191,6 @@ def main(args):
         retcode_tmp = call(f'rsync {tmp} {os.path.join(sfmc_local_path, sfmc_local_stbd)}', 
             shell = True)
 
-        # p1 = Popen(['find', sfmc_local_path, '-iname', '*.[st]bd'], stdout=PIPE)
-        # p2 = Popen(["xargs", "cp", "-t", os.path.join(sfmc_local_path, sfmc_local_stbd)], 
-        #     stdin=p1.stdout, stdout=PIPE)
-        # p1.stdout.close()
-
         retcode_stbd = run(['gsutil', '-m', 'rsync', 
             os.path.join(sfmc_local_path, sfmc_local_stbd), 
             f'{bucket_data_in}/binary/{sfmc_local_stbd}'], 
@@ -221,10 +213,6 @@ def main(args):
         tmp = os.path.join(sfmc_local_path, '*.ad2')
         retcode_tmp = call(f'rsync {tmp} {os.path.join(sfmc_local_path, sfmc_local_ad2)}', 
             shell = True)
-        # p1 = Popen(['find', sfmc_local_path, '-iname', '*.ad2'], stdout=PIPE)
-        # p2 = Popen(["xargs", "cp", "-t", os.path.join(sfmc_local_path, sfmc_local_ad2)], 
-        #     stdin=p1.stdout, stdout=PIPE)
-        # p1.stdout.close()
 
         retcode_ad2 = run(['gsutil', '-m', 'rsync', 
             os.path.join(sfmc_local_path, sfmc_local_ad2), 
