@@ -41,11 +41,6 @@ def main(args):
     write_trajectory = args.write_trajectory
     write_ngdac = args.write_ngdac
 
-    logging.debug(f'load_from_tmp: {load_from_tmp}')
-    logging.debug(f'remove_19700101: {remove_19700101}')
-    logging.debug(f'write_trajectory: {write_trajectory}')
-    logging.debug(f'write_ngdac: {write_ngdac}')
-
 
     # Check mode and deployment and set related variables
     if not (mode in ['delayed', 'rt']):
@@ -279,7 +274,7 @@ if __name__ == '__main__':
     arg_parser.add_argument('--load_from_tmp',
         help='boolean; indicates gdm object should be loaded from ' + 
             'parquet files in glider/data/tmp directory',
-        action='store_false')
+        action='store_true')
 
     arg_parser.add_argument('--remove_19700101',
         help='boolean; indicates if data with the timestamp 1970-01-01 '  + 
@@ -287,15 +282,15 @@ if __name__ == '__main__':
             'Will be ignored if load_from_tmp is True. ' + 
             "Removing these timestamps is for situations when there is a " + 
             "'Not enough timestamps for yo interpolation' warning",
-        action='store_true')
+        action='store_false')
 
     arg_parser.add_argument('--write_trajectory',
         help='boolean; indicates if trajectory nc file should be written',
-        action='store_false')
+        action='store_true')
 
     arg_parser.add_argument('--write_ngdac',
         help='boolean; indicates if ngdac nc files should be written',
-        action='store_false')
+        action='store_true')
 
     arg_parser.add_argument('-l', '--loglevel',
         type=str,
