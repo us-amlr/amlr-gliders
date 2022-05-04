@@ -41,6 +41,11 @@ def main(args):
     write_trajectory = args.write_trajectory
     write_ngdac = args.write_ngdac
 
+    logging.debug(f'load_from_tmp: {load_from_tmp}')
+    logging.debug(f'remove_19700101: {remove_19700101}')
+    logging.debug(f'write_trajectory: {write_trajectory}')
+    logging.debug(f'write_ngdac: {write_ngdac}')
+
 
     # Check mode and deployment and set related variables
     if not (mode in ['delayed', 'rt']):
