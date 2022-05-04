@@ -92,9 +92,9 @@ def main(args):
     run_out = run([processDbds_file, "-c", cache_path, binary_path, ascii_path], 
         capture_output=True)    
     if run_out.returncode != 0:
-        logging.error(f'Error running `{processDbds_file}`'.)
-        logging.error(f'Args: {run_out.args}'.)
-        logging.error(f'stderr: {run_out.stderr}'.)
+        logging.error(f'Error running `{processDbds_file}`')
+        logging.error(f'Args: {run_out.args}')
+        logging.error(f'stderr: {run_out.stderr}')
         return
     else:
         logging.info(f'Successfully completed run of `{processDbds_file}`')
