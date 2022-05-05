@@ -249,6 +249,7 @@ trap "{ rm -Rf $tmpDir; exit 255; }" SIGHUP SIGINT SIGKILL SIGTERM SIGSTOP;
 # to this location
 if [ -z "$CACHE_DIR" -o ! -d "$CACHE_DIR" ]
 then
+    echo 'why are we here'
     CACHE_DIR="${dbdRoot}/cache";
     if [ ! -d "$CACHE_DIR" ]
     then
