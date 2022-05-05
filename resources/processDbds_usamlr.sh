@@ -33,7 +33,7 @@ cacPerms=775;
 # Otherwise, they are written to the temporary directory used to do the 
 # conversions
 # CACHE_DIR='/home/coolgroup/gliderData/deployments-meta/cac';
-CACHE_DIR='/home/sam_woodman_noaa_gov/amlr-gliders-deployments/cache';
+CACHE_DIR='/home/sam_woodman_noaa_gov/amlr-gliders-deployments-dev/cache';
 
 # Path to the WRC executables (dbd2asc, dba2_orig_matlab, etc)
 # EXE_DIR='/home/coolgroup/gliderData/deployments-meta/linux-bin';
@@ -247,6 +247,7 @@ trap "{ rm -Rf $tmpDir; exit 255; }" SIGHUP SIGINT SIGKILL SIGTERM SIGSTOP;
 # directory, 'cache', in the curret working directory.  In this case, we'll
 # create this directory in the $dbdRoot directory and explicitly set $CACHE_DIR
 # to this location
+echo $CACHE_DIR
 if [ -z "$CACHE_DIR" -o ! -d "$CACHE_DIR" ]
 then
     echo 'why are we here'
