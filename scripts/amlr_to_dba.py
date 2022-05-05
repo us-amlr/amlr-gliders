@@ -138,6 +138,9 @@ def main(args):
         return
     else:
         logging.info(f'Successfully completed run of `{processDbds_file}`')
+        logging.debug(f'Args: {run_out.args}')
+        logging.debug(f'Args: {run_out.stdout}')
+
 
     return 0
 
