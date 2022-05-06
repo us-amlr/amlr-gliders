@@ -25,6 +25,9 @@
 
 PATH=/bin:/usr/bin
 
+# addition for hardened VM
+export TMPDIR=$HOME/tmp
+
 # Permissions for cac files
 cacPerms=775;
 
@@ -33,7 +36,7 @@ cacPerms=775;
 # Otherwise, they are written to the temporary directory used to do the 
 # conversions
 # CACHE_DIR='/home/coolgroup/gliderData/deployments-meta/cac';
-# CACHE_DIR='/home/sam_woodman_noaa_gov/amlr-gliders-deployments-dev/cache';
+CACHE_DIR='/home/sam_woodman_noaa_gov/amlr-gliders-deployments-dev/cache';
 # SMW NOTE: the cache directory must be passed as the full path
 
 # Path to the WRC executables (dbd2asc, dba2_orig_matlab, etc)
