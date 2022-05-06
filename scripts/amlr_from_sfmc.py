@@ -116,7 +116,6 @@ def main(args):
     if not os.path.isdir(sfmc_local_path):
         logging.info(f'Making sfmc deployment directory at {sfmc_local_path}')
         os.mkdir(sfmc_local_path)
-        # os.mkdir(os.path.join(sfmc_local_path, sfmc_local_cache))
         os.mkdir(os.path.join(sfmc_local_path, sfmc_local_stbd))
         os.mkdir(os.path.join(sfmc_local_path, sfmc_local_ad2))
 
@@ -147,6 +146,8 @@ def main(args):
         return
     else:
         logging.info(f'Successfully completed rsync with SFMC dockerver for {glider}')
+        logging.debug(f'Args: {retcode.args}')
+        logging.debug(f'stderr: {retcode.stdout}')
 
 
     # Check for unexpected file extensions
@@ -155,7 +156,8 @@ def main(args):
     file_ext_weird = sfmc_file_ext.difference(file_ext_expected)
     if len(file_ext_weird) > 0:
         x = os.listdir(sfmc_local_path)
-        logging.warning(f'File with unexpected extensions ({file_ext_weird}) were downloaded from the SFMC')
+        logging.warning(f'File with unexpected extensions ({file_ext_weird}) ' + 
+            'were downloaded from the SFMC')
         logging.warning(f'File list: TODO')
     # TODO: Print warning message if there are other file extensions are in here
 
@@ -163,15 +165,21 @@ def main(args):
     #--------------------------------------------
     # Copy files to subfolders, and rsync with bucket
     # https://docs.python.org/3/library/subprocess.html#replacing-bin-sh-shell-command-substitution
-    logging.info('Starting file management')
-    bucket_data_in = f'gs://{bucket}/{project}/{year}/{deployment}/glider/data/in'
-    logging.debug(f"GCP bucket data/in folder: {bucket_data_in}")
 
+    logging.info('Starting file management')
+    bucket_deployment = f'gs://{bucket}/{project}/{year}/{deployment}'
+    bucket_stbd = os.path.join(bucket_deployment, 'glider', 'data', 'in', 'binary', sfmc_local_stbd)
+    bucket_ad2 = os.path.join(bucket_deployment, 'sensors', 'nortek', 'data', 'in', 'rt')
+    logging.debug(f"GCP bucket deployment folder: {bucket_deployment}")
+    logging.debug(f"GCP bucket stbd folder: {bucket_stbd}")
+    logging.debug(f"GCP bucket ad2 folder: {bucket_ad2}")
+
+    ### cache files
     if ('.cac' in sfmc_file_ext):
         retcode_cache = run(['gsutil', '-m', 'cp', 
-            os.path.join(sfmc_local_path, '*.[Cc][Aa][Cc]'), 
-            f'gs://{bucket}/cache'], 
-        capture_output = True)
+                os.path.join(sfmc_local_path, '*.[Cc][Aa][Cc]'), 
+                f'gs://{bucket}/cache'], 
+            capture_output = True)
 
         if retcode_cache.returncode != 0:
             logging.error('Error copying cache files to bucket')
@@ -180,21 +188,25 @@ def main(args):
             return
         else:
             logging.info(f'Successfully copied cache files to bucket')
+            logging.debug(f'Args: {retcode_cache.args}')
+            logging.debug(f'stderr: {retcode_cache.stdout}')
+
 
     else: 
         logging.info('No cache files to copy')
 
 
+    ### sbd/tbd files
     if ('.sbd' in sfmc_file_ext) or ('.tbd' in sfmc_file_ext):
         logging.info('Copying [st]bd files into their subdirectory')
         tmp = os.path.join(sfmc_local_path, '*.[st]bd')
-        retcode_tmp = call(f'rsync {tmp} {os.path.join(sfmc_local_path, sfmc_local_stbd)}', 
+        sfmc_local_stbd_path = os.path.join(sfmc_local_path, sfmc_local_stbd)
+        retcode_tmp = call(f'rsync {tmp} {sfmc_local_stbd_path}', 
             shell = True)
 
-        retcode_stbd = run(['gsutil', '-m', 'rsync', 
-            os.path.join(sfmc_local_path, sfmc_local_stbd), 
-            f'{bucket_data_in}/binary/{sfmc_local_stbd}'], 
-        capture_output = True)
+        retcode_stbd = run(['gsutil', '-m', 'rsync', '-r', 
+                sfmc_local_stbd_path, bucket_stbd], 
+            capture_output = True)
 
         if retcode_stbd.returncode != 0:
             logging.error('Error rsyncing stbd files to bucket')
@@ -203,21 +215,24 @@ def main(args):
             return
         else:
             logging.info(f'Successfully rsyncd [st]bd files to bucket')
+            logging.debug(f'Args: {retcode_stbd.args}')
+            logging.debug(f'stderr: {retcode_stbd.stdout}')
 
     else:
         logging.info('No [st]bd files to copy')
 
 
+    ### ad2 files
     if ('.ad2' in sfmc_file_ext):
         logging.info('Copying ad2 files into their subdirectory')
         tmp = os.path.join(sfmc_local_path, '*.ad2')
-        retcode_tmp = call(f'rsync {tmp} {os.path.join(sfmc_local_path, sfmc_local_ad2)}', 
+        sfmc_local_ad2_path = os.path.join(sfmc_local_path, sfmc_local_ad2)
+        retcode_tmp = call(f'rsync {tmp} {sfmc_local_ad2_path}', 
             shell = True)
 
-        retcode_ad2 = run(['gsutil', '-m', 'rsync', 
-            os.path.join(sfmc_local_path, sfmc_local_ad2), 
-            f'{bucket_data_in}/{sfmc_local_ad2}'], 
-        capture_output = True)
+        retcode_ad2 = run(['gsutil', '-m', 'rsync', '-r', 
+                sfmc_local_ad2_path,  bucket_ad2], 
+            capture_output = True)
 
         if retcode_ad2.returncode != 0:
             logging.error('Error rsyncing ad2 files to bukcet')
@@ -226,6 +241,8 @@ def main(args):
             return
         else:
             logging.info(f'Successfully rsyncd ad2 files to bucket')
+            logging.debug(f'Args: {retcode_ad2.args}')
+            logging.debug(f'stderr: {retcode_ad2.stdout}')
 
     else:
         logging.info('No ad2 files to copy')
