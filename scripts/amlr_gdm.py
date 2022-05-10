@@ -4,9 +4,81 @@ import os
 import sys
 import logging
 import argparse
+import copy
 
 import multiprocessing as mp
 import pandas as pd
+
+
+
+def amlr_acoustics(pitch_column):
+    """
+    Create files for acoustics data processing
+    """
+
+
+
+def amlr_imagery(glider_path, deployment, ds, imagery_path, ext = 'jpg'):
+    """
+    Match up imagery files with data from gdm object
+    Returns dataframe with metadata information
+    """
+    from datetime import datetime
+    import glob
+    import numpy as np
+
+    logging.info(f'Creating imagery metadata file for {deployment}')
+
+    #--------------------------------------------
+    # Checks
+    out_path = os.path.join(glider_path, 'data', 'out', 'cameras')
+    if not os.path.exists(out_path):
+        logging.info(f'Creating directory at: {out_path}')
+        os.makedirs(out_path)
+
+    if not os.path.isdir(imagery_path):
+        logging.error(f'imagery_path ({imagery_path}) does not exist, and thus the ' + 
+                        'CSV file with imagery metadata will not be created')
+        return
+    else:
+        imagery_filepaths = glob.glob(f'{imagery_path}/**/*.{ext}', recursive=True)
+        imagery_files = [os.path.basename(x) for x in imagery_filepaths]
+        imagery_files.sort()
+
+        # TODO: check for non-sensical file paths
+
+
+    #--------------------------------------------
+    # Extract info from imagery file names, and match up with glider data
+    try:
+        logging.info("Creating timeseries for imagery processing")
+        imagery_file_dts = [datetime.strptime(i[5:20], '%Y%m%d-%H%M%S') for i in imagery_files]
+    except:
+        logging.error(f'Datetimes could not be extracted from imagery filenames ' + 
+                        '(at {imagery_path}), and thus the ' + 
+                        'CSV file with imagery metadata will not be created')
+        return
+
+    imagery_dict = {'img_file': imagery_files, 'img_dt': imagery_file_dts}
+    imagery_df = pd.DataFrame(data = imagery_dict).sort_values('img_dt')
+
+    ds_nona = ds.sel(time = ds.depth.dropna('time').time.values)
+    ds_slice = ds_nona.sel(time=imagery_df.img_dt.values, method = 'nearest')
+
+    imagery_df['glider_dt'] = ds_slice.time.values
+    imagery_df['diff_dt_seconds'] = (imagery_df.img_dt - imagery_df.glider_dt).astype('timedelta64[s]').astype(np.int32)
+    imagery_df['depth'] = ds_slice.depth.values
+    imagery_df['latitude'] = ds_slice.lat.values
+    imagery_df['longitude'] = ds_slice.lon.values
+
+    # Todo: interpolate
+    imagery_df['pitch'] = ds_slice.m_pitch.values
+
+    csv_file = os.path.join(out_path, f'{deployment}-imagery-metadata.csv')
+    logging.info(f'Writing imagery metadata CSV file ({csv_file})')
+    imagery_df.to_csv(csv_file, index=False)
+
+    imagery_df
 
 
 
@@ -40,6 +112,9 @@ def main(args):
     keep_19700101 = args.keep_19700101
     write_trajectory = args.write_trajectory
     write_ngdac = args.write_ngdac
+    
+    write_imagery = args.write_imagery
+    imagery_path = args.imagery_path
 
 
     # Check mode and deployment and set related variables
@@ -94,15 +169,19 @@ def main(args):
                 'Did you provide the right path via deployments_path?')
             return 
 
+    if write_imagery and mode == 'rt':
+        logging.warning(f'You are processing imagery files using real-time data. ' + 
+            'This may result in inaccurate imagery file metadata')
+
 
     #--------------------------------------------
     # Set path/file variables, and create file paths if necessary
-    deployment_mode = deployment + '-' + mode
+    deployment_mode = f'{deployment}-{mode}'
     glider = deployment_split[0]
     year = deployment_split[1][0:4]
 
     glider_path = os.path.join(deployments_path, project, year, deployment, 'glider')
-    logging.info(f'Gldier path: {glider_path}')
+    logging.info(f'Glider path: {glider_path}')
 
     ascii_path  = os.path.join(glider_path, 'data', 'in', 'ascii', binary_type)
     config_path = os.path.join(glider_path, 'config', 'gdm')
@@ -110,8 +189,8 @@ def main(args):
     nc_trajectory_path = os.path.join(glider_path, 'data', 'out', 'nc', 'trajectory')
 
     tmp_path = os.path.join(glider_path, 'data', 'tmp')
-    pq_data_file = os.path.join(tmp_path, deployment_mode + '-data.parquet')
-    pq_profiles_file = os.path.join(tmp_path, deployment_mode + '-profiles.parquet')
+    pq_data_file = os.path.join(tmp_path, f'{deployment_mode}-data.parquet')
+    pq_profiles_file = os.path.join(tmp_path, f'{deployment_mode}-profiles.parquet')
     
     # This is for GCP because buckets don't do implicit directories well on upload
     if not os.path.exists(tmp_path):
@@ -227,6 +306,20 @@ def main(args):
         #     nc_path = os.path.join(nc_ngdac_path, nc_name)
         #     logging.info('Writing {:}'.format(nc_path))
         #     pro_ds.to_netcdf(nc_path)
+
+
+    # Write imagery metadata file
+    if write_imagery:
+        logging.info("Creating timeseries for imagery processing")
+
+        imagery_vars_list = ['ilatitude', 'latitude', 'ilongitude', 'longitude', 
+            'depth', 'm_heading', 'm_pitch', 'm_roll', 
+            'cdom', 'conductivity', 'density', 'pressure']
+
+        gdm_imagery = copy.deepcopy(gdm)        
+        gdm_imagery.data = gdm_imagery.data[imagery_vars_list]
+        ds_imagery = gdm_imagery.to_timeseries_dataset()
+        amlr_imagery(glider_path, deployment, ds_imagery, imagery_path)
         
         
     logging.info('amlr_gdm processing complete for {:}'.format(deployment_mode))
@@ -294,6 +387,15 @@ if __name__ == '__main__':
     arg_parser.add_argument('--write_ngdac',
         help='flag; indicates if ngdac nc files should be written',
         action='store_true')
+
+    arg_parser.add_argument('--write_imagery',
+        help='flag; indicates if imagery metadata csv file should be written',
+        action='store_true')
+
+    arg_parser.add_argument('--imagery_path',
+        type=str,
+        help='Path to imagery bucket',
+        default='')
 
     arg_parser.add_argument('-l', '--loglevel',
         type=str,
