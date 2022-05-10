@@ -314,8 +314,7 @@ def main(args):
         logging.info("Creating timeseries for imagery processing")
 
         imagery_vars_list = ['ilatitude', 'latitude', 'ilongitude', 'longitude', 
-            'depth', 'm_heading', 'm_pitch', 'm_roll', 
-            'cdom', 'conductivity', 'density', 'pressure']
+            'depth', 'density', 'm_heading', 'm_pitch', 'm_roll']
 
         gdm_imagery = copy.deepcopy(gdm)        
         gdm_imagery.data = gdm_imagery.data[imagery_vars_list]
