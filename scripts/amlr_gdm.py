@@ -317,7 +317,7 @@ def main(args):
             'depth', 'm_heading', 'm_pitch', 'm_roll', 
             'cdom', 'conductivity', 'density', 'pressure']
 
-        gdm_imagery = copy.deepcopy(ub gdm)        
+        gdm_imagery = copy.deepcopy(gdm)        
         gdm_imagery.data = gdm_imagery.data[imagery_vars_list]
         ds_imagery = gdm_imagery.to_timeseries_dataset()
         amlr_imagery(glider_path, deployment, ds_imagery, imagery_path)
