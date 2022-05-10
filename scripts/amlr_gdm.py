@@ -55,7 +55,6 @@ def amlr_imagery(glider_path, deployment, ds, imagery_path, ext = 'jpg'):
 
     #--------------------------------------------
     # Extract info from imagery file names, and match up with glider data
-    ipdb.set_trace()
     try:
         imagery_file_dts = [dt.datetime.strptime(i[5:20], '%Y%m%d-%H%M%S') for i in imagery_files]
     except:
@@ -263,7 +262,7 @@ def main(args):
         logging.info('Sorting gdm data by time index')
         gdm.data.sort_index(inplace=True)
         gdm.profiles.sort_index(inplace=True)
-    
+
         logging.info('Writing gdm to parquet files')
         gdm.data.to_parquet(pq_data_file, version="2.6", index = True)
         gdm.profiles.to_parquet(pq_profiles_file, version="2.6", index = True)
