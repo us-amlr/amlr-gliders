@@ -259,6 +259,10 @@ def main(args):
                 gdm.profiles = pd.concat([gdm.profiles, pro_meta])
             
         logging.info(f'gdm with data and profiles from dbas:\n {gdm}')
+
+        logging.info('Sorting gdm data by time index')
+        gdm.data.sort_index(inplace=True)
+        gdm.profiles.sort_index(inplace=True)
     
         logging.info('Writing gdm to parquet files')
         gdm.data.to_parquet(pq_data_file, version="2.6", index = True)
