@@ -9,6 +9,9 @@ import copy
 import multiprocessing as mp
 import pandas as pd
 
+import ipdb
+
+
 
 
 def amlr_acoustics(pitch_column):
@@ -51,8 +54,8 @@ def amlr_imagery(glider_path, deployment, ds, imagery_path, ext = 'jpg'):
 
     #--------------------------------------------
     # Extract info from imagery file names, and match up with glider data
+    ipdb.set_trace()
     try:
-        logging.info("Creating timeseries for imagery processing")
         imagery_file_dts = [datetime.strptime(i[5:20], '%Y%m%d-%H%M%S') for i in imagery_files]
     except:
         logging.error(f'Datetimes could not be extracted from imagery filenames ' + 
