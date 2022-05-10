@@ -8,6 +8,10 @@ import copy
 
 import multiprocessing as mp
 import pandas as pd
+import datetime as dt
+import glob
+import numpy as np
+
 
 import ipdb
 
@@ -26,10 +30,7 @@ def amlr_imagery(glider_path, deployment, ds, imagery_path, ext = 'jpg'):
     Match up imagery files with data from gdm object
     Returns dataframe with metadata information
     """
-    from datetime import datetime
-    import glob
-    import numpy as np
-
+    
     logging.info(f'Creating imagery metadata file for {deployment}')
 
     #--------------------------------------------
@@ -44,7 +45,7 @@ def amlr_imagery(glider_path, deployment, ds, imagery_path, ext = 'jpg'):
                         'CSV file with imagery metadata will not be created')
         return
     else:
-        deployment_imagery_path = os.path.join(imagery_path, 'gliders', deployment)
+        deployment_imagery_path = os.path.join(imagery_path, 'gliders', '2022', deployment)
         imagery_filepaths = glob.glob(f'{deployment_imagery_path}/**/*.{ext}', recursive=True)
         imagery_files = [os.path.basename(x) for x in imagery_filepaths]
         imagery_files.sort()
@@ -56,7 +57,7 @@ def amlr_imagery(glider_path, deployment, ds, imagery_path, ext = 'jpg'):
     # Extract info from imagery file names, and match up with glider data
     ipdb.set_trace()
     try:
-        imagery_file_dts = [datetime.strptime(i[5:20], '%Y%m%d-%H%M%S') for i in imagery_files]
+        imagery_file_dts = [dt.datetime.strptime(i[5:20], '%Y%m%d-%H%M%S') for i in imagery_files]
     except:
         logging.error(f'Datetimes could not be extracted from imagery filenames ' + 
                         '(at {deployment_imagery_path}), and thus the ' + 

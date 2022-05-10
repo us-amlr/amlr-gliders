@@ -8,6 +8,7 @@ dependencies:
   - gsw=3.4
   - google-crc32c>=1.1.2
   - google-cloud-secret-manager>=2.10
+  - ipdb
   - ipykernel=6.13
   - ipython=7.31
   - jupyterlab
