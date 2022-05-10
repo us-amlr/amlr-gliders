@@ -41,7 +41,8 @@ def amlr_imagery(glider_path, deployment, ds, imagery_path, ext = 'jpg'):
                         'CSV file with imagery metadata will not be created')
         return
     else:
-        imagery_filepaths = glob.glob(f'{imagery_path}/**/*.{ext}', recursive=True)
+        deployment_imagery_path = os.path.join(imagery_path, 'gliders', deployment)
+        imagery_filepaths = glob.glob(f'{deployment_imagery_path}/**/*.{ext}', recursive=True)
         imagery_files = [os.path.basename(x) for x in imagery_filepaths]
         imagery_files.sort()
 
@@ -55,7 +56,7 @@ def amlr_imagery(glider_path, deployment, ds, imagery_path, ext = 'jpg'):
         imagery_file_dts = [datetime.strptime(i[5:20], '%Y%m%d-%H%M%S') for i in imagery_files]
     except:
         logging.error(f'Datetimes could not be extracted from imagery filenames ' + 
-                        '(at {imagery_path}), and thus the ' + 
+                        '(at {deployment_imagery_path}), and thus the ' + 
                         'CSV file with imagery metadata will not be created')
         return
 
@@ -316,7 +317,7 @@ def main(args):
             'depth', 'm_heading', 'm_pitch', 'm_roll', 
             'cdom', 'conductivity', 'density', 'pressure']
 
-        gdm_imagery = copy.deepcopy(gdm)        
+        gdm_imagery = copy.deepcopy(ub gdm)        
         gdm_imagery.data = gdm_imagery.data[imagery_vars_list]
         ds_imagery = gdm_imagery.to_timeseries_dataset()
         amlr_imagery(glider_path, deployment, ds_imagery, imagery_path)
