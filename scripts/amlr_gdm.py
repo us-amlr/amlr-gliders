@@ -103,7 +103,11 @@ def amlr_acoustics(
 
 
 
-def amlr_imagery(glider_path, deployment, ds, imagery_path, ext = 'jpg'):
+def amlr_imagery(
+    glider_path, deployment, ds, imagery_path, ext = 'jpg', 
+    lat_column = 'lat', lon_column = 'lon', 
+    depth_column = 'idepth', pitch_column = 'ipitch', roll_column = 'iroll'    
+):
     """
     Match up imagery files with data from gdm object
     Returns dataframe with metadata information
@@ -149,19 +153,17 @@ def amlr_imagery(glider_path, deployment, ds, imagery_path, ext = 'jpg'):
 
     imagery_df['glider_dt'] = ds_slice.time.values
     imagery_df['diff_dt_seconds'] = (imagery_df.img_dt - imagery_df.glider_dt).astype('timedelta64[s]').astype(np.int32)
-    imagery_df['depth'] = ds_slice.depth.values
-    imagery_df['latitude'] = ds_slice.lat.values
-    imagery_df['longitude'] = ds_slice.lon.values
+    imagery_df['latitude'] = ds_slice[lat_column].values
+    imagery_df['longitude'] = ds_slice[lon_column].values
+    imagery_df['depth'] = ds_slice[depth_column].values
+    imagery_df['pitch'] = ds_slice[pitch_column].values
+    imagery_df['roll'] = ds_slice[roll_column].values
 
-    # Todo: interpolate
-    imagery_df['pitch'] = ds_slice.m_pitch.values
-
-    csv_file = os.path.join(out_path, f'{deployment}-imagery-metadata.csv')
     logging.info(f'Writing imagery metadata CSV file ({csv_file})')
+    csv_file = os.path.join(out_path, f'{deployment}-imagery-metadata.csv')
     imagery_df.to_csv(csv_file, index=False)
 
     imagery_df
-
 
 
 
