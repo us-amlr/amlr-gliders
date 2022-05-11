@@ -386,6 +386,7 @@ def main(args):
 
         vars_list = ['time', 'lat', 'latitude', 'lon', 'longitude', 
             'depth', 'm_heading', 'm_pitch', 'm_roll', 
+            'idepth', 'ipitch', 'iroll', 
             'cdom', 'conductivity', 'density', 'pressure', 
             'salinity', 'temperature', 'beta700', 'chlorophyll_a', 
             'oxy4_oxygen', 'oxy4_saturation', 
