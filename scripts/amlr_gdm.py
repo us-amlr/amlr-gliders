@@ -27,11 +27,9 @@ def line_prepender(filename, line):
         f.write(line.rstrip('\r\n') + '\n' + content)
 
 
-def amlr_pd_interpolate(df):
-    df_copy = copy.deepcopy(df)
-    idf = df_copy.interpolate(method='time', limit_direction='forward', 
-                                limit_area='inside')
-    return idf.values
+def pd_interpolate_amlr(df):
+    return df.interpolate(method='time', limit_direction='forward', 
+                            limit_area='inside')
 
 
 
@@ -369,9 +367,10 @@ def main(args):
     # gdm.data['idepth'] = utils.interpolate_timeseries(gdm.data.depth, gdm.data.index)
     # gdm.data['ipitch'] = utils.interpolate_timeseries(gdm.data.m_pitch, gdm.data.index)
     # gdm.data['iroll'] = utils.interpolate_timeseries(gdm.data.m_roll, gdm.data.index)
-    gdm.data['idepth'] = amlr_pd_interpolate(gdm.data.depth)
-    gdm.data['ipitch'] = amlr_pd_interpolate(gdm.data.m_pitch)
-    gdm.data['iroll'] = amlr_pd_interpolate(gdm.data.m_roll)
+    gdm_data_copy = gdm.data.copy()
+    gdm.data['idepth'] = pd_interpolate_amlr(gdm_data_copy.depth)
+    gdm.data['ipitch'] = pd_interpolate_amlr(gdm_data_copy.m_pitch)
+    gdm.data['iroll'] = pd_interpolate_amlr(gdm_data_copy.m_roll)
 
 
 
