@@ -136,6 +136,7 @@ def amlr_imagery(
 
     #--------------------------------------------
     # Extract info from imagery file names, and match up with glider data
+    ipdb.set_trace()
     try:
         imagery_file_dts = [dt.datetime.strptime(i[5:20], '%Y%m%d-%H%M%S') for i in imagery_files]
     except:
@@ -384,12 +385,9 @@ def main(args):
     # gdm.data['idepth'] = pd_interpolate_amlr(gdm_data_copy.depth)
     # gdm.data['ipitch'] = pd_interpolate_amlr(gdm_data_copy.m_pitch)
     # gdm.data['iroll'] = pd_interpolate_amlr(gdm_data_copy.m_roll)
-    gdm.data['idepth'] = (gdm_data_copy.depth
-        .interpolate(method='time', limit_direction='forward', limit_area='inside'))
-    gdm.data['ipitch'] = (gdm_data_copy.m_pitch
-        .interpolate(method='time', limit_direction='forward', limit_area='inside'))
-    gdm.data['iroll'] = (gdm_data_copy.m_roll
-        .interpolate(method='time', limit_direction='forward', limit_area='inside'))
+    gdm.data['idepth'] = gdm_data_copy.depth.interpolate(method='time', limit_direction='forward', limit_area='inside')
+    gdm.data['ipitch'] = gdm_data_copy.m_pitch.interpolate(method='time', limit_direction='forward', limit_area='inside')
+    gdm.data['iroll'] = gdm_data_copy.m_roll.interpolate(method='time', limit_direction='forward', limit_area='inside')
     
 
     #--------------------------------------------
@@ -441,9 +439,9 @@ def main(args):
             'depth', 'density', 'm_heading', 'm_pitch', 'm_roll', 
             'idepth', 'ipitch', 'iroll']
 
-        gdm_imagery = copy.deepcopy(gdm)        
-        gdm_imagery.data = gdm_imagery.data[imagery_vars_list]
-        ds_imagery = gdm_imagery.to_timeseries_dataset()
+        # gdm_imagery = copy.deepcopy(gdm)        
+        # gdm_imagery.data = gdm_imagery.data[imagery_vars_list]
+        ds_imagery = gdm.data[imagery_vars_list].to_timeseries_dataset()
         amlr_imagery(glider_path, deployment, ds_imagery, imagery_path)
         
         
