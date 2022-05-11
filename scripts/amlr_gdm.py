@@ -28,8 +28,9 @@ def line_prepender(filename, line):
 
 
 def amlr_pd_interpolate(df):
-    idf = df.interpolate(method='time', limit_direction='forward', 
-                            limit_area='inside')
+    df_copy = copy.deepcopy(df)
+    idf = df_copy.interpolate(method='time', limit_direction='forward', 
+                                limit_area='inside')
     return idf.values
 
 
