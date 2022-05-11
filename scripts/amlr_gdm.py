@@ -18,10 +18,87 @@ import ipdb
 
 
 
-def amlr_acoustics(pitch_column):
+
+# https://stackoverflow.com/questions/5914627/prepend-line-to-beginning-of-a-file
+def line_prepender(filename, line):
+    with open(filename, 'r+') as f:
+        content = f.read()
+        f.seek(0, 0)
+        f.write(line.rstrip('\r\n') + '\n' + content)
+
+
+def amlr_pd_interpolate(df):
+    df.interpolate(method='time', limit_direction='forward', limit_area='inside')
+
+
+
+def amlr_acoustics(
+    glider_path, deployment, mode, gdm, 
+    pitch_column = 'ipitch', roll_column = 'iroll', depth_column = 'idepth', 
+    lat_column = 'ilatitude', lon_column = 'ilongitude'
+):
     """
     Create files for acoustics data processing
     """
+
+    logging.info(f'Creating acoustics files for {deployment}')
+    deployment_mode = f'{deployment}-{mode}'
+
+    acoustics_path = os.path.join(glider_path, 'data', 'out', 'acoustics')
+    if not os.path.exists(acoustics_path):
+        logging.info(f'Creating directory at: {acoustics_path}')
+        os.makedirs(acoustics_path)
+
+    # gdm.data['idepth'] = utils.interpolate_timeseries(gdm.data.depth, gdm.data.index)
+    # gdm.data['ipitch'] = utils.interpolate_timeseries(gdm.data.m_pitch, gdm.data.index)
+    # gdm.data['iroll'] = utils.interpolate_timeseries(gdm.data.m_roll, gdm.data.index)
+
+    gdm_dt_dt = gdm.data.index.values.astype('datetime64[s]').astype(dt.datetime)
+    acoustic_file_pre = os.path.join(acoustics_path, deployment_mode)
+
+    # Pitch
+    logging.info(f'Creating Pitch file')
+    pitch_dict = {'Pitch_date': [i.strftime('%m/%d/%Y') for i in gdm_dt_dt], 
+                  'Pitch_time': [i.strftime('%H:%M:%S') for i in gdm_dt_dt], 
+                  'Pitch_angle': [math.degrees(x) for x in gdm.data.ipitch]}
+    pitch_df = pd.DataFrame(pitch_dict)
+    pitch_df.to_csv(f'{acoustic_file_pre}-pitch.csv', index = False)
+
+
+    # Roll
+    logging.info(f'Creating Roll file')
+    roll_dict = {'Roll_date': [i.strftime('%m/%d/%Y') for i in gdm_dt_dt],
+                  'Roll_time': [i.strftime('%H:%M:%S') for i in gdm_dt_dt], 
+                  'Roll_angle': [math.degrees(x) for x in gdm.data.iroll]}
+    roll_df = pd.DataFrame(roll_dict)
+    roll_df.to_csv(f'{acoustic_file_pre}-roll.csv', index = False)
+
+
+    # GPS
+    logging.info(f'Creating GPS file')
+    gps_dict = {'GPS_date': [i.strftime('%Y-%m-%d') for i in gdm_dt_dt],
+                  'GPS_time': [i.strftime('%H:%M:%S') for i in gdm_dt_dt], 
+                  'Latitude': gdm.data.ilongitude, 
+                  'Longitude': gdm.data.ilongitude}
+    gps_df = pd.DataFrame(gps_dict)
+    gps_df.to_csv(f'{acoustic_file_pre}-gps.csv', index = False)
+
+
+    # Depth
+    logging.info(f'Creating Depth file')
+    depth_dict = {'Depth_date': [i.strftime('%Y%m%d') for i in gdm_dt_dt],
+                  'Depth_time': [f"{i.strftime('%H%M%S')}0000" for i in gdm_dt_dt], 
+                  'Depth': gdm.data.idepth, 
+                  'repthree': 3}
+    depth_df = pd.DataFrame(depth_dict)
+    depth_file = f'{acoustic_file_pre}-depth.evl'
+    depth_df.to_csv(depth_file, index = False, header = False, sep ='\t')
+            
+    line_prepender(depth_file, str(len(depth_df.index)))
+    line_prepender(depth_file, 'EVBD 3 8.0.73.30735')
+
+    logging.info(f'Completed creating acoustics files for {deployment}')
+    return 0
 
 
 
@@ -86,6 +163,8 @@ def amlr_imagery(glider_path, deployment, ds, imagery_path, ext = 'jpg'):
 
 
 
+
+
 def main(args):
     """
     Process raw AMLR glider data and write data to parquet and nc files.
@@ -117,6 +196,7 @@ def main(args):
     write_trajectory = args.write_trajectory
     write_ngdac = args.write_ngdac
     
+    write_acoustics = args.write_acoustics
     write_imagery = args.write_imagery
     imagery_path = args.imagery_path
 
@@ -146,8 +226,10 @@ def main(args):
         logging.error(f'gdm_path ({gdm_path}) does not exist')
         return
     else:
+        logging.info(f'Importing gdm functions from {gdm_path}')
         sys.path.append(gdm_path)
         from gdm import GliderDataModel
+        from gdm.utils import interpolate_timeseries
         from gdm.gliders.slocum import load_slocum_dba #, get_dbas
 
 
@@ -279,6 +361,16 @@ def main(args):
     logging.info('Making sensor (data column) names lowercase to match gdm behavior')
     gdm.data.columns = gdm.data.columns.str.lower()
 
+    # Create interpolated variables
+    logging.info('Creating interpolated variables')
+    # gdm.data['idepth'] = utils.interpolate_timeseries(gdm.data.depth, gdm.data.index)
+    # gdm.data['ipitch'] = utils.interpolate_timeseries(gdm.data.m_pitch, gdm.data.index)
+    # gdm.data['iroll'] = utils.interpolate_timeseries(gdm.data.m_roll, gdm.data.index)
+    gdm.data['idepth'] = amlr_pd_interpolate(gdm.data.depth)
+    gdm.data['ipitch'] = amlr_pd_interpolate(gdm.data.m_pitch)
+    gdm.data['iroll'] = amlr_pd_interpolate(gdm.data.m_roll)
+
+
 
     #--------------------------------------------
     # Convert to time series, and write to nc file
@@ -315,6 +407,15 @@ def main(args):
         #     logging.info('Writing {:}'.format(nc_path))
         #     pro_ds.to_netcdf(nc_path)
 
+
+    # Write acoustics files
+    if write_acoustics:
+        # TMP solution
+        gdm.data['idepth'] = utils.interpolate_timeseries(gdm.data.depth, gdm.data.index)
+        gdm.data['ipitch'] = utils.interpolate_timeseries(gdm.data.m_pitch, gdm.data.index)
+        gdm.data['iroll'] = utils.interpolate_timeseries(gdm.data.m_roll, gdm.data.index)
+
+        amlr_acoustics(glider_path, deployment, mode, gdm)
 
     # Write imagery metadata file
     if write_imagery:
@@ -393,6 +494,10 @@ if __name__ == '__main__':
 
     arg_parser.add_argument('--write_ngdac',
         help='flag; indicates if ngdac nc files should be written',
+        action='store_true')
+
+    arg_parser.add_argument('--write_acoustics',
+        help='flag; indicates if acoustic files should be written',
         action='store_true')
 
     arg_parser.add_argument('--write_imagery',
