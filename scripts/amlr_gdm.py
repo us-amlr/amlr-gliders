@@ -371,8 +371,8 @@ def main(args):
     # gdm.data['ipitch'] = pd_interpolate_amlr(gdm_data_copy.m_pitch)
     # gdm.data['iroll'] = pd_interpolate_amlr(gdm_data_copy.m_roll)
     gdm.data['idepth'] = gdm.data.depth.interpolate(method='time', limit_direction='forward', limit_area='inside')
-    gdm.data['ipitch'] = gdm.data.pitch.interpolate(method='time', limit_direction='forward', limit_area='inside')
-    gdm.data['iroll'] = gdm.data.roll.interpolate(method='time', limit_direction='forward', limit_area='inside')
+    gdm.data['ipitch'] = gdm.data.m_pitch.interpolate(method='time', limit_direction='forward', limit_area='inside')
+    gdm.data['iroll'] = gdm.data.m_roll.interpolate(method='time', limit_direction='forward', limit_area='inside')
     
 
 
