@@ -257,8 +257,14 @@ def main(args):
                 'Did you provide the right path via deployments_path?')
             return 
 
+    if write_acoustics and mode == 'rt':
+        logging.warning('You are creating acoustic data files ' + 
+            'using real-time data. ' + 
+            'This may result in inaccurate imagery file metadata')
+
     if write_imagery and mode == 'rt':
-        logging.warning(f'You are processing imagery files using real-time data. ' + 
+        logging.warning(f'You are creating imagery file metadata ' + 
+            'using real-time data. ' + 
             'This may result in inaccurate imagery file metadata')
 
 
