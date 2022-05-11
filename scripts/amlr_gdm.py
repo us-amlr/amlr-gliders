@@ -13,7 +13,7 @@ import math
 import multiprocessing as mp
 import numpy as np
 
-import ipdb
+import ipdb #ipdb.set_trace()
 
 
 
@@ -136,6 +136,7 @@ def amlr_imagery(
 
     #--------------------------------------------
     # Extract info from imagery file names, and match up with glider data
+    ipdb.set_trace()
     try:
         imagery_file_dts = [dt.datetime.strptime(i[5:20], '%Y%m%d-%H%M%S') for i in imagery_files]
     except:
@@ -215,12 +216,13 @@ def main(args):
 
 
     deployment_split = deployment.split('-')
+    deployment_mode = f'{deployment}-{mode}'
     if len(deployment_split[1]) != 8:
         logging.error("The deployment string format must be 'glider-YYYYmmdd', eg amlr03-20220101")
         return
 
     else:
-        logging.info(f'Processing glider data for deployment {deployment}, mode {mode}')
+        logging.info(f'Processing glider data for deployment {deployment_mode}')
 
 
     # Append gdm path, and import functions
@@ -270,7 +272,6 @@ def main(args):
 
     #--------------------------------------------
     # Set path/file variables, and create file paths if necessary
-    deployment_mode = f'{deployment}-{mode}'
     glider = deployment_split[0]
     year = deployment_split[1][0:4]
 
