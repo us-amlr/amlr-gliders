@@ -359,6 +359,7 @@ def main(args):
 
     # Remove garbage data, if specified
     if not keep_19700101:
+        logging.info('Removing invalid timestamps')
         row_count_orig = len(gdm.data.index)
         gdm.data = gdm.data[gdm.data.index != '1970-01-01']
         num_records_diff = row_count_orig - len(gdm.data.index)
@@ -368,6 +369,14 @@ def main(args):
     # Make columns lowercase to match gdm behavior
     logging.info('Making sensor (data column) names lowercase to match gdm behavior')
     gdm.data.columns = gdm.data.columns.str.lower()
+
+    # Remove duplicate timestamps
+    gdm_dup = gdm.data.index.duplicated()
+    if any(gdm_dup):
+        logging.info('Removing duplicated timestamps')
+        gdm.data[~gdm.data.index.duplicated(keep='last')]
+        logging.info(f'Removed {gdm_dup.sum()} rows with duplicated timestamps')
+
 
     # Create interpolated variables
     logging.info('Creating interpolated variables')
@@ -379,8 +388,6 @@ def main(args):
     gdm.data['ipitch'] = gdm.data.m_pitch.interpolate(method='time', limit_direction='forward', limit_area='inside')
     gdm.data['iroll'] = gdm.data.m_roll.interpolate(method='time', limit_direction='forward', limit_area='inside')
     
-    ipdb.set_trace()
-
     #--------------------------------------------
     # Convert to time series, and write to nc file
     if write_trajectory:
