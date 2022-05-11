@@ -380,14 +380,18 @@ def main(args):
 
     # Create interpolated variables
     logging.info('Creating interpolated variables')
-    # gdm_data_copy = gdm.data.copy()
+    gdm_data_copy = gdm.data.copy()
     # gdm.data['idepth'] = pd_interpolate_amlr(gdm_data_copy.depth)
     # gdm.data['ipitch'] = pd_interpolate_amlr(gdm_data_copy.m_pitch)
     # gdm.data['iroll'] = pd_interpolate_amlr(gdm_data_copy.m_roll)
-    gdm.data['idepth'] = gdm.data.depth.interpolate(method='time', limit_direction='forward', limit_area='inside')
-    gdm.data['ipitch'] = gdm.data.m_pitch.interpolate(method='time', limit_direction='forward', limit_area='inside')
-    gdm.data['iroll'] = gdm.data.m_roll.interpolate(method='time', limit_direction='forward', limit_area='inside')
+    gdm.data['idepth'] = (gdm_data_copy.depth
+        .interpolate(method='time', limit_direction='forward', limit_area='inside'))
+    gdm.data['ipitch'] = (gdm_data_copy.m_pitch
+        .interpolate(method='time', limit_direction='forward', limit_area='inside'))
+    gdm.data['iroll'] = (gdm_data_copy.m_roll
+        .interpolate(method='time', limit_direction='forward', limit_area='inside'))
     
+
     #--------------------------------------------
     # Convert to time series, and write to nc file
     if write_trajectory:
