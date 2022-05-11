@@ -49,6 +49,7 @@ list_image_files <- function(imagery.url, subdirs) {
     drive_ls(as_id(imagery.url), recursive = TRUE)
   }
   
+  if (any(duplicates(img.df$name))) warning("Duplicate image names")
   img.df %>% select(img_file = name)
 }
 
@@ -57,7 +58,7 @@ list_image_files <- function(imagery.url, subdirs) {
 write_image_csv <- function(
     img.df, deployment, cam.type, 
     data.path = "C:/SMW/Gliders_Moorings/Gliders/Glider-Data-gcp/", 
-    project = 'SANDIEGO', yr = '2022'
+    project = 'SANDIEGO', yr = '2022',
 ) {
   
   stopifnot(cam.type %in% c("glidercam", "shadowgraph"))

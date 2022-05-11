@@ -136,7 +136,6 @@ def amlr_imagery(
 
     #--------------------------------------------
     # Extract info from imagery file names, and match up with glider data
-    ipdb.set_trace()
     try:
         imagery_file_dts = [dt.datetime.strptime(i[5:20], '%Y%m%d-%H%M%S') for i in imagery_files]
     except:
@@ -148,8 +147,8 @@ def amlr_imagery(
     imagery_dict = {'img_file': imagery_files, 'img_dt': imagery_file_dts}
     imagery_df = pd.DataFrame(data = imagery_dict).sort_values('img_dt')
 
-    ds_nona = ds.sel(time = ds.depth.dropna('time').time.values)
-    ds_slice = ds_nona.sel(time=imagery_df.img_dt.values, method = 'nearest')
+    # ds_nona = ds.sel(time = ds.depth.dropna('time').time.values)
+    ds_slice = ds.sel(time=imagery_df.img_dt.values, method = 'nearest')
 
     imagery_df['glider_dt'] = ds_slice.time.values
     imagery_df['diff_dt_seconds'] = (imagery_df.img_dt - imagery_df.glider_dt).astype('timedelta64[s]').astype(np.int32)
@@ -380,7 +379,7 @@ def main(args):
     gdm.data['ipitch'] = gdm.data.m_pitch.interpolate(method='time', limit_direction='forward', limit_area='inside')
     gdm.data['iroll'] = gdm.data.m_roll.interpolate(method='time', limit_direction='forward', limit_area='inside')
     
-
+    ipdb.set_trace()
 
     #--------------------------------------------
     # Convert to time series, and write to nc file
