@@ -158,8 +158,8 @@ def amlr_imagery(
     imagery_df['pitch'] = ds_slice[pitch_column].values
     imagery_df['roll'] = ds_slice[roll_column].values
 
-    logging.info(f'Writing imagery metadata CSV file ({csv_file})')
     csv_file = os.path.join(out_path, f'{deployment}-imagery-metadata.csv')
+    logging.info(f'Writing imagery metadata CSV file ({csv_file})')
     imagery_df.to_csv(csv_file, index=False)
 
     imagery_df
