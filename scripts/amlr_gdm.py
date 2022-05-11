@@ -6,12 +6,12 @@ import logging
 import argparse
 import copy
 
-import multiprocessing as mp
 import pandas as pd
 import datetime as dt
 import glob
+import math
+import multiprocessing as mp
 import numpy as np
-
 
 import ipdb
 
@@ -412,7 +412,7 @@ def main(args):
 
 
     # Write acoustics files
-    if write_acoustics:
+    if write_acoustics: 
         amlr_acoustics(glider_path, deployment, mode, gdm)
 
     # Write imagery metadata file
