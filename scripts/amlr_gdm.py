@@ -413,11 +413,6 @@ def main(args):
 
     # Write acoustics files
     if write_acoustics:
-        # TMP solution
-        gdm.data['idepth'] = utils.interpolate_timeseries(gdm.data.depth, gdm.data.index)
-        gdm.data['ipitch'] = utils.interpolate_timeseries(gdm.data.m_pitch, gdm.data.index)
-        gdm.data['iroll'] = utils.interpolate_timeseries(gdm.data.m_roll, gdm.data.index)
-
         amlr_acoustics(glider_path, deployment, mode, gdm)
 
     # Write imagery metadata file
