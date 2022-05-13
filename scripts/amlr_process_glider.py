@@ -33,7 +33,7 @@ def line_prepender(filename, line):
 
 
 def amlr_acoustics(
-    glider_path, deployment, mode, gdm, 
+    gdm, glider_path, deployment, mode,  
     pitch_column = 'ipitch', roll_column = 'iroll', depth_column = 'idepth', 
     lat_column = 'ilatitude', lon_column = 'ilongitude'
 ):
@@ -103,16 +103,17 @@ def amlr_acoustics(
 
 
 def amlr_imagery(
-    glider_path, deployment, ds, imagery_path, ext = 'jpg', 
+    gdm, glider_path, deployment, imagery_path, ext = 'jpg', 
     lat_column = 'lat', lon_column = 'lon', 
     depth_column = 'idepth', pitch_column = 'ipitch', roll_column = 'iroll'    
 ):
     """
-    Match up imagery files with data from gdm object
+    Matches up imagery files with data from gdm object by imagery filename
     Returns dataframe with metadata information
     """
     
     logging.info(f'Creating imagery metadata file for {deployment}')
+
 
     #--------------------------------------------
     # Checks
@@ -131,12 +132,26 @@ def amlr_imagery(
         imagery_files = [os.path.basename(x) for x in imagery_filepaths]
         imagery_files.sort()
 
-        # TODO: check for non-sensical file paths
+        # TODO: check for non-sensical file paths\
+
+
+    #--------------------------------------------
+    logging.info("Creating timeseries for imagery processing")
+    imagery_vars_list = ['ilatitude', 'latitude', 'ilongitude', 'longitude', 
+        'depth', 'density', 'm_heading', 'm_pitch', 'm_roll', 
+        'idepth', 'ipitch', 'iroll']
+
+    ipdb.set_trace()
+    # gdm_imagery = copy.deepcopy(gdm)        
+    # gdm_imagery.data = gdm_imagery.data[imagery_vars_list]
+    gdm.data = gdm.data[imagery_vars_list]
+    ds = gdm.to_timeseries_dataset()
+    
 
 
     #--------------------------------------------
     # Extract info from imagery file names, and match up with glider data
-    ipdb.set_trace()
+    logging.info("Processing imagery file names")
     try:
         imagery_file_dts = [dt.datetime.strptime(i[5:20], '%Y%m%d-%H%M%S') for i in imagery_files]
     except:
@@ -148,6 +163,7 @@ def amlr_imagery(
     imagery_dict = {'img_file': imagery_files, 'img_dt': imagery_file_dts}
     imagery_df = pd.DataFrame(data = imagery_dict).sort_values('img_dt')
 
+    logging.info("Finding nearest glider data slice for each imagery datetime")
     # ds_nona = ds.sel(time = ds.depth.dropna('time').time.values)
     ds_slice = ds.sel(time=imagery_df.img_dt.values, method = 'nearest')
 
@@ -482,20 +498,11 @@ def main(args):
 
     # Write acoustics files
     if write_acoustics: 
-        amlr_acoustics(glider_path, deployment, mode, gdm)
+        amlr_acoustics(gdm, glider_path, deployment, mode)
 
     # Write imagery metadata file
     if write_imagery:
-        logging.info("Creating timeseries for imagery processing")
-
-        imagery_vars_list = ['ilatitude', 'latitude', 'ilongitude', 'longitude', 
-            'depth', 'density', 'm_heading', 'm_pitch', 'm_roll', 
-            'idepth', 'ipitch', 'iroll']
-
-        # gdm_imagery = copy.deepcopy(gdm)        
-        # gdm_imagery.data = gdm_imagery.data[imagery_vars_list]
-        ds_imagery = gdm.data[imagery_vars_list].to_timeseries_dataset()
-        amlr_imagery(glider_path, deployment, ds_imagery, imagery_path)
+        amlr_imagery(gdm, glider_path, deployment, imagery_path)
         
         
     logging.info('amlr_gdm processing complete for {:}'.format(deployment_mode))
