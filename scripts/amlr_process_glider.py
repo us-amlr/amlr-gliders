@@ -170,6 +170,8 @@ def amlr_imagery(
 def amlr_gdm(deployment, project, mode, glider_path, gdm_path, numcores, 
                 load_from_tmp, keep_19700101):
     """
+    Create gdm object from dba files
+    Returns gdm object
     """
 
     #--------------------------------------------
@@ -220,13 +222,7 @@ def amlr_gdm(deployment, project, mode, glider_path, gdm_path, numcores,
     if not os.path.isdir(glider_path):
         logging.error(f'glider_path ({glider_path}) does not exist')
         return
-    # else:
-    #     dir_expected = prj_list + ['cache']
-    #     if not all(x in os.listdir(deployments_path) for x in dir_expected):
-    #         logging.error(f"The expected folders ({', '.join(dir_expected)}) " + 
-    #             f'were not found in the provided directory ({deployments_path}). ' + 
-    #             'Did you provide the right path via deployments_path?')
-    #         return 
+
 
     #--------------------------------------------
     # Set path/file variables, and create file paths if necessary
@@ -381,38 +377,17 @@ def main(args):
     imagery_path = args.imagery_path
 
 
+    #--------------------------------------------
+    # Checks
+
     # deployment and mode are checked in amlr_gdm
-
-    # # Check mode and deployment and set related variables
-    # if not (mode in ['delayed', 'rt']):
-    #     logging.error("mode must be either 'delayed' or 'rt'")
-    #     return
-    # else:
-    #     if mode == 'delayed':
-    #         binary_type = 'debd'
-    #     else: 
-    #         binary_type = 'stbd'
-
-
     deployment_split = deployment.split('-')
     if len(deployment_split[1]) != 8:
         # TODO: add more better YYYYmmdd check
         logging.error("The deployment string format must be 'glider-YYYYmmdd', eg amlr03-20220101")
         return
 
-
-    #--------------------------------------------
-    # Checks
-
-    prj_list = ['FREEBYRD', 'REFOCUS', 'SANDIEGO']
-    # if not (project in prj_list):
-    #     logging.error(f"project must be one of {', '.join(prj_list)}")
-    #     return 
-    
-    # if not (1 <= numcores and numcores <= mp.cpu_count()):
-    #     logging.error(f'numcores must be between 1 and {mp.cpu_count()}')
-    #     return 
-    
+    prj_list = ['FREEBYRD', 'REFOCUS', 'SANDIEGO']    
     if not os.path.isdir(deployments_path):
         logging.error(f'deployments_path ({deployments_path}) does not exist')
         return
@@ -448,25 +423,11 @@ def main(args):
                 load_from_tmp, keep_19700101)
 
     if gdm is None:
-        logging.error('gdm processing failed, and thus glider data processing will be borted')
+        logging.error('gdm processing failed, and thus all glider data processing will be aborted')
         return
-    # #--------------------------------------------
-    # # Set path/file variables, and create file paths if necessary
-    # glider = deployment_split[0]
-    # year = deployment_split[1][0:4]
 
-    # glider_path = os.path.join(deployments_path, project, year, deployment, 'glider')
-    # logging.info(f'Glider path: {glider_path}')
 
-    # ascii_path  = os.path.join(glider_path, 'data', 'in', 'ascii', binary_type)
-    # config_path = os.path.join(glider_path, 'config', 'gdm')
-    # nc_ngdac_path = os.path.join(glider_path, 'data', 'out', 'nc', 'ngdac', mode)
-    # nc_trajectory_path = os.path.join(glider_path, 'data', 'out', 'nc', 'trajectory')
-
-    # tmp_path = os.path.join(glider_path, 'data', 'tmp')
-    # pq_data_file = os.path.join(tmp_path, f'{deployment_mode}-data.parquet')
-    # pq_profiles_file = os.path.join(tmp_path, f'{deployment_mode}-profiles.parquet')
-    
+    #--------------------------------------------    
     # This is for GCP because buckets don't do implicit directories well on upload
     if write_trajectory and (not os.path.exists(nc_trajectory_path)):
         logging.info(f'Creating directory at: {nc_trajectory_path}')
@@ -476,95 +437,6 @@ def main(args):
         logging.info(f'Creating directory at: {nc_ngdac_path}')
         os.makedirs(nc_ngdac_path)
 
-
-    # #--------------------------------------------
-    # # # Read dba files - not necessary
-    # # logging.info('Getting dba files from: {:}'.format(ascii_path))
-    # # dba_files = get_dbas(ascii_path)
-    # # # logging.info('dba file info: {:}'.format(dba_files.info()))
-
-    # # Create and process gdm object
-    # if not os.path.exists(config_path):
-    #     logging.error(f'The config path does not exist {config_path}')
-    #     return 
-                        
-    # logging.info(f'Creating GliderDataModel object from configs: {config_path}')
-    # gdm = GliderDataModel(config_path)
-    # if load_from_tmp:        
-    #     logging.info(f'Loading gdm data from parquet files in: {tmp_path}')
-    #     gdm.data = pd.read_parquet(pq_data_file)
-    #     gdm.profiles = pd.read_parquet(pq_profiles_file)
-    #     logging.info(f'gdm from parquet files:\n {gdm}')
-
-    # else:    
-    #     logging.info(f'Reading ascii data into gdm object using {numcores} core(s)')
-    #     # Add data from dba files to gdm
-    #     dba_files_list = list(map(lambda x: os.path.join(ascii_path, x), os.listdir(ascii_path)))
-    #     dba_files = pd.DataFrame(dba_files_list, columns = ['dba_file'])
-        
-    #     if numcores > 1:
-    #         # If numcores is greater than 1, run load_slocum_dba in parallel
-    #         pool = mp.Pool(numcores)
-    #         load_slocum_dba_list = pool.map(load_slocum_dba, dba_files_list)
-    #         pool.close()   
-            
-    #         load_slocum_dba_list_unzipped = list(zip(*load_slocum_dba_list))
-    #         dba = pd.concat(load_slocum_dba_list_unzipped[0]).sort_index()
-    #         pro_meta = pd.concat(load_slocum_dba_list_unzipped[1]).sort_index()            
-            
-    #         gdm.data = dba 
-    #         gdm.profiles = pro_meta
-
-    #     else :        
-    #         # If numcores == 1, run load_slocum_dba in normal for loop
-    #         for index, row in dba_files.iterrows():
-    #             # dba_file = os.path.join(row['path'], row['file'])
-    #             dba, pro_meta = load_slocum_dba(row['dba_file'])
-                
-    #             gdm.data = pd.concat([gdm.data, dba])
-    #             gdm.profiles = pd.concat([gdm.profiles, pro_meta])
-            
-    #     logging.info(f'gdm with data and profiles from dbas:\n {gdm}')
-
-    #     logging.info('Sorting gdm data by time index')
-    #     gdm.data.sort_index(inplace=True)
-    #     gdm.profiles.sort_index(inplace=True)
-
-    #     logging.info('Writing gdm to parquet files')
-    #     gdm.data.to_parquet(pq_data_file, version="2.6", index = True)
-    #     gdm.profiles.to_parquet(pq_profiles_file, version="2.6", index = True)
-
-    # # Remove garbage data, if specified
-    # if not keep_19700101:
-    #     logging.info('Removing invalid timestamps')
-    #     row_count_orig = len(gdm.data.index)
-    #     gdm.data = gdm.data[gdm.data.index != '1970-01-01']
-    #     num_records_diff = row_count_orig - len(gdm.data.index)
-    #     logging.info(f'Removed {num_records_diff} invalid timestamps of 1970-01-01')
-
-        
-    # # Make columns lowercase to match gdm behavior
-    # logging.info('Making sensor (data column) names lowercase to match gdm behavior')
-    # gdm.data.columns = gdm.data.columns.str.lower()
-
-    # # Remove duplicate timestamps
-    # gdm_dup = gdm.data.index.duplicated()
-    # if any(gdm_dup):
-    #     logging.info('Removing duplicated timestamps')
-    #     gdm.data[~gdm.data.index.duplicated(keep='last')]
-    #     logging.info(f'Removed {gdm_dup.sum()} rows with duplicated timestamps')
-
-
-    # # Create interpolated variables
-    # logging.info('Creating interpolated variables')
-    # gdm_data_copy = gdm.data.copy()
-    # # gdm.data['idepth'] = pd_interpolate_amlr(gdm_data_copy.depth)
-    # # gdm.data['ipitch'] = pd_interpolate_amlr(gdm_data_copy.m_pitch)
-    # # gdm.data['iroll'] = pd_interpolate_amlr(gdm_data_copy.m_roll)
-    # gdm.data['idepth'] = gdm_data_copy.depth.interpolate(method='time', limit_direction='forward', limit_area='inside')
-    # gdm.data['ipitch'] = gdm_data_copy.m_pitch.interpolate(method='time', limit_direction='forward', limit_area='inside')
-    # gdm.data['iroll'] = gdm_data_copy.m_roll.interpolate(method='time', limit_direction='forward', limit_area='inside')
-    
 
     #--------------------------------------------
     # Convert to time series, and write to nc file
