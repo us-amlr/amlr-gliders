@@ -55,6 +55,8 @@ def amlr_acoustics(
 
     gdm_dt_dt = gdm.data.index.values.astype('datetime64[s]').astype(dt.datetime)
     acoustic_file_pre = os.path.join(acoustics_path, deployment_mode)
+    
+    logging.info(f'Writing acoustics files to {acoustics_path}')
 
     # Pitch
     logging.info(f'Creating Pitch file')
@@ -176,7 +178,7 @@ def amlr_imagery(
     imagery_df['roll'] = ds_slice[roll_column].values
 
     csv_file = os.path.join(out_path, f'{deployment}-imagery-metadata.csv')
-    logging.info(f'Writing imagery metadata CSV file ({csv_file})')
+    logging.info(f'Writing imagery metadata CSV file to {csv_file}')
     imagery_df.to_csv(csv_file, index=False)
 
     imagery_df
@@ -506,7 +508,7 @@ def main(args):
         amlr_imagery(gdm, glider_path, deployment, imagery_path)
         
         
-    logging.info('amlr_gdm processing complete for {:}'.format(deployment_mode))
+    logging.info(f'Glider data processing complete for {deployment_mode}')
     return gdm
 
 
