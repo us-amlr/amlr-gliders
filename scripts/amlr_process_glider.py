@@ -393,25 +393,11 @@ def main(args):
     #         binary_type = 'stbd'
 
 
-    # deployment_split = deployment.split('-')
-    # if len(deployment_split[1]) != 8:
-    #     logging.error("The deployment string format must be 'glider-YYYYmmdd', eg amlr03-20220101")
-    #     return
-
-    # else:
-    #     logging.info(f'Processing glider data for deployment {deployment_mode}')
-
-
-    # # Append gdm path, and import functions
-    # if not os.path.isdir(gdm_path):
-    #     logging.error(f'gdm_path ({gdm_path}) does not exist')
-    #     return
-    # else:
-    #     logging.info(f'Importing gdm functions from {gdm_path}')
-    #     sys.path.append(gdm_path)
-    #     from gdm import GliderDataModel
-    #     from gdm.utils import interpolate_timeseries
-    #     from gdm.gliders.slocum import load_slocum_dba #, get_dbas
+    deployment_split = deployment.split('-')
+    if len(deployment_split[1]) != 8:
+        # TODO: add more better YYYYmmdd check
+        logging.error("The deployment string format must be 'glider-YYYYmmdd', eg amlr03-20220101")
+        return
 
 
     #--------------------------------------------
@@ -438,6 +424,7 @@ def main(args):
             return 
 
     deployment_mode = f'{deployment}-{mode}'
+    year = deployment_split[1][0:4]
     glider_path = os.path.join(deployments_path, project, year, deployment, 'glider')
     logging.info(f'Glider path: {glider_path}')
 
