@@ -339,6 +339,7 @@ def amlr_gdm(deployment, project, mode, glider_path, gdm_path, numcores,
     gdm.data['ipitch'] = gdm_data_copy.m_pitch.interpolate(method='time', limit_direction='forward', limit_area='inside')
     gdm.data['iroll'] = gdm_data_copy.m_roll.interpolate(method='time', limit_direction='forward', limit_area='inside')
 
+    logging.info('Returning gdm object')
     return gdm
 
 
@@ -443,9 +444,12 @@ def main(args):
             'This may result in inaccurate imagery file metadata')
 
 
-    ipdb.set_trace()
     gdm = amlr_gdm(deployment, project, mode, glider_path, gdm_path, numcores, 
                 load_from_tmp, keep_19700101)
+
+    if gdm is None:
+        logging.error('gdm processing failed, and thus glider data processing will be borted')
+        return
     # #--------------------------------------------
     # # Set path/file variables, and create file paths if necessary
     # glider = deployment_split[0]
