@@ -164,7 +164,7 @@ def amlr_imagery(
 
     logging.info("Finding nearest glider data slice for each imagery datetime")
     # ds_nona = ds.sel(time = ds.depth.dropna('time').time.values)
-    ipdb.set_trace()
+    # TODO: check if any time values are NA
     ds_slice = ds.sel(time=imagery_df.img_dt.values, method = 'nearest')
 
     imagery_df['glider_dt'] = ds_slice.time.values
@@ -339,6 +339,7 @@ def amlr_gdm(deployment, project, mode, glider_path, gdm_path, numcores,
         logging.info('Removing duplicated timestamps')
         gdm.data = gdm.data[~gdm.data.index.duplicated(keep='last')]
         logging.info(f'Removed {gdm_dup.sum()} rows with duplicated timestamps')
+        # TODO: print the actual timestamps
 
 
     # Create interpolated variables
