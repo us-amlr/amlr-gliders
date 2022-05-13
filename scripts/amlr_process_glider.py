@@ -170,7 +170,10 @@ def amlr_imagery(
 def amlr_gdm(deployment, project, mode, glider_path, gdm_path, numcores, 
                 load_from_tmp, keep_19700101):
     """
-    Create gdm object from dba files
+    Create gdm object from dba files. 
+    Note the data stored in the tmp files has not 
+    removed 1970-01-01 timestamps or made column names lowercase. 
+
     Returns gdm object
     """
 
@@ -228,9 +231,6 @@ def amlr_gdm(deployment, project, mode, glider_path, gdm_path, numcores,
     # Set path/file variables, and create file paths if necessary
     glider = deployment_split[0]
     year = deployment_split[1][0:4]
-
-    # glider_path = os.path.join(deployments_path, project, year, deployment, 'glider')
-    # logging.info(f'Glider path: {glider_path}')
 
     ascii_path  = os.path.join(glider_path, 'data', 'in', 'ascii', binary_type)
     config_path = os.path.join(glider_path, 'config', 'gdm')
@@ -347,10 +347,12 @@ def main(args):
     This script depends requires the directory structure specified in the 
     AMLR glider data management readme:
     https://docs.google.com/document/d/1X5DB4rQRBhBqnFdAAY_5Eyh_yPjG3UZ43Ga7ZGWcSsg
+    
+    Note the data written to the tmp files has not 
+    removed 1970-01-01 timestamps, made column names lowercase, 
+    or added inteprolated variables. 
 
     Returns the gdm object from amlr_gdm. 
-    Note the data stored in the tmp files has not 
-    removed 1970-01-01 timestamps or made column names lowercase. 
     """
 
     #--------------------------------------------
@@ -401,8 +403,10 @@ def main(args):
 
     deployment_mode = f'{deployment}-{mode}'
     year = deployment_split[1][0:4]
-    glider_path = os.path.join(deployments_path, project, year, deployment, 'glider')
-    logging.info(f'Glider path: {glider_path}')
+
+    deployment_curr_path = os.path.join(deployments_path, project, year, deployment)
+    glider_path = os.path.join(deployment_curr_path, 'glider')
+    logging.info(f'Glider deployment path: {deployment_curr_path}')
 
     nc_ngdac_path = os.path.join(glider_path, 'data', 'out', 'nc', 'ngdac', mode)
     nc_trajectory_path = os.path.join(glider_path, 'data', 'out', 'nc', 'trajectory')
@@ -419,6 +423,7 @@ def main(args):
             'This may result in inaccurate imagery file metadata')
 
 
+    #--------------------------------------------    
     gdm = amlr_gdm(deployment, project, mode, glider_path, gdm_path, numcores, 
                 load_from_tmp, keep_19700101)
 
