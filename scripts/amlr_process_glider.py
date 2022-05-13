@@ -185,8 +185,7 @@ def amlr_imagery(
 
 
 
-def amlr_gdm(deployment, project, mode, glider_path, gdm_path, numcores, 
-                load_from_tmp, keep_19700101):
+def amlr_gdm(deployment, project, mode, glider_path, gdm_path, numcores, loadfromtmp):
     """
     Create gdm object from dba files. 
     Note the data stored in the tmp files has not 
@@ -278,7 +277,7 @@ def amlr_gdm(deployment, project, mode, glider_path, gdm_path, numcores,
                         
     logging.info(f'Creating GliderDataModel object from configs: {config_path}')
     gdm = GliderDataModel(config_path)
-    if load_from_tmp:        
+    if loadfromtmp:        
         logging.info(f'Loading gdm data from parquet files in: {tmp_path}')
         gdm.data = pd.read_parquet(pq_data_file)
         gdm.profiles = pd.read_parquet(pq_profiles_file)
@@ -312,8 +311,6 @@ def amlr_gdm(deployment, project, mode, glider_path, gdm_path, numcores,
                 gdm.data = pd.concat([gdm.data, dba])
                 gdm.profiles = pd.concat([gdm.profiles, pro_meta])
             
-        logging.info(f'gdm with data and profiles from dbas:\n {gdm}')
-
         logging.info('Sorting gdm data by time index')
         gdm.data.sort_index(inplace=True)
         gdm.profiles.sort_index(inplace=True)
@@ -322,18 +319,25 @@ def amlr_gdm(deployment, project, mode, glider_path, gdm_path, numcores,
         gdm.data.to_parquet(pq_data_file, version="2.6", index = True)
         gdm.profiles.to_parquet(pq_profiles_file, version="2.6", index = True)
 
-    # Remove garbage data, if specified
-    if not keep_19700101:
-        logging.info('Removing invalid timestamps')
+        logging.info(f'gdm with data and profiles from dbas:\n {gdm}')
+
+    #--------------------------------------------
+    # Make columns lowercase to match gdm behavior
+    logging.info('Making sensor (data column) names lowercase to match gdm behavior')
+    gdm.data.columns = gdm.data.columns.str.lower()
+
+
+    # Remove garbage data
+    #   Removing these timestamps is for situations when there is a " + 
+    #   'Not enough timestamps for yo interpolation' warning",
+    if any(gdm.data.index != '1970-01-01'):
+        logging.info('Removing invalid (1970-01-01) timestamps')
         row_count_orig = len(gdm.data.index)
         gdm.data = gdm.data[gdm.data.index != '1970-01-01']
         num_records_diff = row_count_orig - len(gdm.data.index)
         logging.info(f'Removed {num_records_diff} invalid timestamps of 1970-01-01')
-
-        
-    # Make columns lowercase to match gdm behavior
-    logging.info('Making sensor (data column) names lowercase to match gdm behavior')
-    gdm.data.columns = gdm.data.columns.str.lower()
+    else:
+        logging.info('No invalid (1970-01-01) timestamps to remove')
 
     # Remove duplicate timestamps
     gdm_dup = gdm.data.index.duplicated()
@@ -342,6 +346,8 @@ def amlr_gdm(deployment, project, mode, glider_path, gdm_path, numcores,
         gdm.data = gdm.data[~gdm.data.index.duplicated(keep='last')]
         logging.info(f'Removed {gdm_dup.sum()} rows with duplicated timestamps')
         # TODO: print the actual timestamps
+    else:
+        logging.info('No duplicated timestamps to remove')
 
 
     # Create interpolated variables
@@ -379,6 +385,7 @@ def main(args):
     log_level = getattr(logging, args.loglevel.upper())
     log_format = '%(module)s:%(levelname)s:%(message)s [line %(lineno)d]'
     logging.basicConfig(format=log_format, level=log_level)
+    # TODO: write ^ logs to output file
     
     deployment = args.deployment
     project = args.project
@@ -388,8 +395,7 @@ def main(args):
     gdm_path = args.gdm_path
     numcores = args.numcores
 
-    load_from_tmp = args.load_from_tmp
-    keep_19700101 = args.keep_19700101
+    loadfromtmp = args.loadfromtmp
     write_trajectory = args.write_trajectory
     write_ngdac = args.write_ngdac
     
@@ -399,7 +405,7 @@ def main(args):
 
 
     #--------------------------------------------
-    # Checks
+    # Checks and make path variables
 
     # deployment and mode are checked in amlr_gdm
     deployment_split = deployment.split('-')
@@ -442,30 +448,26 @@ def main(args):
             'This may result in inaccurate imagery file metadata')
 
 
-    #--------------------------------------------    
+    #--------------------------------------------
+    # Create gdm object  
     gdm = amlr_gdm(deployment, project, mode, glider_path, gdm_path, numcores, 
-                load_from_tmp, keep_19700101)
+                loadfromtmp)
 
     if gdm is None:
         logging.error('gdm processing failed, and thus all glider data processing will be aborted')
         return
 
 
-    #--------------------------------------------    
-    # This is for GCP because buckets don't do implicit directories well on upload
-    if write_trajectory and (not os.path.exists(nc_trajectory_path)):
-        logging.info(f'Creating directory at: {nc_trajectory_path}')
-        os.makedirs(nc_trajectory_path)
-        
-    if write_ngdac and (not os.path.exists(nc_ngdac_path)):
-        logging.info(f'Creating directory at: {nc_ngdac_path}')
-        os.makedirs(nc_ngdac_path)
-
-
     #--------------------------------------------
-    # Convert to time series, and write to nc file
+    # Do various additional processing steps
+
+    # Convert to time series, and write trajectory data to nc file
     if write_trajectory:
-        logging.info("Creating timeseries")
+        if write_trajectory and (not os.path.exists(nc_trajectory_path)):
+            logging.info(f'Creating directory at: {nc_trajectory_path}')
+            os.makedirs(nc_trajectory_path)
+
+        logging.info("Creating full timeseries")
         ds = gdm.to_timeseries_dataset()
 
         logging.info("Writing full trajectory timeseries to nc file")
@@ -489,6 +491,10 @@ def main(args):
     # Write individual (profile) nc files
     # TODO: make parallel, when applicable
     if write_ngdac:
+        if write_ngdac and (not os.path.exists(nc_ngdac_path)):
+            logging.info(f'Creating directory at: {nc_ngdac_path}')
+            os.makedirs(nc_ngdac_path)
+
         logging.warning("CANNOT CURRENTLY WRITE TO NGDAC NC FILES")
         # logging.info("Writing ngdac to nc files")
         # glider = dba_files.iloc[0].file.split('_')[0]
@@ -554,16 +560,9 @@ if __name__ == '__main__':
             'This argument must be between 1 and mp.cpu_count()',
         default=1)
 
-    arg_parser.add_argument('--load_from_tmp',
+    arg_parser.add_argument('--loadfromtmp',
         help='flag; indicates gdm object should be loaded from ' + 
             'parquet files in glider/data/tmp directory',
-        action='store_true')
-
-    arg_parser.add_argument('--keep_19700101',
-        help='flag; indicates if data with the timestamp 1970-01-01 '  + 
-            'should be KEPT. Will be ignored if load_from_tmp is True. ' + 
-            "Removing these timestamps is for situations when there is a " + 
-            "'Not enough timestamps for yo interpolation' warning",
         action='store_true')
 
     arg_parser.add_argument('--write_trajectory',
