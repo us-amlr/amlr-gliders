@@ -417,7 +417,7 @@ def main(args):
     #--------------------------------------------
     # Checks
 
-    # prj_list = ['FREEBYRD', 'REFOCUS', 'SANDIEGO']
+    prj_list = ['FREEBYRD', 'REFOCUS', 'SANDIEGO']
     # if not (project in prj_list):
     #     logging.error(f"project must be one of {', '.join(prj_list)}")
     #     return 
