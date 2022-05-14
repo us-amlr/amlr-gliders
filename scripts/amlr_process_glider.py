@@ -352,6 +352,7 @@ def amlr_gdm(deployment, project, mode, glider_path, gdm_path, numcores, loadfro
 
     # Create interpolated variables
     logging.info('Creating interpolated variables')
+    ipdb.set_trace()
     gdm_data_copy = gdm.data.copy()
     # gdm.data['idepth'] = pd_interpolate_amlr(gdm_data_copy.depth)
     # gdm.data['ipitch'] = pd_interpolate_amlr(gdm_data_copy.m_pitch)
