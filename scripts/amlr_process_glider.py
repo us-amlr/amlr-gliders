@@ -46,7 +46,7 @@ def amlr_acoustics(
 
     # Check that all required variables are present
     col_req = [pitch_column, roll_column, depth_column, lat_column, lon_column]
-    if set(col_req).issubset(gdm.data.columns):
+    if not set(col_req).issubset(gdm.data.columns):
         logging.error('gdm object does not contain all required columns. ' + 
             f"Missing columns: {', '.join({col_req}.difference(gdm.data.columns))}")
         return()
@@ -146,7 +146,7 @@ def amlr_imagery(
         'depth', 'density', 'm_heading', 'm_pitch', 'm_roll', 
         'idepth', 'ipitch', 'iroll']
 
-    if set(imagery_vars_list).issubset(gdm.data.columns):
+    if not set(imagery_vars_list).issubset(gdm.data.columns):
         logging.error('gdm object does not contain all required columns. ' + 
             f"Missing columns: {', '.join({imagery_vars_list}.difference(gdm.data.columns))}")
         return()
