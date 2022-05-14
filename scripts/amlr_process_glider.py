@@ -48,7 +48,7 @@ def amlr_acoustics(
     col_req = [pitch_column, roll_column, depth_column, lat_column, lon_column]
     if {col_req}.issubset(gdm.data.columns):
         logging.error('gdm object does not contain all required columns. ' + 
-            f'Missing columns: {', '.join({col_req}.difference(gdm.data.columns))}'))
+            f'Missing columns: {', '.join({col_req}.difference(gdm.data.columns))}')
         return()
 
     acoustics_path = os.path.join(glider_path, 'data', 'out', 'acoustics')
