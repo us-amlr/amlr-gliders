@@ -44,14 +44,17 @@ def amlr_acoustics(
     logging.info(f'Creating acoustics files for {deployment}')
     deployment_mode = f'{deployment}-{mode}'
 
+    # Check that all required variables are present
+    col_req = [pitch_column, roll_column, depth_column, lat_column, lon_column]
+    if {col_req}.issubset(gdm.data.columns):
+        logging.error('gdm object does not contain all required columns. ' + 
+            f'Missing columns: {', '.join({col_req}.difference(gdm.data.columns))}'))
+        return()
+
     acoustics_path = os.path.join(glider_path, 'data', 'out', 'acoustics')
     if not os.path.exists(acoustics_path):
         logging.info(f'Creating directory at: {acoustics_path}')
         os.makedirs(acoustics_path)
-
-    # gdm.data['idepth'] = utils.interpolate_timeseries(gdm.data.depth, gdm.data.index)
-    # gdm.data['ipitch'] = utils.interpolate_timeseries(gdm.data.m_pitch, gdm.data.index)
-    # gdm.data['iroll'] = utils.interpolate_timeseries(gdm.data.m_roll, gdm.data.index)
 
     gdm_dt_dt = gdm.data.index.values.astype('datetime64[s]').astype(dt.datetime)
     acoustic_file_pre = os.path.join(acoustics_path, deployment_mode)
@@ -62,7 +65,7 @@ def amlr_acoustics(
     logging.info(f'Creating Pitch file')
     pitch_dict = {'Pitch_date': [i.strftime('%m/%d/%Y') for i in gdm_dt_dt], 
                   'Pitch_time': [i.strftime('%H:%M:%S') for i in gdm_dt_dt], 
-                  'Pitch_angle': [math.degrees(x) for x in gdm.data.ipitch]}
+                  'Pitch_angle': [math.degrees(x) for x in gdm.data[pitch_column]]}
     pitch_df = pd.DataFrame(pitch_dict)
     pitch_df.to_csv(f'{acoustic_file_pre}-pitch.csv', index = False)
 
@@ -71,7 +74,7 @@ def amlr_acoustics(
     logging.info(f'Creating Roll file')
     roll_dict = {'Roll_date': [i.strftime('%m/%d/%Y') for i in gdm_dt_dt],
                   'Roll_time': [i.strftime('%H:%M:%S') for i in gdm_dt_dt], 
-                  'Roll_angle': [math.degrees(x) for x in gdm.data.iroll]}
+                  'Roll_angle': [math.degrees(x) for x in gdm.data[roll_column]]}
     roll_df = pd.DataFrame(roll_dict)
     roll_df.to_csv(f'{acoustic_file_pre}-roll.csv', index = False)
 
@@ -80,8 +83,8 @@ def amlr_acoustics(
     logging.info(f'Creating GPS file')
     gps_dict = {'GPS_date': [i.strftime('%Y-%m-%d') for i in gdm_dt_dt],
                   'GPS_time': [i.strftime('%H:%M:%S') for i in gdm_dt_dt], 
-                  'Latitude': gdm.data.ilongitude, 
-                  'Longitude': gdm.data.ilongitude}
+                  'Latitude': gdm.data[lat_column], 
+                  'Longitude': gdm.data[lon_column]}
     gps_df = pd.DataFrame(gps_dict)
     gps_df.to_csv(f'{acoustic_file_pre}-gps.csv', index = False)
 
@@ -90,7 +93,7 @@ def amlr_acoustics(
     logging.info(f'Creating Depth file')
     depth_dict = {'Depth_date': [i.strftime('%Y%m%d') for i in gdm_dt_dt],
                   'Depth_time': [f"{i.strftime('%H%M%S')}0000" for i in gdm_dt_dt], 
-                  'Depth': gdm.data.idepth, 
+                  'Depth': gdm.data[depth_column], 
                   'repthree': 3}
     depth_df = pd.DataFrame(depth_dict)
     depth_file = f'{acoustic_file_pre}-depth.evl'
@@ -142,6 +145,11 @@ def amlr_imagery(
     imagery_vars_list = ['ilatitude', 'latitude', 'ilongitude', 'longitude', 
         'depth', 'density', 'm_heading', 'm_pitch', 'm_roll', 
         'idepth', 'ipitch', 'iroll']
+
+    if {imagery_vars_list}.issubset(gdm.data.columns):
+        logging.error('gdm object does not contain all required columns. ' + 
+            f'Missing columns: {', '.join({imagery_vars_list}.difference(gdm.data.columns))}')
+        return()
 
     # gdm_imagery = copy.deepcopy(gdm)        
     # gdm_imagery.data = gdm_imagery.data[imagery_vars_list]
@@ -485,7 +493,7 @@ def main(args):
         try:
             ds.to_netcdf(os.path.join(nc_trajectory_path, f'{deployment_mode}-trajectory-full.nc'))
         except:
-            logging.info("Unable to write full trajectory timeseries to nc file")
+            logging.warning("Unable to write full trajectory timeseries to nc file")
 
         vars_list = ['time', 'lat', 'latitude', 'lon', 'longitude', 
             'depth', 'm_heading', 'm_pitch', 'm_roll', 
@@ -502,7 +510,7 @@ def main(args):
         try:
             ds_subset.to_netcdf(os.path.join(nc_trajectory_path, f'{deployment_mode}-trajectory.nc'))
         except:
-            logging.info("Unable to write subset trajectory timeseries to nc file")
+            logging.warning("Unable to write subset trajectory timeseries to nc file")
         
 
 
