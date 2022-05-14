@@ -44,6 +44,7 @@ def amlr_acoustics(
     logging.info(f'Creating acoustics files for {deployment}')
     deployment_mode = f'{deployment}-{mode}'
 
+    ipdb.set_trace()
     # Check that all required variables are present
     col_req = [pitch_column, roll_column, depth_column, lat_column, lon_column]
     if {col_req}.issubset(gdm.data.columns):
