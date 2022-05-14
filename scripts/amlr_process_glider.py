@@ -484,6 +484,7 @@ def main(args):
         logging.info("Writing full trajectory timeseries to nc file")
         ds.to_netcdf(os.path.join(nc_trajectory_path, deployment_mode + '-trajectory-full.nc'))
 
+        ipdb.set_trace()
         vars_list = ['time', 'lat', 'latitude', 'lon', 'longitude', 
             'depth', 'm_heading', 'm_pitch', 'm_roll', 
             'idepth', 'ipitch', 'iroll', 
