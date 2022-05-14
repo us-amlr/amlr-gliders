@@ -481,9 +481,11 @@ def main(args):
         logging.info("Creating full timeseries")
         ds = gdm.to_timeseries_dataset()
 
-        ipdb.set_trace()
         logging.info("Writing full trajectory timeseries to nc file")
-        ds.to_netcdf(os.path.join(nc_trajectory_path, deployment_mode + '-trajectory-full.nc'))
+        try:
+            ds.to_netcdf(os.path.join(nc_trajectory_path, f'{deployment_mode}-trajectory-full.nc'))
+        except:
+            logging.info("Unable to write full trajectory timeseries to nc file")
 
         vars_list = ['time', 'lat', 'latitude', 'lon', 'longitude', 
             'depth', 'm_heading', 'm_pitch', 'm_roll', 
@@ -497,7 +499,11 @@ def main(args):
 
         ds_subset = ds[subset]
         logging.info("Writing trajectory timeseries for most commonly used variables to nc file")
-        ds_subset.to_netcdf(os.path.join(nc_trajectory_path, deployment_mode + '-trajectory.nc'))
+        try:
+            ds_subset.to_netcdf(os.path.join(nc_trajectory_path, f'{deployment_mode}-trajectory.nc'))
+        except:
+            logging.info("Unable to write subset trajectory timeseries to nc file")
+        
 
 
     # Write individual (profile) nc files
