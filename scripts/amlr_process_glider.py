@@ -352,14 +352,24 @@ def amlr_gdm(deployment, project, mode, glider_path, gdm_path, numcores, loadfro
 
     # Create interpolated variables
     logging.info('Creating interpolated variables')
-    ipdb.set_trace()
     gdm_data_copy = gdm.data.copy()
     # gdm.data['idepth'] = pd_interpolate_amlr(gdm_data_copy.depth)
     # gdm.data['ipitch'] = pd_interpolate_amlr(gdm_data_copy.m_pitch)
     # gdm.data['iroll'] = pd_interpolate_amlr(gdm_data_copy.m_roll)
-    gdm.data['idepth'] = gdm_data_copy.depth.interpolate(method='time', limit_direction='forward', limit_area='inside')
-    gdm.data['ipitch'] = gdm_data_copy.m_pitch.interpolate(method='time', limit_direction='forward', limit_area='inside')
-    gdm.data['iroll'] = gdm_data_copy.m_roll.interpolate(method='time', limit_direction='forward', limit_area='inside')
+    if 'depth' in gdm.data:
+        gdm.data['idepth'] = gdm_data_copy.depth.interpolate(method='time', limit_direction='forward', limit_area='inside')
+    else:
+        logging.info('No depth variable, and thus idepth will not be created')
+    
+    if 'pitch' in gdm.data:
+        gdm.data['ipitch'] = gdm_data_copy.m_pitch.interpolate(method='time', limit_direction='forward', limit_area='inside')
+    else:
+        logging.info('No pitch variable, and thus ipitch will not be created')
+
+    if 'roll' in gdm.data:
+        gdm.data['iroll'] = gdm_data_copy.m_roll.interpolate(method='time', limit_direction='forward', limit_area='inside')
+    else:
+        logging.info('No roll variable, and thus iroll will not be created')
 
     logging.info('Returning gdm object')
     return gdm
