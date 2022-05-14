@@ -45,10 +45,11 @@ def amlr_acoustics(
     deployment_mode = f'{deployment}-{mode}'
 
     # Check that all required variables are present
-    col_req = [pitch_column, roll_column, depth_column, lat_column, lon_column]
-    if not set(col_req).issubset(gdm.data.columns):
+    acoustic_vars_list = [pitch_column, roll_column, depth_column, lat_column, lon_column]
+    acoustic_vars_set = set(acoustic_vars_list)
+    if not acoustic_vars_set.issubset(gdm.data.columns):
         logging.error('gdm object does not contain all required columns. ' + 
-            f"Missing columns: {', '.join({col_req}.difference(gdm.data.columns))}")
+            f"Missing columns: {', '.join(acoustic_vars_set.difference(gdm.data.columns))}")
         return()
 
     acoustics_path = os.path.join(glider_path, 'data', 'out', 'acoustics')
@@ -145,10 +146,11 @@ def amlr_imagery(
     imagery_vars_list = ['ilatitude', 'latitude', 'ilongitude', 'longitude', 
         'depth', 'density', 'm_heading', 'm_pitch', 'm_roll', 
         'idepth', 'ipitch', 'iroll']
+    imagery_vars_set = set(imagery_vars_list)
 
-    if not set(imagery_vars_list).issubset(gdm.data.columns):
+    if not imagery_vars_set.issubset(gdm.data.columns):
         logging.error('gdm object does not contain all required columns. ' + 
-            f"Missing columns: {', '.join({imagery_vars_list}.difference(gdm.data.columns))}")
+            f"Missing columns: {', '.join(imagery_vars_set.difference(gdm.data.columns))}")
         return()
 
     # gdm_imagery = copy.deepcopy(gdm)        
