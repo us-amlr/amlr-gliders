@@ -259,7 +259,7 @@ def amlr_gdm(deployment, project, mode, glider_path, gdm_path, numcores, loadfro
     glider = deployment_split[0]
     year = deployment_split[1][0:4]
         if project == 'FREEBYRD':
-            month = deployment_split[1][5:6]
+            month = deployment_split[1][4:6]
             if int(month) <= 7: 
                 year = f'{int(year)-1}-{year[2:4]}'
             else:
