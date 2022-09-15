@@ -33,11 +33,11 @@ def main(args):
     if not (mode in ['delayed', 'rt']):
         logging.error("mode must be either 'delayed' or 'rt'")
         return
-    else:
-        if mode == 'delayed':
-            binary_type = 'debd'
-        else: 
-            binary_type = 'stbd'
+    # else:
+    #     if mode == 'delayed':
+    #         binary_type = 'debd'
+    #     else: 
+    #         binary_type = 'stbd'
 
 
     deployment_split = deployment.split('-')
@@ -51,8 +51,8 @@ def main(args):
         year = deployment_split[1][0:4]
         glider_data_in = os.path.join(deployments_path, project, year, deployment, 
             'glider', 'data', 'in')
-        binary_path = os.path.join(glider_data_in, 'binary', binary_type)
-        ascii_path = os.path.join(glider_data_in, 'ascii', binary_type)
+        binary_path = os.path.join(glider_data_in, 'binary', mode)
+        ascii_path = os.path.join(glider_data_in, 'ascii', mode)
         cache_path = os.path.join(deployments_path, 'cache')
 
         logging.debug(f'Binary path: {binary_path}')

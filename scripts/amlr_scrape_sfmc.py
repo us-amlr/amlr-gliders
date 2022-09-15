@@ -110,7 +110,7 @@ def main(args):
     # Create sfmc directory structure, if needed
     sfmc_local_path = os.path.join(sfmc_path, f'sfmc-{deployment}')
     # sfmc_local_cache = 'cache'
-    sfmc_local_stbd = 'stbd'
+    sfmc_local_stbd = 'rt'
     sfmc_local_ad2 = 'ad2'
 
     if not os.path.isdir(sfmc_local_path):

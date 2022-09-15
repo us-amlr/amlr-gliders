@@ -209,11 +209,11 @@ def amlr_gdm(deployment, project, mode, glider_path, gdm_path, numcores, loadfro
     if not (mode in ['delayed', 'rt']):
         logging.error("mode must be either 'delayed' or 'rt'")
         return
-    else:
-        if mode == 'delayed':
-            binary_type = 'debd'
-        else: 
-            binary_type = 'stbd'
+    # else:
+    #     if mode == 'delayed':
+    #         binary_type = 'debd'
+    #     else: 
+    #         binary_type = 'stbd'
 
 
     deployment_split = deployment.split('-')
@@ -259,7 +259,7 @@ def amlr_gdm(deployment, project, mode, glider_path, gdm_path, numcores, loadfro
     glider = deployment_split[0]
     year = deployment_split[1][0:4]
 
-    ascii_path  = os.path.join(glider_path, 'data', 'in', 'ascii', binary_type)
+    ascii_path  = os.path.join(glider_path, 'data', 'in', 'ascii', mode)
     config_path = os.path.join(glider_path, 'config', 'gdm')
     nc_ngdac_path = os.path.join(glider_path, 'data', 'out', 'nc', 'ngdac', mode)
     nc_trajectory_path = os.path.join(glider_path, 'data', 'out', 'nc', 'trajectory')
