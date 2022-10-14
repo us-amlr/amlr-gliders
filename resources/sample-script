@@ -1,8 +1,6 @@
 #!/bin/bash
 
-# Sample script
-
-# Scraping and processing real-time data from amlr03-20220513
+# Sample script for scraping and processing real-time data from amlr03-20220513
 
 $HOME/startup_glider_proc.sh
 conda activate amlr-gliders
@@ -11,7 +9,7 @@ AMLR_GLIDERS=$HOME/amlr-gliders
 PROJECT=SANDIEGO
 DEPLOYMENT=amlr03-20220513
 MODE=rt
-BUCKET_PATH=%HOME/amlr-gliders-deployments-dev
+BUCKET_PATH=$HOME/amlr-gliders-deployments-dev
 BUCKET_PATH_IMAGERY=$HOME/amlr-imagery-raw-dev
 
 $AMLR_GLIDERS/scripts/amlr_scrape_sfmc.py $DEPLOYMENT $PROJECT
