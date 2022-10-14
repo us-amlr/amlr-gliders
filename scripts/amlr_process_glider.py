@@ -256,14 +256,14 @@ def amlr_gdm(deployment, project, mode, glider_path, gdm_path, numcores, loadfro
 
     #--------------------------------------------
     # Set path/file variables, and create file paths if necessary
-    glider = deployment_split[0]
-    year = deployment_split[1][0:4]
-    if project == 'FREEBYRD':
-        month = deployment_split[1][4:6]
-        if int(month) <= 7: 
-            year = f'{int(year)-1}-{year[2:4]}'
-        else:
-            year = f'{year}-{str(int(year)+1)[2:4]}'
+    # glider = deployment_split[0]
+    # year = deployment_split[1][0:4]
+    # if project == 'FREEBYRD':
+    #     month = deployment_split[1][4:6]
+    #     if int(month) <= 7: 
+    #         year = f'{int(year)-1}-{year[2:4]}'
+    #     else:
+    #         year = f'{year}-{str(int(year)+1)[2:4]}'
     ascii_path  = os.path.join(glider_path, 'data', 'in', 'ascii', mode)
     config_path = os.path.join(glider_path, 'config', 'gdm')
     nc_ngdac_path = os.path.join(glider_path, 'data', 'out', 'nc', 'ngdac', mode)
@@ -454,6 +454,15 @@ def main(args):
 
     deployment_mode = f'{deployment}-{mode}'
     year = deployment_split[1][0:4]
+
+    # glider = deployment_split[0]
+    # year = deployment_split[1][0:4]
+    if project == 'FREEBYRD':
+        month = deployment_split[1][4:6]
+        if int(month) <= 7: 
+            year = f'{int(year)-1}-{year[2:4]}'
+        else:
+            year = f'{year}-{str(int(year)+1)[2:4]}'
 
     deployment_curr_path = os.path.join(deployments_path, project, year, deployment)
     glider_path = os.path.join(deployment_curr_path, 'glider')
