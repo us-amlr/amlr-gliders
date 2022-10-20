@@ -4,12 +4,12 @@ channels:
   - default
 dependencies:
   - python=3.10
-  - glidertools
+  # - glidertools
   - google-crc32c=1.1
   - google-cloud-secret-manager=2.12
   - ipdb=0.13
-  - pip
-  - pyarrow=9.0
+  # - pip
+  - pyarrow
   # - spyder
 
   # packages for glidertools
@@ -17,11 +17,11 @@ dependencies:
   # - plotly
 
   # packages for gdm
-  # - gsw #and for glidertools
-  # - netcdf4
-  # - numpy
-  # - pandas
-  # - scipy
-  # - shapely
-  # - xarray
-  # - yaml
+  - gsw #and for glidertools
+  - netcdf4
+  - numpy
+  - pandas
+  - scipy
+  - shapely
+  - xarray
+  - yaml
