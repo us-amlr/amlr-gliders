@@ -20675,3 +20675,284 @@ sci_flbbbbV2_bb1_ref:
     units: nodim
   dtype: f4
   nc_var_name: sci_flbbbbV2_bb1_ref
+
+# SMW additions, using masterdata 10-8 release
+# https://datahost.webbresearch.com/files.php?cwd=/glider/RELEASE_10_8/masterdata
+c_time_sync:
+  attrs:
+    long_name: c_time_sync
+    sensor: c_time_sync
+    units: enum
+  dtype: i1
+  nc_var_name: c_time_sync
+f_airmar_altimeter_power_stab_time:
+  attrs:
+    long_name: f_airmar_altimeter_power_stab_time
+    sensor: f_airmar_altimeter_power_stab_time
+    units: sec
+  dtype: f4
+  nc_var_name: f_airmar_altimeter_power_stab_time
+f_airmar_altimeter_time_until_good_reading:
+  attrs:
+    long_name: f_airmar_altimeter_time_until_good_reading
+    sensor: f_airmar_altimeter_time_until_good_reading
+    units: sec
+  dtype: f4
+  nc_var_name: f_airmar_altimeter_time_until_good_reading
+m_gps_timestamp:
+  attrs:
+    long_name: m_gps_timestamp
+    sensor: m_gps_timestamp
+    standard_name: time
+    units: seconds since 1970-01-01 00:00:00Z
+  dtype: f8
+  nc_var_name: m_gps_timestamp
+m_sram_free_heap:
+  attrs:
+    long_name: m_sram_free_heap
+    sensor: m_sram_free_heap
+    units: bytes
+  dtype: f4
+  nc_var_name: m_sram_free_heap
+m_sram_min_free_heap:
+  attrs:
+    long_name: m_sram_min_free_heap
+    sensor: m_sram_min_free_heap
+    units: bytes
+  dtype: f4
+  nc_var_name: m_sram_min_free_heap
+sci_m_sram_free_heap:
+  attrs:
+    long_name: sci_m_sram_free_heap
+    sensor: sci_m_sram_free_heap
+    units: bytes
+  dtype: f4
+  nc_var_name: sci_m_sram_free_heap
+sci_m_sram_min_free_heap:
+  attrs:
+    long_name: sci_m_sram_min_free_heap
+    sensor: sci_m_sram_min_free_heap
+    units: bytes
+  dtype: f4
+  nc_var_name: sci_m_sram_min_free_heap
+sci_clothesline_time:
+  attrs:
+    long_name: sci_clothesline_time
+    sensor: sci_clothesline_time
+    units: msec
+  dtype: f4
+  nc_var_name: sci_clothesline_time
+sci_log_time:
+  attrs:
+    long_name: sci_log_time
+    sensor: sci_log_time
+    units: msec
+  dtype: f4
+  nc_var_name: sci_log_time
+sci_proglet_time:
+  attrs:
+    long_name: sci_proglet_time
+    sensor: sci_proglet_time
+    units: msec
+  dtype: f4
+  nc_var_name: sci_proglet_time
+sci_systime:
+  attrs:
+    long_name: sci_systime
+    sensor: sci_systime
+    units: msec
+  dtype: f4
+  nc_var_name: sci_systime
+
+u_digifin_mask_movement_warning_at_surface:
+  attrs:
+    long_name: u_digifin_mask_movement_warning_at_surface
+    sensor: u_digifin_mask_movement_warning_at_surface
+    units: '1'
+  dtype: i1
+  nc_var_name: u_digifin_mask_movement_warning_at_surface
+u_iridium_throttle:
+  attrs:
+    long_name: u_iridium_throttle
+    sensor: u_iridium_throttle
+    units: msec
+  dtype: f4
+  nc_var_name: u_iridium_throttle
+u_use_file_compression:
+  attrs:
+    long_name: u_use_file_compression
+    sensor: u_use_file_compression
+    units: '1'
+  dtype: i1
+  nc_var_name: u_use_file_compression
+x_started_logging:
+  attrs:
+    long_name: x_started_logging
+    sensor: x_started_logging
+    units: '1'
+  dtype: i1
+  nc_var_name: x_started_logging
+
+c_amar_num_fields_to_send:
+  attrs:
+    instrument: instrument_amar
+    long_name: c_amar_num_fields_to_send
+    sensor: c_amar_num_fields_to_send
+    units: nodim
+  dtype: f4
+  nc_var_name: c_amar_num_fields_to_send
+c_amar_on:
+  attrs:
+    instrument: instrument_amar
+    long_name: c_amar_on
+    sensor: c_amar_on
+    units: sec
+  dtype: f4
+  nc_var_name: c_amar_on
+
+c_rbrodo_num_fields_to_send:
+  attrs:
+    instrument: instrument_rbrodo
+    long_name: c_rbrodo_num_fields_to_send
+    sensor: c_rbrodo_num_fields_to_send
+    units: nodim
+  dtype: f4
+  nc_var_name: c_rbrodo_num_fields_to_send
+c_rbrodo_on:
+  attrs:
+    instrument: instrument_rbrodo
+    long_name: c_rbrodo_on
+    sensor: c_rbrodo_on
+    units: sec
+  dtype: f4
+  nc_var_name: c_rbrodo_on
+
+c_tau_num_fields_to_send:
+  attrs:
+    instrument: instrument_tau
+    long_name: c_tau_num_fields_to_send
+    sensor: c_tau_num_fields_to_send
+    units: nodim
+  dtype: f4
+  nc_var_name: c_tau_num_fields_to_send
+c_tau_on:
+  attrs:
+    instrument: instrument_tau
+    long_name: c_tau_on
+    sensor: c_tau_on
+    units: sec
+  dtype: f4
+  nc_var_name: c_tau_on
+
+c_vro_num_fields_to_send:
+  attrs:
+    instrument: instrument_vro
+    long_name: c_vro_num_fields_to_send
+    sensor: c_vro_num_fields_to_send
+    units: nodim
+  dtype: f4
+  nc_var_name: c_vro_num_fields_to_send
+c_vro_on:
+  attrs:
+    instrument: instrument_vro
+    long_name: c_vro_on
+    sensor: c_vro_on
+    units: sec
+  dtype: f4
+  nc_var_name: c_vro_on
+u_vro_serial_num:
+  attrs:
+    instrument: instrument_vro
+    long_name: u_vro_serial_num
+    sensor: u_vro_serial_num
+    units: nodim
+  dtype: i4
+  nc_var_name: u_vro_serial_num
+
+c_echodroid_num_fields_to_send:
+  attrs:
+    instrument: instrument_echodroid
+    long_name: c_echodroid_num_fields_to_send
+    sensor: c_echodroid_num_fields_to_send
+    units: nodim
+  dtype: f4
+  nc_var_name: c_echodroid_num_fields_to_send
+c_echodroid_on:
+  attrs:
+    instrument: instrument_echodroid
+    long_name: c_echodroid_on
+    sensor: c_echodroid_on
+    units: sec
+  dtype: f4
+  nc_var_name: c_echodroid_on
+sci_echodroid_is_installed:
+  attrs:
+    instrument: instrument_echodroid
+    long_name: sci_echodroid_is_installed
+    sensor: sci_echodroid_is_installed
+    units: '1'
+  dtype: i1
+  nc_var_name: sci_echodroid_is_installed
+
+c_solocam_num_fields_to_send:
+  attrs:
+    instrument: instrument_solocam
+    long_name: c_solocam_num_fields_to_send
+    sensor: c_solocam_num_fields_to_send
+    units: nodim
+  dtype: f4
+  nc_var_name: c_solocam_num_fields_to_send
+c_solocam_on:
+  attrs:
+    instrument: instrument_solocam
+    long_name: c_solocam_on
+    sensor: c_solocam_on
+    units: sec
+  dtype: f4
+  nc_var_name: c_solocam_on
+sci_solocam_is_installed:
+  attrs:
+    instrument: instrument_solocam
+    long_name: sci_solocam_is_installed
+    sensor: sci_solocam_is_installed
+    units: '1'
+  dtype: i1
+  nc_var_name: sci_solocam_is_installed
+sci_solocam_free_disk_space:
+  attrs:
+    instrument: instrument_solocam
+    long_name: sci_solocam_free_disk_space
+    sensor: sci_solocam_free_disk_space
+    units: Gbytes
+  dtype: f4
+  nc_var_name: sci_solocam_free_disk_space
+sci_solocam_image_files:
+  attrs:
+    instrument: instrument_solocam
+    long_name: sci_solocam_image_files
+    sensor: sci_solocam_image_files
+    units: nodim
+  dtype: f4
+sci_solocam_video_files:
+  attrs:
+    instrument: instrument_solocam
+    long_name: sci_solocam_video_files
+    sensor: sci_solocam_video_files
+    units: nodim
+  dtype: f4
+sci_solocam_file_offset:
+  attrs:
+    instrument: instrument_solocam
+    long_name: sci_solocam_file_offset
+    sensor: sci_solocam_file_offset
+    units: nodim
+  dtype: f4
+sci_solocam_timestamp:
+  attrs:
+    instrument: instrument_solocam
+    long_name: sci_solocam_timestamp
+    sensor: sci_solocam_timestamp
+    standard_name: time
+    units: seconds since 1970-01-01 00:00:00Z
+  dtype: f8
+  nc_var_name: sci_solocam_timestamp
