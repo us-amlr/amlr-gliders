@@ -84,6 +84,7 @@ def main(args):
                 'Did you provide the right path via deployments_path?')
             return 
 
+    deployment_split = deployment.split('-')
     deployment_mode = f'{deployment}-{mode}'
     year = amlr_year_path(project, deployment_split)
 
@@ -93,6 +94,7 @@ def main(args):
 
     #--------------------------------------------
     # Create gdm object  
+    logging.info(f'Creating gdm object')
     gdm = amlr_gdm(deployment, project, mode, glider_path, gdm_path, 
                     numcores, loadfromtmp)
 
