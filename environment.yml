@@ -10,10 +10,11 @@ dependencies:
   - ipdb
   - pip
   - pyarrow
+  # - spyder
 
   # packages for glidertools
-  - pykrige
-  - plotly
+  # - pykrige
+  # - plotly
 
   # packages for gdm
   - gsw #and for glidertools
