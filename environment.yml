@@ -5,11 +5,11 @@ channels:
 dependencies:
   - python=3.10
   - glidertools
-  - google-crc32c
-  - google-cloud-secret-manager
-  - ipdb
+  - google-crc32c=1.1
+  - google-cloud-secret-manager=2.12
+  - ipdb=13
   - pip
-  - pyarrow
+  - pyarrow=9.0
   # - spyder
 
   # packages for glidertools
