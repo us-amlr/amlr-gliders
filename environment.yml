@@ -4,7 +4,7 @@ channels:
   - default
 dependencies:
   - python=3.10
-  - glidertools
+  # - glidertools
   - google-crc32c
   - google-cloud-secret-manager
   - ipdb
