@@ -1,7 +1,6 @@
 import os
 import sys
 import logging
-import argparse
 import copy
 
 import pandas as pd
@@ -218,7 +217,6 @@ def amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp):
         logger.info('Removing duplicated timestamps')
         gdm.data = gdm.data[~gdm.data.index.duplicated(keep='last')]
         logger.info(f'Removed {gdm_dup.sum()} rows with duplicated timestamps')
-        # TODO: print the actual timestamps
     else:
         logger.info('No duplicated timestamps to remove')
 
