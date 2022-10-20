@@ -37,6 +37,7 @@ def main(args):
     deployments_path = args.deployments_path
 
     gdm_path = args.gdm_path
+    amlr_path = args.amlr_path
     numcores = args.numcores
 
     loadfromtmp = args.loadfromtmp
