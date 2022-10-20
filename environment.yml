@@ -3,24 +3,25 @@ channels:
   - conda-forge
   - default
 dependencies:
-  - python>=3.10
-  - arrow>=1.2
+  - python=3.10
   - glidertools
-  - gsw>=3.4
-  - google-crc32c>=1.1.2
-  - google-cloud-secret-manager>=2.10
+  - google-crc32c
+  - google-cloud-secret-manager
   - ipdb
-  - ipykernel>=6.13
-  - ipython>=7.31
-  - jupyterlab
-  - netcdf4>=1.5
-  - numpy>=1.22
-  - pandas>=1.4
-  - pip>=21.3
-  - pyarrow>=7.0
-  - pyyaml>=6.0
-  - scipy>=1.7
-  - shapely>=1.8
-  - spyder>=5.3
-  - xarray>=0.20
-  - yaml>=0.2
+  - pip
+  - pyarrow
+  - spyder>=5
+
+  # packages for glidertools
+  - pykrige
+  - plotly
+
+  # packages for gdm
+  - gsw #and for glidertools
+  - netcdf4
+  - numpy
+  - pandas
+  - scipy
+  - shapely
+  - xarray
+  - yaml
