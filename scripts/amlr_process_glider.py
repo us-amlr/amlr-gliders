@@ -51,19 +51,19 @@ def main(args):
     #--------------------------------------------
     # Append gdm path
     if not os.path.isdir(gdm_path):
-        logger.error(f'gdm_path ({gdm_path}) does not exist')
+        logging.error(f'gdm_path ({gdm_path}) does not exist')
         return
     else:
-        logger.info(f'Appending path: {gdm_path}')
+        logging.info(f'Appending path: {gdm_path}')
         sys.path.append(gdm_path)
 
     #--------------------------------------------
     # Append amlr path, and import functions
     if not os.path.isdir(gdm_path):
-        logger.error(f'amlr_path ({amlr_path}) does not exist')
+        logging.error(f'amlr_path ({amlr_path}) does not exist')
         return
     else:
-        logger.info(f'Appending path ({amlr_path}) and importing functions')
+        logging.info(f'Appending path ({amlr_path}) and importing functions')
         sys.path.append(amlr_path)
         from amlr import amlr_gdm, amlr_acoustics, amlr_imagery, amlr_year_path, amlr_write_trajectory, amlr_write_ngdac
 
