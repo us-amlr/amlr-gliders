@@ -63,8 +63,7 @@ def main(args):
     else:
         logger.info(f'Appending path ({amlr_path}) and importing functions')
         sys.path.append(amlr_path)
-        from amlr import amlr_gdm, amlr_acoustics, amlr_imagery, amlr_year_path, 
-                            amlr_write_trajectory, amlr_write_ngdac
+        from amlr import amlr_gdm, amlr_acoustics, amlr_imagery, amlr_year_path, amlr_write_trajectory, amlr_write_ngdac
 
 
     #--------------------------------------------
