@@ -22,6 +22,6 @@ dependencies:
   # - numpy
   # - pandas
   # - scipy
-  - shapely
+  # - shapely
   # - xarray
-  - yaml
+  # - yaml
