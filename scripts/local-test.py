@@ -42,3 +42,6 @@ deployment_curr_path = os.path.join(deployments_path, project, year, deployment)
 glider_path = os.path.join(deployment_curr_path, 'glider')
 
 gdm = amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp)
+
+
+### Test GliderTools

@@ -5,6 +5,7 @@ channels:
 dependencies:
   - python=3.10
   - arrow=1.2
+  - glidertools
   - gsw=3.4
   - google-crc32c>=1.1.2
   - google-cloud-secret-manager>=2.10
