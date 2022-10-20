@@ -7,7 +7,7 @@ dependencies:
   - glidertools
   - google-crc32c=1.1
   - google-cloud-secret-manager=2.12
-  - ipdb=13
+  - ipdb=0.13
   - pip
   - pyarrow=9.0
   # - spyder
