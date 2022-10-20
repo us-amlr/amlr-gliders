@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
 import os
+import sys
 import logging
-from amlr import amlr_gdm, amlr_acoustics, amlr_imagery, amlr_year_path
-from amlr import amlr_write_trajectory, amlr_write_ngdac
+# from amlr import amlr_gdm, amlr_acoustics, amlr_imagery, amlr_year_path
+# from amlr import amlr_write_trajectory, amlr_write_ngdac
 
 
 def main(args):
@@ -53,6 +54,17 @@ def main(args):
     else:
         logger.info(f'Appending path: {gdm_path}')
         sys.path.append(gdm_path)
+
+    #--------------------------------------------
+    # Append amlr path, and import functions
+    if not os.path.isdir(gdm_path):
+        logger.error(f'amlr_path ({amlr_path}) does not exist')
+        return
+    else:
+        logger.info(f'Appending path ({amlr_path}) and importing functions')
+        sys.path.append(amlr_path)
+        from amlr import amlr_gdm, amlr_acoustics, amlr_imagery, amlr_year_path, 
+                            amlr_write_trajectory, amlr_write_ngdac
 
 
     #--------------------------------------------
@@ -153,6 +165,11 @@ if __name__ == '__main__':
         type=str,
         help='Path to gdm module', 
         default='/opt/gdm')
+
+    arg_parser.add_argument('--amlr_path', 
+        type=str,
+        help='Path to amlr module', 
+        default='amlr-gliders/amlr-gliders')
 
     arg_parser.add_argument('--numcores',
         type=int,
