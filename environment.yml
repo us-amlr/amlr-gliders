@@ -10,7 +10,6 @@ dependencies:
   - ipdb
   - pip
   - pyarrow
-  - spyder>=5
 
   # packages for glidertools
   - pykrige
