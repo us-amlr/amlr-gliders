@@ -1,0 +1,74 @@
+Conventions: 'CF-1.6, COARDS, ACDD-1.3'
+acknowledgment: 'This work was supported by funding from NOAA.'
+cdm_data_type: trajectory
+comment: 'TrajectoryProfile'
+contributor_name: 'Christian Reiss, George Watters, Jennifer Walsh, Anthony Cossio, George Cutter, Samuel Woodman'
+contributor_role: 'Principal Investigator, Principal Investigator, Glider Pilot, Glider Pilot, Glider Pilot, Data Manager'
+creator_email: christian.reiss at noaa.gov
+creator_institution: 'NOAA SWFSC Antarctic Ecosystem Research Division'
+creator_name: 'Christian Reiss'
+creator_type: person
+creator_url: https://www.fisheries.noaa.gov/about/antarctic-ecosystem-research-division-southwest-fisheries-science-center (external link)
+date_created: ' '
+date_issued: ' '
+date_metadata_modified: ' '
+date_modified: ' '
+featureType: TrajectoryProfile
+geospatial_bounds: ' '
+geospatial_bounds_crs: EPSG:4326
+geospatial_bounds_vertical_crs: EPSG:5831
+geospatial_lat_max: ' '
+geospatial_lat_min: ' '
+geospatial_lat_resolution: '0.00001 degree'
+geospatial_lat_units: degree_north
+geospatial_lon_max: ' '
+geospatial_lon_min: ' '
+geospatial_lon_resolution: '0.00001 degree'
+geospatial_lon_units: degree_east
+geospatial_vertical_max: ' '
+geospatial_vertical_min: ' '
+geospatial_vertical_positive: down
+geospatial_vertical_resolution: ' '
+geospatial_vertical_units: EPSG:5831
+history: ' '
+id: ' '
+infoUrl: 
+institution: 'NOAA NMFS SWFSC Antarctic Ecosystem Research Division'
+instrument: 'In Situ/Laboratory Instruments > Profilers/Sounders > CTD'
+instrument_vocabulary: 'NASA/GCMD Instrument Keywords Version 8.5'
+keywords: 'AUVS > Autonomous Underwater Vehicles, Earth Science > Oceans > Ocean Pressure > Water 
+  Pressure, Earth Science > Oceans > Ocean Temperature > Water Temperature, Earth Science > 
+  Oceans > Salinity/Density > Conductivity, Earth Science > Oceans > Salinity/Density > Density, 
+  Earth Science > Oceans > Salinity/Density > Salinity, 
+  glider, In Situ Ocean-based platforms > Seaglider, Slocum, Spray, trajectory, underwater glider, water, wmo'
+keywords_vocabulary: 'GCMD Science Keywords'
+license: 'This data may be redistributed and used without restriction. Data provided as is with no expressed or implied assurance of quality assurance or quality control.'
+metadata_link: ' '
+naming_authority:   gov.noaa.fisheries
+ncei_template_version: NCEI_NetCDF_Trajectory_Template_v2.0
+platform: 'In Situ Ocean-based Platforms > AUVS > Autonomous Underwater Vehicles'
+platform_type: 'Slocum Glider'
+platform_vocabulary: 'NASA/GCMD Platforms Keywords Version 8.5'
+processing_level: 'No QC has been done to this delayed data'
+product_version: 0.0
+program: U.S. Antarctic Marine Living Resources Program
+project: FREEBYRD
+publisher_email: christian.reiss@noaa.gov
+publisher_institution: 'NOAA SWFSC Antarctic Ecosystem Research Division'
+publisher_name: Christian Reiss
+publisher_url: https://www.fisheries.noaa.gov/about/antarctic-ecosystem-research-division-southwest-fisheries-science-center (external link)
+references: 
+sea_name: 'Pacific Ocean'
+source: 'Observational data from a profiling glider'
+standard_name_vocabulary: 'CF Standard Name Table v73'
+summary: 'These data are part of the U.S. Antarctic Marine Living Resources (AMLR) Program Operation FREEBYRD. 
+  FREEBYRD is a long term program to replace ship-based surveys with autonomous vehicles to 
+  estimate Antarctic krill biomass in support of the 
+  Convention for the Conservation of Antarctic Marine Living Resources (CCAMLR). 
+  This delayed dataset contains CTD, oxygen, chlorophyll a, CDOM and optical backscatter measurements.'
+time_coverage_duration: ' '
+time_coverage_end: ' '
+time_coverage_resolution: ' '
+time_coverage_start: ' '
+title: ' '
+wmo_platform_code: ' '

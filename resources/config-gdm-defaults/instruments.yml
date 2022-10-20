@@ -1,0 +1,53 @@
+- attrs:
+    calibration_date: 2011-04-21
+    calibration_report: ""
+    comment: Pumped
+    deployment: ' '
+    factory_calibrated: 2011-04-21
+    long_name: 'Conductivity, Temperature, Depth (CTD) Sensor'
+    make_model: 'Sea-Bird GPCTD'
+    owner: 'NOAA NMFS SWFSC Antarctic Ecosystem Research Division'
+    platform: platform
+    serial_number: 55
+    type: instrument
+    user_calibrated: ""
+  cfg_file: ""
+  nc_var_name: instrument_ctd
+  type: i4
+- attrs:
+    calibration_date: 2011-08-05
+    calibration_report: ""
+    comment: ""
+    deployment: ' '
+    factory_calibrated: 2011-08-05
+    long_name: 'Oxygen Optode'
+    make_model: 'Aanderaa Oxygen Optode 3830'
+    owner: 'NOAA NMFS SWFSC Antarctic Ecosystem Research Division'
+    platform: platform
+    serial_number: 1024
+    type: instrument
+    user_calibrated: ""
+  cfg_file: ""
+  nc_var_name: instrument_optode
+  type: i4
+- attrs:
+    calibration_date: 2011-08-05
+    calibration_report: ""
+    comment: ""
+    deployment: ' '
+    factory_calibrated: 2011-08-05
+    long_name: 'Optical Backscatter, Chlorophyll, and CDOM Fluorescence Sensor'
+    make_model: 'WET Labs ECO Puck FLBBCD'
+    owner: 'NOAA NMFS SWFSC Antarctic Ecosystem Research Division'
+    platform: platform
+    serial_number: 1024
+    type: instrument
+    user_calibrated: ""
+  cfg_file: ""
+  nc_var_name: instrument_flbbcd
+  type: i4
+
+#TODO: solocam: instrument_solocam
+#TODO: glidercam
+#TODO: ADCP
+#TODO: Nortek Echosounder: instrument_echodroid
