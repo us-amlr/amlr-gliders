@@ -95,8 +95,7 @@ def main(args):
     #--------------------------------------------
     # Create gdm object  
     logging.info(f'Creating gdm object')
-    gdm = amlr_gdm(deployment, project, mode, glider_path, gdm_path, 
-                    numcores, loadfromtmp)
+    gdm = amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp)
 
     if gdm is None:
         logging.error('gdm processing failed, ' + 
