@@ -20869,31 +20869,6 @@ u_vro_serial_num:
   dtype: i4
   nc_var_name: u_vro_serial_num
 
-c_echodroid_num_fields_to_send:
-  attrs:
-    instrument: instrument_echodroid
-    long_name: c_echodroid_num_fields_to_send
-    sensor: c_echodroid_num_fields_to_send
-    units: nodim
-  dtype: f4
-  nc_var_name: c_echodroid_num_fields_to_send
-c_echodroid_on:
-  attrs:
-    instrument: instrument_echodroid
-    long_name: c_echodroid_on
-    sensor: c_echodroid_on
-    units: sec
-  dtype: f4
-  nc_var_name: c_echodroid_on
-sci_echodroid_is_installed:
-  attrs:
-    instrument: instrument_echodroid
-    long_name: sci_echodroid_is_installed
-    sensor: sci_echodroid_is_installed
-    units: '1'
-  dtype: i1
-  nc_var_name: sci_echodroid_is_installed
-
 c_solocam_num_fields_to_send:
   attrs:
     instrument: instrument_solocam
@@ -20956,3 +20931,96 @@ sci_solocam_timestamp:
     units: seconds since 1970-01-01 00:00:00Z
   dtype: f8
   nc_var_name: sci_solocam_timestamp
+
+c_echodroid_num_fields_to_send:
+  attrs:
+    instrument: instrument_echodroid
+    long_name: c_echodroid_num_fields_to_send
+    sensor: c_echodroid_num_fields_to_send
+    units: nodim
+  dtype: f4
+  nc_var_name: c_echodroid_num_fields_to_send
+c_echodroid_on:
+  attrs:
+    instrument: instrument_echodroid
+    long_name: c_echodroid_on
+    sensor: c_echodroid_on
+    units: sec
+  dtype: f4
+  nc_var_name: c_echodroid_on
+sci_echodroid_is_installed:
+  attrs:
+    instrument: instrument_echodroid
+    long_name: sci_echodroid_is_installed
+    sensor: sci_echodroid_is_installed
+    units: '1'
+  dtype: i1
+  nc_var_name: sci_echodroid_is_installed
+sci_echodroid_sv:
+  attrs:
+    instrument: instrument_echodroid
+    long_name: sci_echodroid_sv
+    sensor: sci_echodroid_sv
+    units: dB
+  dtype: f4
+  nc_var_name: sci_echodroid_sv
+sci_echodroid_propOcc:
+  attrs:
+    instrument: instrument_echodroid
+    long_name: sci_echodroid_propOcc
+    sensor: sci_echodroid_propOcc
+    units: nodim
+  dtype: f4
+  nc_var_name: sci_echodroid_propOcc
+sci_echodroid_aggIndex:
+  attrs:
+    instrument: instrument_echodroid
+    long_name: sci_echodroid_aggIndex
+    sensor: sci_echodroid_aggIndex
+    units: m-1
+  dtype: f4
+  nc_var_name: sci_echodroid_aggIndex
+sci_echodroid_sa:
+  attrs:
+    instrument: instrument_echodroid
+    long_name: sci_echodroid_sa
+    sensor: sci_echodroid_sa
+    units: dB
+  dtype: f4
+  nc_var_name: sci_echodroid_sa
+sci_echodroid_ctrMass:
+  attrs:
+    instrument: instrument_echodroid
+    long_name: sci_echodroid_ctrMass
+    sensor: sci_echodroid_ctrMass
+    units: TODO
+  dtype: f4
+  nc_var_name: sci_echodroid_ctrMass
+sci_echodroid_inertia:
+  attrs:
+    instrument: instrument_echodroid
+    long_name: sci_echodroid_inertia
+    sensor: sci_echodroid_inertia
+    units: m-2
+  dtype: f4
+  nc_var_name: sci_echodroid_inertia
+sci_echodroid_eqArea:
+  attrs:
+    instrument: instrument_echodroid
+    long_name: sci_echodroid_eqArea
+    sensor: sci_echodroid_eqArea
+    units: m
+  dtype: f4
+  nc_var_name: sci_echodroid_eqArea
+
+
+
+sci_echodroid_timestamp:
+  attrs:
+    instrument: instrument_echodroid
+    long_name: sci_echodroid_timestamp
+    sensor: sci_echodroid_timestamp
+    standard_name: time
+    units: seconds since 1970-01-01 00:00:00Z
+  dtype: f8
+  nc_var_name: sci_echodroid_timestamp

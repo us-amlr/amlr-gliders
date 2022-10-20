@@ -47,7 +47,6 @@
   nc_var_name: instrument_flbbcd
   type: i4
 
-#TODO: solocam: instrument_solocam
-#TODO: glidercam
-#TODO: ADCP
+#TODO: glidercam&shadowgraph: instrument_solocam
+#TODO: AZFP: instrument_azfp
 #TODO: Nortek Echosounder: instrument_echodroid
