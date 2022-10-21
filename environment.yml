@@ -3,14 +3,15 @@ channels:
   - conda-forge
   - default
 dependencies:
-  - python=3.10
-  # - glidertools
+  - python=3.9 #conflict error for glidertools if using 3.10
+  - glidertools
   - google-crc32c=1.1
   - google-cloud-secret-manager=2.12
-  - ipdb=0.13
-  # - pip
+  - ipdb
+  - pip
   - pyarrow
-  # - spyder
+  # - ipython>=7.31.1,<8.0.0 #for spyder
+  - spyder
 
   # packages for glidertools
   # - pykrige
