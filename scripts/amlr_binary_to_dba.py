@@ -5,6 +5,7 @@ from subprocess import run
 import sys
 import logging
 import argparse
+from amlr import amlr_year_path
 
 
 def main(args):

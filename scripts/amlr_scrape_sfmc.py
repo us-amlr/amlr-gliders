@@ -7,7 +7,7 @@ import sys
 import logging
 import argparse
 import pathlib
-
+from amlr import amlr_year_path
 
 def access_secret_version(project_id, secret_id, version_id = 'latest'):
     """
