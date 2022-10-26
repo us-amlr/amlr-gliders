@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 
 import os
+import sys
 import stat
 from subprocess import call, run
-import sys
 import logging
 import argparse
 import pathlib
-from amlr import amlr_year_path
+
+# from amlr import amlr_year_path
 
 def access_secret_version(project_id, secret_id, version_id = 'latest'):
     """
@@ -100,9 +101,9 @@ def main(args):
     else:
         glider = deployment_split[0]
         # year = deployment_split[1][0:4]
-        # logging.info(f'Appending path ({amlr_path}) and importing year function')
-        # sys.path.append(amlr_path)
-        # from amlr import amlr_year_path
+        logging.info(f'Appending path ({amlr_path}) and importing year function')
+        sys.path.append(amlr_path)
+        from amlr import amlr_year_path
         year = amlr_year_path(project, deployment_split)
 
 

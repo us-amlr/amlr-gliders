@@ -5,6 +5,8 @@ from subprocess import run
 import sys
 import logging
 import argparse
+
+
 from amlr import amlr_year_path
 
 
@@ -49,6 +51,10 @@ def main(args):
     else:
         logging.info(f'Writing dba files for deployment {deployment}, mode {mode}')
         glider = deployment_split[0]
+        
+        logging.info(f'Appending path ({amlr_path}) and importing year function')
+        sys.path.append(amlr_path)
+        from amlr import amlr_year_path
         year = amlr_year_path(project, deployment_split)
         # year = deployment_split[1][0:4]
         # if project == 'FREEBYRD':
@@ -188,6 +194,11 @@ if __name__ == '__main__':
         type=str, 
         help='Location of cache files',
         default = '/opt/slocum/bin2ascii/cac2lower.sh')
+
+    arg_parser.add_argument('--amlr_path', 
+        type=str,
+        help='Path to amlr module', 
+        default='amlr-gliders/amlr-gliders')
 
     arg_parser.add_argument('-l', '--loglevel',
         type=str,
