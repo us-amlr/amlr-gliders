@@ -9,6 +9,24 @@ import argparse
 import pathlib
 
 # from amlr import amlr_year_path
+def amlr_year_path(project, deployment_split):
+    """
+    Generate and return the year string to use in file paths
+
+    For the FREEBYRD project, this will be the Antarctic season, eg '2018-19'
+    For all other projects, this will be a single year, eg '2018'
+    """
+
+    year = deployment_split[1][0:4]
+
+    if project == 'FREEBYRD':
+        month = deployment_split[1][4:6]
+        if int(month) <= 7: 
+            year = f'{int(year)-1}-{year[2:4]}'
+        else:
+            year = f'{year}-{str(int(year)+1)[2:4]}'
+
+    return year
 
 def access_secret_version(project_id, secret_id, version_id = 'latest'):
     """
@@ -101,10 +119,10 @@ def main(args):
     else:
         glider = deployment_split[0]
         # year = deployment_split[1][0:4]
-        amlr_path = args.amlr_path
-        logging.info(f'Appending path ({amlr_path}) and importing year function')
-        sys.path.append(amlr_path)
-        from amlr import amlr_year_path
+        # amlr_path = args.amlr_path
+        # logging.info(f'Appending path ({amlr_path}) and importing year function')
+        # sys.path.append(amlr_path)
+        # from amlr import amlr_year_path
         year = amlr_year_path(project, deployment_split)
 
 
