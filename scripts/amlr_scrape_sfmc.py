@@ -101,6 +101,7 @@ def main(args):
     else:
         glider = deployment_split[0]
         # year = deployment_split[1][0:4]
+        amlr_path = args.amlr_path
         logging.info(f'Appending path ({amlr_path}) and importing year function')
         sys.path.append(amlr_path)
         from amlr import amlr_year_path

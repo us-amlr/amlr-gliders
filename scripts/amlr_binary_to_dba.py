@@ -52,6 +52,7 @@ def main(args):
         logging.info(f'Writing dba files for deployment {deployment}, mode {mode}')
         glider = deployment_split[0]
         
+        amlr_path = args.amlr_path
         logging.info(f'Appending path ({amlr_path}) and importing year function')
         sys.path.append(amlr_path)
         from amlr import amlr_year_path
