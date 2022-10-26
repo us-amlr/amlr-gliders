@@ -99,7 +99,12 @@ def main(args):
         return
     else:
         glider = deployment_split[0]
-        year = deployment_split[1][0:4]
+        # year = deployment_split[1][0:4]
+        # logging.info(f'Appending path ({amlr_path}) and importing year function')
+        # sys.path.append(amlr_path)
+        # from amlr import amlr_year_path
+        year = amlr_year_path(project, deployment_split)
+
 
     if not os.path.isdir(sfmc_path):
         logging.error(f'sfmc_path ({sfmc_path}) does not exist')
@@ -296,6 +301,11 @@ if __name__ == '__main__':
         dest='secret_id', 
         help='GCP secret ID that contains the SFMC password for the rsync', 
         default='sfmc-swoodman')
+
+    arg_parser.add_argument('--amlr_path', 
+        type=str,
+        help='Path to amlr module', 
+        default='amlr-gliders/amlr-gliders')
 
     arg_parser.add_argument('-l', '--loglevel',
         type=str,
