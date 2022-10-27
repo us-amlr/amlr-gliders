@@ -1,6 +1,6 @@
 # amlr-gliders
 
-A repository for processing AMLR glider data, primarily in Google Cloud Platform
+A repository for processing AMLR glider data, primarily in US AMLR Google Cloud Platform projects.
 
 ## Disclaimer
 

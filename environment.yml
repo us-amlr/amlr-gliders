@@ -8,9 +8,7 @@ dependencies:
   - google-crc32c=1.1
   - google-cloud-secret-manager=2.12
   - ipdb
-  - pip
   - pyarrow
-  # - ipython>=7.31.1,<8.0.0 #for spyder
   - spyder
 
   # packages for glidertools
@@ -18,11 +16,16 @@ dependencies:
   # - plotly
 
   # packages for gdm
-  - gsw #and for glidertools
-  - netcdf4
-  - numpy
-  - pandas
-  - scipy
-  - shapely
-  - xarray
-  - yaml
+  # - gsw #and for glidertools
+  # - netcdf4
+  # - numpy
+  # - pandas
+  # - scipy
+  # - shapely
+  # - xarray
+  # - pyyaml
+
+  - pip
+  - pip:
+    - -e git+https://github.com/smwoodman/gdm.git#egg=gdm
+    # - -e amlr-gliders
