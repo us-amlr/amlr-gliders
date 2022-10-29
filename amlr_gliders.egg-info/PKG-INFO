@@ -1,0 +1,10 @@
+Metadata-Version: 2.1
+Name: amlr-gliders
+Version: 0.1.0a1
+Summary: Process AMLR glider data, primarily in GCP
+Home-page: http://github.com/us-amlr/amlr-gliders
+Author: Sam Woodman
+Author-email: sam.woodman@noaa.gov
+License: CC0
+Requires-Python: >=3.9, !=3.10.*
+License-File: LICENSE

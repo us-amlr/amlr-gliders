@@ -3,29 +3,32 @@ channels:
   - conda-forge
   - default
 dependencies:
-  - python=3.9 #conflict error for glidertools if using 3.10
-  - glidertools
+  - python=3.9 #glidertools requires <3.10
+  - pip
+  - spyder>=5.0
+
+  # Used in amlr-gliders scripts
   - google-crc32c=1.1
   - google-cloud-secret-manager=2.12
   - ipdb
   - pyarrow
-  - spyder
 
   # packages for glidertools
-  # - pykrige
-  # - plotly
+  - glidertools
+  - pykrige
+  - plotly
+  - cmocean
 
-  # packages for gdm
-  # - gsw #and for glidertools
-  # - netcdf4
-  # - numpy
-  # - pandas
-  # - scipy
-  # - shapely
-  # - xarray
-  # - pyyaml
+  # packages for gdm, list here to install through conda
+  - gsw #and for glidertools
+  - netcdf4
+  - numpy
+  - pandas
+  - scipy
+  - shapely
+  - xarray
+  - pyyaml
 
-  - pip
   - pip:
     - -e git+https://github.com/smwoodman/gdm.git#egg=gdm
-    # - -e amlr-gliders
+    - -e git+https://github.com/us-amlr/amlr-gliders.git#egg=amlr-gliders

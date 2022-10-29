@@ -1,0 +1,11 @@
+LICENSE
+README.md
+setup.py
+amlr_gliders.egg-info/PKG-INFO
+amlr_gliders.egg-info/SOURCES.txt
+amlr_gliders.egg-info/dependency_links.txt
+amlr_gliders.egg-info/not-zip-safe
+amlr_gliders.egg-info/requires.txt
+amlr_gliders.egg-info/top_level.txt
+amlrgliders/__init__.py
+amlrgliders/utils.py
