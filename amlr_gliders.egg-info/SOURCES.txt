@@ -8,4 +8,5 @@ amlr_gliders.egg-info/not-zip-safe
 amlr_gliders.egg-info/requires.txt
 amlr_gliders.egg-info/top_level.txt
 amlrgliders/__init__.py
+amlrgliders/scrape_sfmc.py
 amlrgliders/utils.py

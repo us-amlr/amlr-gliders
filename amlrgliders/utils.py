@@ -20,21 +20,30 @@ from gdm.gliders.slocum import load_slocum_dba #, get_dbas
 logger = logging.getLogger(__name__)
 
 
-def line_prepender(filename, line):
-    """
-    https://stackoverflow.com/questions/5914627
-    Title: prepend-line-to-beginning-of-a-file
-    """
-    
-    with open(filename, 'r+') as f:
-        content = f.read()
-        f.seek(0, 0)
-        f.write(line.rstrip('\r\n') + '\n' + content)
-
-
 # def pd_interpolate_amlr(df):
 #     return df.interpolate(method='time', limit_direction='forward', 
 #                             limit_area='inside')
+
+
+def path_check(path):
+    if not os.path.isdir(path):
+        logging.error(f'Necessary path ({path}) does not exist')
+        return
+
+
+def find_extensions(dir_path): #,  excluded = ['', '.txt', '.lnk']):
+    """
+    Get all the file extensions in the given directory
+    From https://stackoverflow.com/questions/45256250
+    """
+    extensions = set()
+    for _, _, files in os.walk(dir_path):   
+        for f in files:
+            extensions.add(pathlib.Path(f).suffix)
+            # ext = Path(f).suffix.lower()
+            # if not ext in excluded:
+            #     extensions.add(ext)
+    return extensions
 
 
 def amlr_year_path(project, deployment_split):

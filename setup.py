@@ -10,6 +10,8 @@ setup(name='amlr-gliders',
       packages=['amlrgliders'],
       python_requires='>=3.9, !=3.10.*',
       install_requires=[
+            'google-crc32c>=1.1',
+            'google-cloud-secret-manager>=2.12',
             'pandas', 
             'numpy', 
             'gdm'

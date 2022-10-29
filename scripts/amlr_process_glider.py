@@ -5,8 +5,8 @@ import sys
 import logging
 import argparse
 
-# from amlr import amlr_gdm, amlr_acoustics, amlr_imagery, amlr_year_path
-# from amlr import amlr_write_trajectory, amlr_write_ngdac
+import utils
+# from utils import amlr_gdm, amlr_acoustics, amlr_imagery, amlr_year_path, amlr_write_trajectory, amlr_write_ngdac
 
 
 def main(args):

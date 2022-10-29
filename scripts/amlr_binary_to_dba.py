@@ -6,26 +6,26 @@ import sys
 import logging
 import argparse
 
+from utils import amlr_year_path
 
-# from amlr import amlr_year_path
-def amlr_year_path(project, deployment_split):
-    """
-    Generate and return the year string to use in file paths
+# def amlr_year_path(project, deployment_split):
+#     """
+#     Generate and return the year string to use in file paths
 
-    For the FREEBYRD project, this will be the Antarctic season, eg '2018-19'
-    For all other projects, this will be a single year, eg '2018'
-    """
+#     For the FREEBYRD project, this will be the Antarctic season, eg '2018-19'
+#     For all other projects, this will be a single year, eg '2018'
+#     """
 
-    year = deployment_split[1][0:4]
+#     year = deployment_split[1][0:4]
 
-    if project == 'FREEBYRD':
-        month = deployment_split[1][4:6]
-        if int(month) <= 7: 
-            year = f'{int(year)-1}-{year[2:4]}'
-        else:
-            year = f'{year}-{str(int(year)+1)[2:4]}'
+#     if project == 'FREEBYRD':
+#         month = deployment_split[1][4:6]
+#         if int(month) <= 7: 
+#             year = f'{int(year)-1}-{year[2:4]}'
+#         else:
+#             year = f'{year}-{str(int(year)+1)[2:4]}'
 
-    return year
+#     return year
 
 
 def main(args):
