@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 def amlr_interpolate(df, var_src, var_dst):
-    if var_src in df:
+    if var_src in df.columns:
         logger.info(f'Creating interpolated data column ({var_dst}) from {var_src}')
         df[var_dst] = df[var_src].interpolate(method='time', limit_direction='forward', limit_area='inside')
     else:
