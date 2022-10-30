@@ -5,7 +5,7 @@ import sys
 import stat
 import logging
 import argparse
-from subprocess import call, run
+from subprocess import run
 
 from amlrgliders.utils import amlr_year_path, path_check, find_extensions
 from amlrgliders.scrape_sfmc import access_secret_version, rt_files_mgmt

@@ -5,6 +5,7 @@ Scraping and organizing AMLR glider data from the SFMC
 import os
 import logging
 import re
+from subprocess import call, run
 
 from amlrgliders.utils import path_check
 
