@@ -5,7 +5,6 @@ import sys
 import stat
 import logging
 import argparse
-import pathlib
 from subprocess import call, run
 
 from amlrgliders.utils import amlr_year_path, path_check, find_extensions
