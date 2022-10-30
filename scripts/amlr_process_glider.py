@@ -5,8 +5,9 @@ import sys
 import logging
 import argparse
 
-import utils
-# from utils import amlr_gdm, amlr_acoustics, amlr_imagery, amlr_year_path, amlr_write_trajectory, amlr_write_ngdac
+from amlrgliders.utils import amlr_year_path 
+import amlrgliders.process as amlrp
+# from .. import amlr_gdm, amlr_acoustics, amlr_imagery, amlr_year_path, amlr_write_trajectory, amlr_write_ngdac
 
 
 def main(args):
@@ -36,8 +37,6 @@ def main(args):
     mode = args.mode
     deployments_path = args.deployments_path
 
-    gdm_path = args.gdm_path
-    amlr_path = args.amlr_path
     numcores = args.numcores
 
     loadfromtmp = args.loadfromtmp
@@ -47,26 +46,6 @@ def main(args):
     write_acoustics = args.write_acoustics
     write_imagery = args.write_imagery
     imagery_path = args.imagery_path
-
-
-    #--------------------------------------------
-    # Append gdm path
-    if not os.path.isdir(gdm_path):
-        logging.error(f'gdm_path ({gdm_path}) does not exist')
-        return
-    else:
-        logging.info(f'Appending path: {gdm_path}')
-        sys.path.append(gdm_path)
-
-    #--------------------------------------------
-    # Append amlr path, and import functions
-    if not os.path.isdir(gdm_path):
-        logging.error(f'amlr_path ({amlr_path}) does not exist')
-        return
-    else:
-        logging.info(f'Appending path ({amlr_path}) and importing functions')
-        sys.path.append(amlr_path)
-        from amlr import amlr_gdm, amlr_acoustics, amlr_imagery, amlr_year_path, amlr_write_trajectory, amlr_write_ngdac
 
 
     #--------------------------------------------
@@ -95,11 +74,10 @@ def main(args):
     #--------------------------------------------
     # Create gdm object  
     logging.info(f'Creating gdm object')
-    gdm = amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp)
+    gdm = amlrp.amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp)
 
     if gdm is None:
-        logging.error('gdm processing failed, ' + 
-            'and thus all glider data processing will be aborted')
+        logging.error('gdm processing failed and processing will be aborted')
         return
 
 
@@ -108,11 +86,11 @@ def main(args):
 
     # Convert to time series, and write trajectory data to nc file
     if write_trajectory:
-        amlr_write_trajectory(gdm, deployment_mode, glider_path)
+        amlrp.amlr_write_trajectory(gdm, deployment_mode, glider_path)
 
     # Write individual (profile) nc files
     if write_ngdac:
-        amlr_write_ngdac(gdm, deployment_mode, glider_path)
+        amlrp.amlr_write_ngdac(gdm, deployment_mode, glider_path)
 
 
     # Write acoustics files
@@ -120,8 +98,8 @@ def main(args):
         if mode == 'rt':
             logging.warning('You are creating acoustic data files ' + 
                 'using real-time data. ' + 
-                'This may result in inaccurate imagery file metadata')
-        amlr_acoustics(gdm, glider_path, deployment, mode)
+                'This may result in inaccurate acoustic file metadata')
+        amlrp.amlr_acoustics(gdm, glider_path, deployment, mode)
 
     # Write imagery metadata file
     if write_imagery:
@@ -129,7 +107,7 @@ def main(args):
             logging.warning('You are creating imagery file metadata ' + 
                 'using real-time data. ' + 
                 'This may result in inaccurate imagery file metadata')
-        amlr_imagery(gdm, glider_path, deployment, imagery_path)
+        amlrp.amlr_imagery(gdm, glider_path, deployment, imagery_path)
         
     # All done
     logging.info(f'Glider data processing complete for {deployment_mode}')
@@ -162,17 +140,6 @@ if __name__ == '__main__':
         type=str,
         help='Path to glider deployments directory. ' + 
             'In GCP, this will be the mounted bucket path')
-
-    
-    arg_parser.add_argument('--gdm_path', 
-        type=str,
-        help='Path to gdm module', 
-        default='/opt/gdm')
-
-    arg_parser.add_argument('--amlr_path', 
-        type=str,
-        help='Path to amlr module', 
-        default='amlr-gliders/amlr-gliders')
 
     arg_parser.add_argument('--numcores',
         type=int,
