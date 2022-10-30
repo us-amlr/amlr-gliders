@@ -22,7 +22,7 @@ def amlr_interpolate(df, var_src, var_dst):
     else:
         logger.info(f'No {var_src} variable, and thus {var_dst} will not be created')
 
-    df
+    return df
 
 
 def amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp):
