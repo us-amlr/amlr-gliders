@@ -58,7 +58,7 @@ def main(args):
     logging.debug('Create local sfmc directory structure')
     sfmc_local_path = os.path.join(sfmc_path, f'sfmc-{deployment}')
     name_cac  = 'cac'
-    name_sfmc = 'stbd'
+    name_stbd = 'stbd'
     name_ad2  = 'ad2'
     # name_cam  = os.path.join(sfmc_local_path, 'cam')
 

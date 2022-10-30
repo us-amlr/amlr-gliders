@@ -7,8 +7,8 @@ conda activate amlr-gliders
 
 AMLR_GLIDERS=$HOME/amlr-gliders
 PROJECT=SANDIEGO
-DEPLOYMENT=amlr08-20220513
-MODE=delayed
+DEPLOYMENT=amlr07-20221025
+MODE=rt
 BUCKET_PATH=$HOME/amlr-gliders-deployments-dev
 BUCKET_PATH_IMAGERY=$HOME/amlr-imagery-raw-dev
 
