@@ -6,6 +6,7 @@ import os
 import logging
 import re
 from subprocess import call, run
+import ipdb
 
 from amlrgliders.utils import path_check
 
@@ -65,6 +66,8 @@ def rt_files_mgmt(sfmc_ext_all, ext_regex, subdir_name, local_path, bucket_path)
         path_check(subdir_path)
         path_check(bucket_path)
 
+
+        ipdb.set_trace()
         logging.info(f'Moving {subdir_name} files to their local subdirectory')
         ext_regex_path = os.path.join(local_path, f'*{ext_regex}')
         logging.debug(f'Regex extension path: {ext_regex_path}')
