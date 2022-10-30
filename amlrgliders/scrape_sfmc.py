@@ -63,10 +63,6 @@ def rt_files_mgmt(sfmc_ext_all, ext_regex, subdir_name, local_path, bucket_path)
             logging.error(f'Necessary path ({local_path}) does not exist')
             return
 
-        if not os.path.isdir(bucket_path):
-            logging.error(f'Necessary path ({bucket_path}) does not exist')
-            return
-
         subdir_path = os.path.join(local_path, subdir_name)
         if not os.path.isdir(subdir_path):
             logging.error(f'Necessary path ({subdir_path}) does not exist')
