@@ -1,24 +1,14 @@
 """
-Functions used when scraping and organizing AMLR glider data from the SFMC
+Scraping and organizing AMLR glider data from the SFMC
 """
 
 import os
 import logging
+import re
+
 from amlrgliders.utils import path_check
 
 logger = logging.getLogger(__name__)
-
-
-def line_prepender(filename, line):
-    """
-    Title: prepend-line-to-beginning-of-a-file
-    https://stackoverflow.com/questions/5914627
-    """
-    
-    with open(filename, 'r+') as f:
-        content = f.read()
-        f.seek(0, 0)
-        f.write(line.rstrip('\r\n') + '\n' + content)
 
 
 def access_secret_version(project_id, secret_id, version_id = 'latest'):
@@ -59,39 +49,40 @@ def access_secret_version(project_id, secret_id, version_id = 'latest'):
     return response.payload.data.decode("UTF-8")
 
 
-def rt_file_management(sfmc_ext_all, ext, ext_regex, ext_name, local_path, subdir_path, bucket_path):
+def rt_files_mgmt(sfmc_ext_all, ext_regex, subdir_name, local_path, bucket_path):
     """
     Copy real-time files from the local sfmc folder (local_path)
     to their subdirectory (subdir_path), 
     and then rsync to their place in the bucket (bucket_path)
 
-    # TODO: only use one of ext and ext_regex?
+    ext_regex_path does include * for copying files (eg is '.[st]bd')
     """
-    if (any([i in sfmc_ext_all for i in ext])):
-    # if (ext in sfmc_ext_all):
+    
+    if (any(re.search(ext_regex, i) for i in sfmc_ext_all)):
+        subdir_path = os.path.join(local_path, subdir_name)
         path_check(local_path)
         path_check(subdir_path)
         path_check(bucket_path)
 
-        logging.info(f'Moving {ext_name} files to their local subdirectory')
-        ext_regex_path = os.path.join(local_path, ext_regex)
+        logging.info(f'Moving {subdir_name} files to their local subdirectory')
+        ext_regex_path = os.path.join(local_path, f'*{ext_regex}')
         logging.debug(f'Regex extension path: {ext_regex_path}')
         logging.debug(f'Local subdirectory: {subdir_path}')
-        retcode_tmp = call(f'rsync {ext_regex_path} {subdir_path}', 
+        retcode_tmp = call(f'cp {ext_regex_path} {subdir_path}', 
             shell = True)
 
-        logging.info(f'rsync-ing {ext_name} subdirectory with bucket directory')
+        logging.info(f'Rsyncing {subdir_name} subdirectory with bucket directory')
         logging.debug(f'Bucket directory: {bucket_path}')
         retcode = run(['gsutil', '-m', 'rsync', '-r', ext_regex_path, bucket_path], 
             capture_output = True)
         if retcode.returncode != 0:
-            logging.error(f'Error copying {ext_name} files to bucket')
+            logging.error(f'Error copying {subdir_name} files to bucket')
             logging.error(f'Args: {retcode.args}')
             logging.error(f'stderr: {retcode.stderr}')
             return
         else:
-            logging.info(f'Successfully copied {ext_name} files to {bucket_path}')
+            logging.info(f'Successfully copied {subdir_name} files to {bucket_path}')
             logging.debug(f'Args: {retcode.args}')
             logging.debug(f'stderr: {retcode.stdout}')
     else: 
-        logging.info(f'No {ext_name} files to copy')
+        logging.info(f'No {subdir_name} files to copy')

@@ -9,7 +9,7 @@ import pathlib
 from subprocess import call, run
 
 from amlrgliders.utils import amlr_year_path, path_check, find_extensions
-from amlrgliders.scrape_sfmc import line_prepender, access_secret_version, rt_file_management
+from amlrgliders.scrape_sfmc import access_secret_version, rt_files_mgmt
 
 
 def main(args):
@@ -44,11 +44,6 @@ def main(args):
         return
     else:
         glider = deployment_split[0]
-        # year = deployment_split[1][0:4]
-        # amlr_path = args.amlr_path
-        # logging.info(f'Appending path ({amlr_path}) and importing year function')
-        # sys.path.append(amlr_path)
-        # from amlr import amlr_year_path
         year = amlr_year_path(project, deployment_split)
 
 
@@ -60,21 +55,23 @@ def main(args):
 
     #--------------------------------------------
     # Create sfmc directory structure, if needed
+    logging.debug('Create local sfmc directory structure')
     sfmc_local_path = os.path.join(sfmc_path, f'sfmc-{deployment}')
-    sfmc_local_cac  = os.path.join(sfmc_local_path, 'cac')
-    sfmc_local_stbd = os.path.join(sfmc_local_path, 'stbd')
-    sfmc_local_ad2  = os.path.join(sfmc_local_path, 'ad2')
-    sfmc_local_cam  = os.path.join(sfmc_local_path, 'cam')
+    name_cac  = 'cac'
+    name_sfmc = 'stbd'
+    name_ad2  = 'ad2'
+    # name_cam  = os.path.join(sfmc_local_path, 'cam')
 
     if not os.path.isdir(sfmc_local_path):
         logging.info('Making sfmc deployment directory and subdirectories ' + 
             f'at {sfmc_local_path}')
         os.mkdir(sfmc_local_path)
-        os.mkdir(sfmc_local_cac)
-        os.mkdir(sfmc_local_stbd)
-        os.mkdir(sfmc_local_ad2)
-        os.mkdir(sfmc_local_cam)
+        os.mkdir(os.path.join(sfmc_local_path, name_cac))
+        os.mkdir(os.path.join(sfmc_local_path, name_stbd))
+        os.mkdir(os.path.join(sfmc_local_path, name_ad2))
+        # os.mkdir(os.path.join(sfmc_local_path, name_cam))
 
+    logging.debug('SFMC ssh password')
     if not os.path.isfile(sfmc_pwd_file):
         logging.info('Writing SFMC ssh pwd to file')
         file = open(sfmc_pwd_file, 'w+')
@@ -85,12 +82,10 @@ def main(args):
 
     #--------------------------------------------
     # rsync with SFMC
-    sfmc_server_path = os.path.join('/var/opt/sfmc-dockserver/stations/noaa/gliders', 
-        glider, 'from-glider', "*")
-    sfmc_server = f'swoodman@sfmc.webbresearch.com:{sfmc_server_path}'
-
-    # retcode = run(['rsync', sfmc_server, sfmc_local_path])
     logging.info(f'Starting rsync with SFMC dockerver for {glider}')
+    sfmc_noaa = '/var/opt/sfmc-dockserver/stations/noaa/gliders'
+    sfmc_server_path = os.path.join(sfmc_noaa, glider, 'from-glider', "*")
+    sfmc_server = f'swoodman@sfmc.webbresearch.com:{sfmc_server_path}'
     retcode = run(['sshpass', '-f', sfmc_pwd_file, 'rsync', sfmc_server, sfmc_local_path], 
         capture_output=True)
     logging.debug(retcode.args)
@@ -108,7 +103,7 @@ def main(args):
 
     # Check for unexpected file extensions
     sfmc_file_ext = find_extensions(sfmc_local_path)
-    file_ext_expected = {".cac", ".CAC", ".sbd", ".tbd", ".ad2", ".cam"}
+    file_ext_expected = {".cac", ".CAC", ".sbd", ".tbd", ".ad2"} #, ".cam"
     file_ext_weird = sfmc_file_ext.difference(file_ext_expected)
     if len(file_ext_weird) > 0:
         x = os.listdir(sfmc_local_path)
@@ -120,7 +115,6 @@ def main(args):
 
     #--------------------------------------------
     # Copy files to subfolders, and rsync with bucket
-    # TODO: make 
     # https://docs.python.org/3/library/subprocess.html#replacing-bin-sh-shell-command-substitution
 
     logging.info('Starting file management')
@@ -131,91 +125,21 @@ def main(args):
     logging.debug(f"GCP bucket deployment folder: {bucket_deployment}")
     logging.debug(f"GCP bucket stbd folder: {bucket_stbd}")
     logging.debug(f"GCP bucket ad2 folder: {bucket_ad2}")
+    # logging.debug(f"GCP bucket cam folder: {bucket_cam}")
 
-    ### cache files
-    rt_file_management(sfmc_file_ext, '.cac', '*.[Cc][Aa][Cc]', 'cache', 
-        sfmc_local_path, sfmc_local_cac, f'gs://{bucket}/cache')
-    # if ('.cac' in sfmc_file_ext):
-    #     retcode_cache = run(['gsutil', '-m', 'cp', 
-    #             os.path.join(sfmc_local_path, '*.[Cc][Aa][Cc]'), 
-    #             f'gs://{bucket}/cache'], 
-    #         capture_output = True)
-    #     if retcode_cache.returncode != 0:
-    #         logging.error('Error copying cache files to bucket')
-    #         logging.error(f'Args: {retcode_cache.args}')
-    #         logging.error(f'stderr: {retcode_cache.stderr}')
-    #         return
-    #     else:
-    #         logging.info(f'Successfully copied cache files to bucket')
-    #         logging.debug(f'Args: {retcode_cache.args}')
-    #         logging.debug(f'stderr: {retcode_cache.stdout}')
-    # else: 
-    #     logging.info('No cache files to copy')
+    # cache files
+    rt_files_mgmt(sfmc_file_ext, '.[Cc][Aa][Cc]', name_cac, sfmc_local_path, 
+        f'gs://{bucket}/cache')
 
-
-    ### sbd/tbd files
+    # sbd/tbd files
     # TODO: add in support for compressed files
-    # TODO: make function check for multiple ext values. a way to check in with regex?
-    rt_file_management(sfmc_file_ext, 'todo', '*.[st]bd', 'cache', 
-        sfmc_local_path, sfmc_local_stbd, bucket_stbd)
-    # rt_file_management(sfmc_file_ext, 'todo', '*.[st]bd', 'cache', 
-    #     sfmc_local_path, sfmc_local_stbd)
+    rt_files_mgmt(sfmc_file_ext, '.[st]bd', name_stbd, sfmc_local_path, bucket_stbd)
 
-    # if ('.sbd' in sfmc_file_ext) or ('.tbd' in sfmc_file_ext):
-    #     logging.info('Copying [st]bd files into their subdirectory')
-    #     tmp = os.path.join(sfmc_local_path, '*.[st]bd')
-    #     sfmc_local_stbd_path = os.path.join(sfmc_local_path, sfmc_local_stbd_whoops)
-    #     retcode_tmp = call(f'rsync {tmp} {sfmc_local_stbd_path}', 
-    #         shell = True)
+    # ad2 files
+    rt_files_mgmt(sfmc_file_ext, '.ad2', name_ad2, sfmc_local_path, bucket_ad2)
 
-    #     retcode_stbd = run(['gsutil', '-m', 'rsync', '-r', 
-    #             sfmc_local_stbd_path, bucket_stbd], 
-    #         capture_output = True)
-
-    #     if retcode_stbd.returncode != 0:
-    #         logging.error('Error rsyncing stbd files to bucket')
-    #         logging.error(f'Args: {retcode_stbd.args}')
-    #         logging.error(f'stderr: {retcode_stbd.stderr}')
-    #         return
-    #     else:
-    #         logging.info(f'Successfully rsyncd [st]bd files to bucket')
-    #         logging.debug(f'Args: {retcode_stbd.args}')
-    #         logging.debug(f'stderr: {retcode_stbd.stdout}')
-
-    # else:
-    #     logging.info('No [st]bd files to copy')
-
-
-    ### ad2 files
-    rt_file_management(sfmc_file_ext, '.ad2', '*.ad2', 'ad2', 
-        sfmc_local_path, sfmc_local_ad2, bucket_ad2)
-    # if ('.ad2' in sfmc_file_ext):
-    #     logging.info('Copying ad2 files into their subdirectory')
-    #     tmp = os.path.join(sfmc_local_path, '*.ad2')
-    #     sfmc_local_ad2_path = os.path.join(sfmc_local_path, sfmc_local_ad2)
-    #     retcode_tmp = call(f'rsync {tmp} {sfmc_local_ad2_path}', 
-    #         shell = True)
-
-    #     retcode_ad2 = run(['gsutil', '-m', 'rsync', '-r', 
-    #             sfmc_local_ad2_path,  bucket_ad2], 
-    #         capture_output = True)
-
-    #     if retcode_ad2.returncode != 0:
-    #         logging.error('Error rsyncing ad2 files to bukcet')
-    #         logging.error(f'Args: {retcode_ad2.args}')
-    #         logging.error(f'stderr: {retcode_ad2.stderr}')
-    #         return
-    #     else:
-    #         logging.info(f'Successfully rsyncd ad2 files to bucket')
-    #         logging.debug(f'Args: {retcode_ad2.args}')
-    #         logging.debug(f'stderr: {retcode_ad2.stdout}')
-
-    # else:
-    #     logging.info('No ad2 files to copy')
-
-
-    ### cam files
-    # TODO
+    # # cam files TODO
+    # rt_files_mgmt(sfmc_file_ext, '.cam', name_cam, sfmc_local_path, bucket_cam)
 
 
     #--------------------------------------------

@@ -8,8 +8,8 @@ dependencies:
   - spyder>=5.0
 
   # Used in amlr-gliders scripts
-  - google-crc32c=1.1
-  - google-cloud-secret-manager=2.12
+  - google-crc32c=1.1.0
+  - google-cloud-secret-manager=2.12.0
   - ipdb
   - pyarrow
 
@@ -31,4 +31,4 @@ dependencies:
 
   - pip:
     - -e git+https://github.com/smwoodman/gdm.git#egg=gdm
-    - -e git+https://github.com/us-amlr/amlr-gliders.git#egg=amlr-gliders
+    # - -e git+https://github.com/us-amlr/amlr-gliders.git#egg=amlr_gliders

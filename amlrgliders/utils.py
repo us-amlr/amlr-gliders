@@ -46,6 +46,18 @@ def find_extensions(dir_path): #,  excluded = ['', '.txt', '.lnk']):
     return extensions
 
 
+def line_prepender(filename, line):
+    """
+    Title: prepend-line-to-beginning-of-a-file
+    https://stackoverflow.com/questions/5914627
+    """
+    
+    with open(filename, 'r+') as f:
+        content = f.read()
+        f.seek(0, 0)
+        f.write(line.rstrip('\r\n') + '\n' + content)
+
+
 def amlr_year_path(project, deployment_split):
     """
     Generate and return the year string to use in file paths

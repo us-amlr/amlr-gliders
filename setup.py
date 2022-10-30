@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(name='amlr-gliders',
       version='0.1.0a1',
-      description='Process AMLR glider data, primarily in GCP',
+      description='Process and organize AMLR glider data, primarily in GCP',
       url='http://github.com/us-amlr/amlr-gliders',
       author='Sam Woodman',
       author_email='sam.woodman@noaa.gov',
@@ -10,8 +10,8 @@ setup(name='amlr-gliders',
       packages=['amlrgliders'],
       python_requires='>=3.9, !=3.10.*',
       install_requires=[
-            'google-crc32c>=1.1',
-            'google-cloud-secret-manager>=2.12',
+            'google-crc32c==1.1',
+            'google-cloud-secret-manager==2.12',
             'pandas', 
             'numpy', 
             'gdm'
