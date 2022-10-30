@@ -195,7 +195,6 @@ def amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp):
     gdm.data = amlr_interpolate(gdm.data, 'depth', 'idepth')
     gdm.data = amlr_interpolate(gdm.data, 'm_depth', 'imdepth')
     gdm.data = amlr_interpolate(gdm.data, 'm_pitch', 'impitch')
-    gdm.data = amlr_interpolate(gdm.data, 'mpiiitch', 'impiiitch')
     gdm.data = amlr_interpolate(gdm.data, 'm_roll', 'imroll')
 
     #--------------------------------------------
