@@ -21012,9 +21012,6 @@ sci_echodroid_eqArea:
     units: m
   dtype: f4
   nc_var_name: sci_echodroid_eqArea
-
-
-
 sci_echodroid_timestamp:
   attrs:
     instrument: instrument_echodroid
@@ -21024,3 +21021,33 @@ sci_echodroid_timestamp:
     units: seconds since 1970-01-01 00:00:00Z
   dtype: f8
   nc_var_name: sci_echodroid_timestamp
+
+m_heading_deg:
+  attrs:
+    long_name: m_heading_deg
+    sensor: m_heading_deg
+    units: degrees
+  dtype: f4
+  nc_var_name: m_heading_deg
+m_pitch_deg:
+  attrs:
+    long_name: m_pitch_deg
+    sensor: m_pitch_deg
+    units: degrees
+  dtype: f4
+  nc_var_name: m_pitch_deg
+m_roll_deg:
+  attrs:
+    long_name: m_roll_deg
+    sensor: m_roll_deg
+    units: degrees
+  dtype: f4
+  nc_var_name: m_roll_deg
+
+sci_microrider_isdp_file_state:
+  attrs:
+    long_name: sci_microrider_isdp_file_state
+    sensor: sci_microrider_isdp_file_state
+    units: enum
+  dtype: i1
+  nc_var_name: sci_microrider_isdp_file_state
