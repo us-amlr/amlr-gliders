@@ -7,7 +7,7 @@ import logging
 import argparse
 from subprocess import run
 
-from amlrgliders.utils import amlr_year_path, path_check, find_extensions
+from amlrgliders.utils import amlr_year_path, find_extensions
 from amlrgliders.scrape_sfmc import access_secret_version, rt_files_mgmt
 
 
@@ -45,11 +45,9 @@ def main(args):
         glider = deployment_split[0]
         year = amlr_year_path(project, deployment_split)
 
-
-    path_check(sfmc_path)
-    # if not os.path.isdir(sfmc_path):
-    #     logging.error(f'sfmc_path ({sfmc_path}) does not exist')
-    #     return
+    if not os.path.isdir(sfmc_path):
+        logging.error(f'sfmc_path ({sfmc_path}) does not exist')
+        return
 
 
     #--------------------------------------------
@@ -190,11 +188,6 @@ if __name__ == '__main__':
         dest='secret_id', 
         help='GCP secret ID that contains the SFMC password for the rsync', 
         default='sfmc-swoodman')
-
-    arg_parser.add_argument('--amlr_path', 
-        type=str,
-        help='Path to amlr module', 
-        default='amlr-gliders/amlr-gliders')
 
     arg_parser.add_argument('-l', '--loglevel',
         type=str,

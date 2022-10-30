@@ -25,12 +25,6 @@ logger = logging.getLogger(__name__)
 #                             limit_area='inside')
 
 
-def path_check(path):
-    if not os.path.isdir(path):
-        logging.error(f'Necessary path ({path}) does not exist')
-        return
-
-
 def find_extensions(dir_path): #,  excluded = ['', '.txt', '.lnk']):
     """
     Get all the file extensions in the given directory

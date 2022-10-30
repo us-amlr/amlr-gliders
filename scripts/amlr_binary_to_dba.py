@@ -1,31 +1,12 @@
 #!/usr/bin/env python
 
 import os
-from subprocess import run
 import sys
 import logging
 import argparse
+from subprocess import run
 
-from utils import amlr_year_path
-
-# def amlr_year_path(project, deployment_split):
-#     """
-#     Generate and return the year string to use in file paths
-
-#     For the FREEBYRD project, this will be the Antarctic season, eg '2018-19'
-#     For all other projects, this will be a single year, eg '2018'
-#     """
-
-#     year = deployment_split[1][0:4]
-
-#     if project == 'FREEBYRD':
-#         month = deployment_split[1][4:6]
-#         if int(month) <= 7: 
-#             year = f'{int(year)-1}-{year[2:4]}'
-#         else:
-#             year = f'{year}-{str(int(year)+1)[2:4]}'
-
-#     return year
+from amlrgliders.utils import amlr_year_path
 
 
 def main(args):
@@ -50,53 +31,7 @@ def main(args):
     processDbds_file = args.processDbds_file
     cac2lower_file = args.cac2lower_file    
 
-
-    if not (mode in ['delayed', 'rt']):
-        logging.error("mode must be either 'delayed' or 'rt'")
-        return
-    # else:
-    #     if mode == 'delayed':
-    #         binary_type = 'debd'
-    #     else: 
-    #         binary_type = 'stbd'
-
-
-    deployment_split = deployment.split('-')
-    if len(deployment_split[1]) != 8:
-        logging.error("The deployment string format must be 'glider-YYYYmmdd', eg amlr03-20220101")
-        return
-
-    else:
-        logging.info(f'Writing dba files for deployment {deployment}, mode {mode}')
-        glider = deployment_split[0]
-
-        # amlr_path = args.amlr_path
-        # logging.info(f'Appending path ({amlr_path}) and importing year function')
-        # sys.path.append(amlr_path)
-        # from amlr import amlr_year_path
-        year = amlr_year_path(project, deployment_split)
-        # year = deployment_split[1][0:4]
-        # if project == 'FREEBYRD':
-        #     month = deployment_split[1][4:6]
-        #     if int(month) <= 7: 
-        #         year = f'{int(year)-1}-{year[2:4]}'
-        #     else:
-        #         year = f'{year}-{str(int(year)+1)[2:4]}'
-        glider_data_in = os.path.join(deployments_path, project, year, deployment, 
-            'glider', 'data', 'in')
-        binary_path = os.path.join(glider_data_in, 'binary', mode)
-        ascii_path = os.path.join(glider_data_in, 'ascii', mode)
-        cache_path = os.path.join(deployments_path, 'cache')
-
-        logging.debug(f'Binary path: {binary_path}')
-        logging.debug(f'Ascii path: {ascii_path}')
-        logging.debug(f'Cache path: {cache_path}')
-
-
-
-
-    #--------------------------------------------
-    # Checks, and create files paths
+    # Checks
     if not os.path.isdir(deployments_path):
         logging.error(f'deployments_path ({deployments_path}) does not exist')
         return
@@ -109,6 +44,33 @@ def main(args):
         logging.error(f'cac2lower_file ({cac2lower_file}) does not exist')
         return
 
+
+    if not (mode in ['delayed', 'rt']):
+        logging.error("mode must be either 'delayed' or 'rt'")
+        return
+
+    deployment_split = deployment.split('-')
+    if len(deployment_split[1]) != 8:
+        logging.error("The deployment string format must be 'glider-YYYYmmdd', eg amlr03-20220101")
+        return
+
+    #--------------------------------------------
+    # Set/check/create file paths for processDbds script
+    logging.info(f'Writing dba files for deployment {deployment}, mode {mode}')
+    glider = deployment_split[0]
+    year = amlr_year_path(project, deployment_split)
+
+    glider_data_in = os.path.join(deployments_path, project, year, deployment, 
+        'glider', 'data', 'in')
+    binary_path = os.path.join(glider_data_in, 'binary', mode)
+    ascii_path = os.path.join(glider_data_in, 'ascii', mode)
+    cache_path = os.path.join(deployments_path, 'cache')
+
+    logging.debug(f'processDbds file: {processDbds_file}')
+    logging.debug(f'Cache path: {cache_path}')
+    logging.debug(f'Binary path: {binary_path}')
+    logging.debug(f'Ascii path: {ascii_path}')
+
     if not os.path.isdir(cache_path):
         logging.error(f'cache_path ({cache_path}) does not exist')
         return
@@ -120,8 +82,6 @@ def main(args):
     if not os.path.isdir(ascii_path):
         logging.info(f'Making path at: {ascii_path}')
         os.makedirs(ascii_path)
-
-
 
 
     #--------------------------------------------
@@ -159,7 +119,6 @@ def main(args):
         logging.info('There are no .CAC files to rename')
 
 
-    #--------------------------------------------
     # Make dba files
     logging.info(f'Running processDbds script and writing dba files to {ascii_path}')
     run_out = run([processDbds_file, "-c", cache_path, binary_path, ascii_path], 
@@ -175,9 +134,8 @@ def main(args):
         logging.info(f'Args: {run_out.stdout}')
 
 
+    #--------------------------------------------
     return 0
-
-
 
 
 if __name__ == '__main__':
@@ -213,11 +171,6 @@ if __name__ == '__main__':
         type=str, 
         help='Location of cache files',
         default = '/opt/slocum/bin2ascii/cac2lower.sh')
-
-    arg_parser.add_argument('--amlr_path', 
-        type=str,
-        help='Path to amlr module', 
-        default='amlr-gliders/amlr-gliders')
 
     arg_parser.add_argument('-l', '--loglevel',
         type=str,

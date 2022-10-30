@@ -7,8 +7,6 @@ import logging
 import re
 from subprocess import call, run
 
-from amlrgliders.utils import path_check
-
 logger = logging.getLogger(__name__)
 
 
@@ -60,9 +58,19 @@ def rt_files_mgmt(sfmc_ext_all, ext_regex, subdir_name, local_path, bucket_path)
     """
     
     if (any(re.search(ext_regex, i) for i in sfmc_ext_all)):
+        # Check paths
+        if not os.path.isdir(local_path):
+            logging.error(f'Necessary path ({local_path}) does not exist')
+            return
+
+        if not os.path.isdir(bucket_path):
+            logging.error(f'Necessary path ({bucket_path}) does not exist')
+            return
+
         subdir_path = os.path.join(local_path, subdir_name)
-        path_check(local_path)
-        path_check(subdir_path)
+        if not os.path.isdir(subdir_path):
+            logging.error(f'Necessary path ({subdir_path}) does not exist')
+            return
 
         logging.info(f'Moving {subdir_name} files to their local subdirectory')
         ext_regex_path = os.path.join(local_path, f'*{ext_regex}')
