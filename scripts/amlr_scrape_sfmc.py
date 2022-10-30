@@ -126,6 +126,11 @@ def main(args):
     logging.debug(f"GCP bucket ad2 folder: {bucket_ad2}")
     # logging.debug(f"GCP bucket cam folder: {bucket_cam}")
 
+    if not os.path.isdir(bucket_stbd): os
+        logging.info(f'Making directory at {bucket_stbd}')
+        os.mkdir(sfmc_local_path)
+
+
     # cache files
     rt_files_mgmt(sfmc_file_ext, '.[Cc][Aa][Cc]', name_cac, sfmc_local_path, 
         f'gs://{bucket}/cache')

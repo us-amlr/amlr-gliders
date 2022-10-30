@@ -63,7 +63,6 @@ def rt_files_mgmt(sfmc_ext_all, ext_regex, subdir_name, local_path, bucket_path)
         subdir_path = os.path.join(local_path, subdir_name)
         path_check(local_path)
         path_check(subdir_path)
-        path_check(bucket_path)
 
         logging.info(f'Moving {subdir_name} files to their local subdirectory')
         ext_regex_path = os.path.join(local_path, f'*{ext_regex}')
