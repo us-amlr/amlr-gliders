@@ -2,11 +2,6 @@ import os
 import pathlib
 
 
-# def pd_interpolate_amlr(df):
-#     return df.interpolate(method='time', limit_direction='forward', 
-#                             limit_area='inside')
-
-
 def find_extensions(dir_path): #,  excluded = ['', '.txt', '.lnk']):
     """
     Get all the file extensions in the given directory

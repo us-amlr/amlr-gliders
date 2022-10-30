@@ -6,14 +6,14 @@ Created on Tue Oct 25 11:41:54 2022
 """
 
 import os
-import sys
+# import sys
 from gdm import GliderDataModel
 from gdm.gliders.slocum import load_slocum_dba
 
 # import multiprocessing as mp
 # mp.cpu_count()
 
-for d in sys.path: print(d)
+# for d in sys.path: print(d)
 
 smw_gliderdir = 'C:/SMW/Gliders_Moorings/Gliders'
 
@@ -25,7 +25,7 @@ smw_gliderdir = 'C:/SMW/Gliders_Moorings/Gliders'
 
 deployment = 'amlr07-20221025'
 project = 'SANDIEGO'
-mode = 'delayed'
+mode = 'rt'
 deployments_path = os.path.join(smw_gliderdir, 'Glider-Data-gcp')
 
 # gdm_path = args.gdm_path
@@ -52,5 +52,18 @@ dba, pro_meta = load_slocum_dba(os.path.join(dba_path, 'amlr07_2022_298_2_0_sbd.
 
 gdm.data = dba
 gdm.profiles = pro_meta
+
+# explore interpolation
+import xarray as xr
+import pandas as pd
+
+rt_ds = xr.open_dataset(os.path.join(glider_path, 'data', 'out', 'nc', 'trajectory', 'amlr07-20221025-rt-trajectory-full.nc'))
+rt_ds[['depth', 'm_depth', 'idepth']].to_pandas().describe()
+
+
+gdm.data.depth.describe()
+gdm.data['idepth'] = gdm.data.depth.interpolate(method='time', limit_direction='forward', limit_area='inside')
+gdm.data[['depth', 'idepth']].describe()
+
 
 ### Test GliderTools

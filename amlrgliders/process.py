@@ -15,6 +15,16 @@ from gdm.gliders.slocum import load_slocum_dba #, get_dbas
 logger = logging.getLogger(__name__)
 
 
+def amlr_interpolate(df, var_src, var_dst):
+    if var_src in df:
+        logger.info(f'Creating interpolated data column ({var_dst}) from {var_src}')
+        df[var_dst] = var_dst[var_src].interpolate(method='time', limit_direction='forward', limit_area='inside')
+    else:
+        logger.info(f'No {var_src} variable, and thus {var_dst} will not be created')
+
+    df
+
+
 def amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp):
     """
     Create gdm object from dba files. 
@@ -151,6 +161,8 @@ def amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp):
         logger.info(f'gdm with data and profiles from dbas:\n {gdm}')
 
     #--------------------------------------------
+    ### Additional processing of gdm object
+
     # Make columns lowercase to match gdm behavior
     logger.info('Making sensor (data column) names lowercase to match gdm behavior')
     gdm.data.columns = gdm.data.columns.str.lower()
@@ -180,28 +192,13 @@ def amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp):
 
     # Create interpolated variables
     logger.info('Creating interpolated variables')
-    gdm_data_copy = gdm.data.copy()
-    # gdm.data['idepth'] = pd_interpolate_amlr(gdm_data_copy.depth)
-    # gdm.data['ipitch'] = pd_interpolate_amlr(gdm_data_copy.m_pitch)
-    # gdm.data['iroll'] = pd_interpolate_amlr(gdm_data_copy.m_roll)
-    if 'depth' in gdm.data:
-        # TODO: depth already is interpolated??
-        gdm.data['idepth'] = gdm_data_copy.depth.interpolate(method='time', limit_direction='forward', limit_area='inside')
-    else:
-        logger.info('No depth variable, and thus idepth will not be created')
-    
-    if 'pitch' in gdm.data:
-        logger.info('Creating interpolated pitch (ipitch')
-        gdm.data['ipitch'] = gdm_data_copy.m_pitch.interpolate(method='time', limit_direction='forward', limit_area='inside')
-    else:
-        logger.info('No pitch variable, and thus ipitch will not be created')
+    gdm.data = pd_interpolate_amlr(gdm.data, 'depth', 'idepth')
+    gdm.data = pd_interpolate_amlr(gdm.data, 'm_depth', 'imdepth')
+    gdm.data = pd_interpolate_amlr(gdm.data, 'm_pitch', 'impitch')
+    gdm.data = pd_interpolate_amlr(gdm.data, 'mpiiitch', 'impiiitch')
+    gdm.data = pd_interpolate_amlr(gdm.data, 'm_roll', 'imroll')
 
-    if 'roll' in gdm.data:
-        logger.info('Creating interpolated roll (iroll)')
-        gdm.data['iroll'] = gdm_data_copy.m_roll.interpolate(method='time', limit_direction='forward', limit_area='inside')
-    else:
-        logger.info('No roll variable, and thus iroll will not be created')
-
+    #--------------------------------------------
     logger.info('Returning gdm object')
     return gdm
 
