@@ -65,5 +65,22 @@ gdm.data.depth.describe()
 gdm.data['idepth'] = gdm.data.depth.interpolate(method='time', limit_direction='forward', limit_area='inside')
 gdm.data[['depth', 'idepth']].describe()
 
+import logging
+logger = logging.getLogger(__name__)
+
+def amlr_interpolate(df, var_src, var_dst):
+    if var_src in df:
+        logger.info(f'Creating interpolated data column ({var_dst}) from {var_src}')
+        df[var_dst] = df[var_src].interpolate(method='time', limit_direction='forward', limit_area='inside')
+    else:
+        logger.info(f'No {var_src} variable, and thus {var_dst} will not be created')
+
+    return df
+    
+var_src = 'm_roll'
+var_dst = 'imroll'
+gdm.data = amlr_interpolate(gdm.data, "m_roll", "imroll")
+
+'m_orroll' in gdm.data.columns
 
 ### Test GliderTools
