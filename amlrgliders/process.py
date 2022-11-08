@@ -12,8 +12,6 @@ from gdm import GliderDataModel
 from gdm.gliders.slocum import load_slocum_dba #, get_dbas
 # from gdm.utils import interpolate_timeseries
 
-import ipdb
-
 logger = logging.getLogger(__name__)
 
 
@@ -382,7 +380,7 @@ def amlr_imagery(
         return()
 
     gdm.data = gdm.data[imagery_vars_list]
-    ds = gdm.to_xarray()
+    ds = gdm.data.to_xarray()
 
 
     #--------------------------------------------
@@ -419,8 +417,6 @@ def amlr_imagery(
     # ds_nona = ds.sel(time = ds.depth.dropna('time').time.values)
     # TODO: check if any time values are NA
     ds_slice = ds.sel(time=imagery_df.img_dt.values, method = 'nearest')
-
-    ipdb.set_trace()
 
     imagery_df['glider_dt'] = ds_slice.time.values
     imagery_df['diff_dt_seconds'] = (imagery_df.img_dt - imagery_df.glider_dt).astype('timedelta64[s]').astype(np.int32)
