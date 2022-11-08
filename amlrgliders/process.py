@@ -12,6 +12,8 @@ from gdm import GliderDataModel
 # from gdm.utils import interpolate_timeseries
 from gdm.gliders.slocum import load_slocum_dba #, get_dbas
 
+import ipdb
+
 logger = logging.getLogger(__name__)
 
 
@@ -399,6 +401,7 @@ def amlr_imagery(
     #--------------------------------------------
     # Extract info from imagery file names, and match up with glider data
     logger.info("Processing imagery file names")
+    ipdb.set_trace()
     try:
         imagery_file_dts = [dt.datetime.strptime(i[5:20], '%Y%m%d-%H%M%S') for i in imagery_files]
     except:
