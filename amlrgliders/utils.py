@@ -47,15 +47,3 @@ def amlr_year_path(project, deployment_split):
             year = f'{year}-{str(int(year)+1)[2:4]}'
 
     return year
-
-
-def solocam_filename_dt(filename, index_start):
-    """
-    Parse imagery filename to return associated datetime
-    Requires index of start of datetime part of string-
-    """
-    solocam_substr = filename[index_start:(index_start+15)]
-    solocam_dt = dt.datetime.strptime(solocam_substr, '%Y%m%d-%H%M%S')
-
-    return solocam_dt
-    

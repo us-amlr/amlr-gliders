@@ -8,7 +8,6 @@ import multiprocessing as mp
 import numpy as np
 import pandas as pd
 
-from amlrgliders.utils import solocam_filename_dt
 from gdm import GliderDataModel
 from gdm.gliders.slocum import load_slocum_dba #, get_dbas
 # from gdm.utils import interpolate_timeseries
@@ -344,6 +343,17 @@ def amlr_acoustics(
 
     logger.info(f'Completed creating acoustics files for {deployment}')
     return 0
+
+
+def solocam_filename_dt(filename, index_start):
+    """
+    Parse imagery filename to return associated datetime
+    Requires index of start of datetime part of string-
+    """
+    solocam_substr = filename[index_start:(index_start+15)]
+    solocam_dt = dt.datetime.strptime(solocam_substr, '%Y%m%d-%H%M%S')
+
+    return solocam_dt
 
 
 def amlr_imagery(
