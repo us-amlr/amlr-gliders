@@ -12,8 +12,6 @@ from gdm import GliderDataModel
 from gdm.gliders.slocum import load_slocum_dba #, get_dbas
 # from gdm.utils import interpolate_timeseries
 
-import ipdb
-
 logger = logging.getLogger(__name__)
 
 
@@ -422,7 +420,6 @@ def amlr_imagery(
         return()
     yr_index = space_index + 1   
 
-    ipdb.set_trace()
     try:
         imagery_file_dts = [solocam_filename_dt(i, yr_index) for i in imagery_files]
     except:
