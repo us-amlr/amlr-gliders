@@ -349,6 +349,12 @@ def amlr_imagery(
     
     logger.info(f'Creating imagery metadata file for {deployment}')
 
+    lat_column = 'ilatitude'
+    lon_column = 'ilongitude'
+    depth_column = 'idepth'
+    pitch_column = 'impitch'
+    roll_column = 'imroll'
+
 
     #--------------------------------------------
     # Checks
@@ -371,7 +377,8 @@ def amlr_imagery(
 
     #--------------------------------------------
     logger.info("Creating timeseries for imagery processing")
-    imagery_vars_list = ['ilatitude', 'ilongitude', 'idepth', 'impitch', 'imroll']
+    imagery_vars_list = [lat_column, lon_column, 
+        depth_column, pitch_column, roll_column]
     imagery_vars_set = set(imagery_vars_list)
 
     if not imagery_vars_set.issubset(gdm.data.columns):
