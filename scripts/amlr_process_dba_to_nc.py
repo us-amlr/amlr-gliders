@@ -7,7 +7,6 @@ import argparse
 
 from amlrgliders.utils import amlr_year_path 
 import amlrgliders.process as amlrp
-# from .. import amlr_gdm, amlr_acoustics, amlr_imagery, amlr_year_path, amlr_write_trajectory, amlr_write_ngdac
 
 
 def main(args):

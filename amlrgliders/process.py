@@ -257,7 +257,7 @@ def amlr_write_ngdac(gdm, deployment_mode, glider_path):
     #     logging.info(f'Creating directory at: {nc_ngdac_path}')
     #     os.makedirs(nc_ngdac_path)
 
-    logging.warning("CANNOT CURRENTLY WRITE TO NGDAC NC FILES")
+    logging.error("CANNOT CURRENTLY WRITE TO NGDAC NC FILES")
     # logging.info("Writing ngdac to nc files")
     # glider = dba_files.iloc[0].file.split('_')[0]
     # for profile_time, pro_ds in gdm.iter_profiles():
@@ -346,8 +346,8 @@ def amlr_acoustics(
 
 def amlr_imagery(
     gdm, glider_path, deployment, imagery_path, ext = 'jpg', 
-    lat_column = 'lat', lon_column = 'lon', 
-    depth_column = 'idepth', pitch_column = 'ipitch', roll_column = 'iroll'    
+    lat_column = 'ilatitude', lon_column = 'ilongitude', 
+    depth_column = 'idepth', pitch_column = 'impitch', roll_column = 'imroll'    
 ):
     """
     Matches up imagery files with data from gdm object by imagery filename
@@ -379,9 +379,9 @@ def amlr_imagery(
 
     #--------------------------------------------
     logger.info("Creating timeseries for imagery processing")
-    imagery_vars_list = ['ilatitude', 'latitude', 'ilongitude', 'longitude', 
-        'depth', 'density', 'm_heading', 'm_pitch', 'm_roll', 
-        'idepth', 'ipitch', 'iroll']
+    imagery_vars_list = ['latitude', 'longitude', 
+        'depth', 'density', 'm_heading','m_depth', 'm_pitch', 'm_roll', 
+        'ilatitude', 'ilongitude', 'idepth', 'impitch', 'imroll']
     imagery_vars_set = set(imagery_vars_list)
 
     if not imagery_vars_set.issubset(gdm.data.columns):
