@@ -8,9 +8,10 @@ import multiprocessing as mp
 import numpy as np
 import pandas as pd
 
+from amlrgliders.utils import solocam_filename_dt
 from gdm import GliderDataModel
-# from gdm.utils import interpolate_timeseries
 from gdm.gliders.slocum import load_slocum_dba #, get_dbas
+# from gdm.utils import interpolate_timeseries
 
 import ipdb
 
@@ -345,7 +346,6 @@ def amlr_acoustics(
     return 0
 
 
-
 def amlr_imagery(
     gdm, glider_path, deployment, imagery_path, ext = 'jpg', 
     lat_column = 'ilatitude', lon_column = 'ilongitude', 
@@ -378,7 +378,6 @@ def amlr_imagery(
 
         # TODO: check for non-sensical file paths\
 
-
     #--------------------------------------------
     logger.info("Creating timeseries for imagery processing")
     imagery_vars_list = ['latitude', 'longitude', 
@@ -391,11 +390,8 @@ def amlr_imagery(
             f"Missing columns: {', '.join(imagery_vars_set.difference(gdm.data.columns))}")
         return()
 
-    # gdm_imagery = copy.deepcopy(gdm)        
-    # gdm_imagery.data = gdm_imagery.data[imagery_vars_list]
     gdm.data = gdm.data[imagery_vars_list]
     ds = gdm.to_timeseries_dataset()
-    
 
 
     #--------------------------------------------
@@ -408,20 +404,23 @@ def amlr_imagery(
             'and thus the imagery metadata file cannot be generated')
         return()
 
-    yr_index = str.index(imagery_files[0], '2022')
-    if yr_index == -1:
+
+    space_index = str.index(imagery_files[0], ' ')
+    if space_index == -1:
         logger.error('The imagery file name year index could not be found, ' + 
             'and thus the imagery metadata file cannot be generated')
         return()
+    yr_index = space_index + 1   
 
-    ipdb.set_trace()
     try:
-        imagery_file_dts = [dt.datetime.strptime(i[yr_index:(yr_index+15)], '%Y%m%d-%H%M%S') for i in imagery_files]
+        imagery_file_dts = [solocam_filename_dt(i, yr_index) for i in imagery_files]
     except:
         logger.error(f'Datetimes could not be extracted from imagery filenames ' + 
                         '(at {deployment_imagery_path}), and thus the ' + 
                         'CSV file with imagery metadata will not be created')
         return
+
+    ipdb.set_trace()
 
     imagery_dict = {'img_file': imagery_files, 'img_dt': imagery_file_dts}
     imagery_df = pd.DataFrame(data = imagery_dict).sort_values('img_dt')
