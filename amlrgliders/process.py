@@ -412,6 +412,7 @@ def amlr_imagery(
         return()
     yr_index = space_index + 1   
 
+    ipdb.set_trace()
     try:
         imagery_file_dts = [solocam_filename_dt(i, yr_index) for i in imagery_files]
     except:
@@ -420,7 +421,6 @@ def amlr_imagery(
                         'CSV file with imagery metadata will not be created')
         return
 
-    ipdb.set_trace()
 
     imagery_dict = {'img_file': imagery_files, 'img_dt': imagery_file_dts}
     imagery_df = pd.DataFrame(data = imagery_dict).sort_values('img_dt')
