@@ -5255,7 +5255,7 @@ sci_microRider_c6_avg:
 ilongitude:
   attrs:
     axis: X
-    comment: longitude measured longitude converted tod decimal degrees
+    comment: measured longitude converted to decimal degrees and linearly interpolated
     long_name: Longitude
     observation_type: calculated
     precision: 5

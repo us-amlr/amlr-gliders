@@ -341,12 +341,11 @@ def solocam_filename_dt(filename, index_start):
 
 
 def amlr_imagery(
-    gdm, glider_path, deployment, imagery_path, ext = 'jpg', 
-    lat_column = 'ilatitude', lon_column = 'ilongitude', 
-    depth_column = 'idepth', pitch_column = 'impitch', roll_column = 'imroll'    
+    gdm, glider_path, deployment, imagery_path, ext = 'jpg'  
 ):
     """
     Matches up imagery files with data from gdm object by imagery filename
+    Uses (hardcoded) interpolated variables
     Returns dataframe with metadata information
     """
     
@@ -374,8 +373,7 @@ def amlr_imagery(
 
     #--------------------------------------------
     logger.info("Creating timeseries for imagery processing")
-    imagery_vars_list = [lat_column, lon_column, 
-        depth_column, pitch_column, roll_column]
+    imagery_vars_list = ['ilatitude', 'ilongitude', 'idepth', 'impitch', 'imroll']
     imagery_vars_set = set(imagery_vars_list)
 
     if not imagery_vars_set.issubset(gdm.data.columns):
@@ -384,7 +382,7 @@ def amlr_imagery(
         return()
 
     gdm.data = gdm.data[imagery_vars_list]
-    ds = gdm.to_timeseries_dataset()
+    ds = gdm.to_xarray()
 
 
     #--------------------------------------------
