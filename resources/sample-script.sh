@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Sample script for scraping and processing real-time data from amlr03-20220513
+# Sample script for scraping and processing real-time data from deployment amlr07-20221025
 
 $HOME/startup_glider_proc.sh
 conda activate amlr-gliders
