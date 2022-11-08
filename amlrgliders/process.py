@@ -401,9 +401,22 @@ def amlr_imagery(
     #--------------------------------------------
     # Extract info from imagery file names, and match up with glider data
     logger.info("Processing imagery file names")
+
+    # Check that all filenames have the same number of characters
+    if not len(set([len(i) for i in imagery_files])) == 1:
+        logger.error('The imagery file names are not all the same length, ' + 
+            'and thus the imagery metadata file cannot be generated')
+        return()
+
+    yr_index = str.index(imagery_files[0], '2022')
+    if yr_index == -1:
+        logger.error('The imagery file name year index could not be found, ' + 
+            'and thus the imagery metadata file cannot be generated')
+        return()
+
     ipdb.set_trace()
     try:
-        imagery_file_dts = [dt.datetime.strptime(i[5:20], '%Y%m%d-%H%M%S') for i in imagery_files]
+        imagery_file_dts = [dt.datetime.strptime(i[yr_index:(yr_index+15)], '%Y%m%d-%H%M%S') for i in imagery_files]
     except:
         logger.error(f'Datetimes could not be extracted from imagery filenames ' + 
                         '(at {deployment_imagery_path}), and thus the ' + 
