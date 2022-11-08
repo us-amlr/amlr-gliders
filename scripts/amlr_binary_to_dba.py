@@ -169,7 +169,7 @@ if __name__ == '__main__':
 
     arg_parser.add_argument('--cac2lower_file', 
         type=str, 
-        help='Location of cache files',
+        help='Path to cac2lower shell script',
         default = '/opt/slocum/bin2ascii/cac2lower.sh')
 
     arg_parser.add_argument('-l', '--loglevel',
