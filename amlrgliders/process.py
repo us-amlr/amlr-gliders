@@ -12,6 +12,8 @@ from gdm import GliderDataModel
 from gdm.gliders.slocum import load_slocum_dba #, get_dbas
 # from gdm.utils import interpolate_timeseries
 
+import ipdb
+
 logger = logging.getLogger(__name__)
 
 
@@ -48,23 +50,6 @@ def amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp):
     else:
         logger.info(f'Processing glider data using gdm for deployment {deployment_mode}')
 
-    if not os.path.isdir(glider_path):
-        logging.error(f'glider_path ({glider_path}) does not exist')
-        return
-    logging.info(f'Glider deployment path: {glider_path}')
-
-
-    # # Append gdm path, and import functions
-    # if not os.path.isdir(gdm_path):
-    #     logger.error(f'gdm_path ({gdm_path}) does not exist')
-    #     return
-    # else:
-    #     logger.info(f'Importing gdm functions from {gdm_path}')
-    #     sys.path.append(gdm_path)
-    #     # from gdm import GliderDataModel
-    #     # from gdm.utils import interpolate_timeseries
-    #     # from gdm.gliders.slocum import load_slocum_dba #, get_dbas
-
 
     #--------------------------------------------
     # Checks
@@ -80,6 +65,7 @@ def amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp):
     if not os.path.isdir(glider_path):
         logger.error(f'glider_path ({glider_path}) does not exist')
         return
+    logging.info(f'Glider deployment path: {glider_path}')
 
 
     #--------------------------------------------
@@ -388,9 +374,8 @@ def amlr_imagery(
 
     #--------------------------------------------
     logger.info("Creating timeseries for imagery processing")
-    imagery_vars_list = ['latitude', 'longitude', 
-        'depth', 'density', 'm_heading','m_depth', 'm_pitch', 'm_roll', 
-        'ilatitude', 'ilongitude', 'idepth', 'impitch', 'imroll']
+    imagery_vars_list = [lat_column, lon_column, 
+        depth_column, pitch_column, roll_column]
     imagery_vars_set = set(imagery_vars_list)
 
     if not imagery_vars_set.issubset(gdm.data.columns):
@@ -436,6 +421,8 @@ def amlr_imagery(
     # ds_nona = ds.sel(time = ds.depth.dropna('time').time.values)
     # TODO: check if any time values are NA
     ds_slice = ds.sel(time=imagery_df.img_dt.values, method = 'nearest')
+
+    ipdb.set_trace()
 
     imagery_df['glider_dt'] = ds_slice.time.values
     imagery_df['diff_dt_seconds'] = (imagery_df.img_dt - imagery_df.glider_dt).astype('timedelta64[s]').astype(np.int32)
