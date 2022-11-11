@@ -404,9 +404,9 @@ def amlr_imagery(
 
     # Check that all filenames have the same number of characters
     if not len(set([len(i) for i in imagery_files])) == 1:
-        logger.error('The imagery file names are not all the same length, ' + 
-            'and thus the imagery metadata file cannot be generated')
-        return()
+        logger.warning('The imagery file names are not all the same length, ' + 
+            'and thus shuld be checked carefully')
+        # return()
 
 
     space_index = str.index(imagery_files[0], ' ')
