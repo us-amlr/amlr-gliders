@@ -155,7 +155,7 @@ def amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp):
     # Remove garbage data
     #   Removing these timestamps is for situations when there is a " + 
     #   'Not enough timestamps for yo interpolation' warning",
-    if any(gdm.data.index != '1970-01-01'):
+    if any(gdm.data.index == '1970-01-01'):
         logger.info('Removing invalid (1970-01-01) timestamps')
         row_count_orig = len(gdm.data.index)
         gdm.data = gdm.data[gdm.data.index != '1970-01-01']
@@ -189,7 +189,8 @@ def amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp):
 
 def amlr_write_trajectory(gdm, deployment_mode, glider_path):
     """
-    ...
+    From gdm file, write trajectory two nc files, 
+    one with commonly used variables and the other with all variables
     """
 
     nc_trajectory_path = os.path.join(glider_path, 'data', 'out', 'nc', 'trajectory')
@@ -201,23 +202,19 @@ def amlr_write_trajectory(gdm, deployment_mode, glider_path):
     logger.info("Creating full timeseries")
     ds = gdm.to_timeseries_dataset()
 
-    logger.info("Writing full trajectory timeseries to nc file")
-    try:
-        ds.to_netcdf(os.path.join(nc_trajectory_path, f'{deployment_mode}-trajectory-full.nc'))
-        logger.info("Full trajectory timeseries written to nc file")
-    except:
-        logger.warning("Unable to write full trajectory timeseries to nc file")
-
-    vars_list = ['time', 'lat', 'latitude', 'lon', 'longitude', 
+    # interpolated variables first. 
+    # Note to_timeseries_dataset uses nc_var_name in sensor_defs
+    #   to change ilatitude to lat and ilongitude to lon 
+    vars_list = ['time', 'latitude', 'longitude', 
         'depth', 'm_depth', 'm_heading', 'm_pitch', 'm_roll', 
-        'idepth', 'impitch', 'imroll', 'ilatitude', 'ilongitude',
+        'lat', 'lon', 'idepth', 'impitch', 'imroll', 
         'cdom', 'conductivity', 'density', 'pressure', 
         'salinity', 'temperature', 'beta700', 'chlorophyll_a', 
         'oxy4_oxygen', 'oxy4_saturation', 
         'oxy4_temp', 'sci_flbbcd_therm', 'ctd41cp_timestamp', 
         'm_final_water_vx', 'm_final_water_vy', 'c_wpt_lat', 'c_wpt_lon']
-    subset = sorted(set(vars_list).intersection(list(gdm.data.keys())), key = vars_list.index)
 
+    subset = sorted(set(vars_list).intersection(list(gdm.data.keys())), key = vars_list.index)
     ds_subset = ds[subset]
     
     logger.info("Writing trajectory timeseries for most commonly used variables to nc file")
@@ -227,6 +224,15 @@ def amlr_write_trajectory(gdm, deployment_mode, glider_path):
     except:
         logger.warning("Unable to write subset trajectory timeseries to nc file")
 
+
+    logger.info("Writing full trajectory timeseries to nc file")
+    try:
+        ds.to_netcdf(os.path.join(nc_trajectory_path, f'{deployment_mode}-trajectory-full.nc'))
+        logger.info("Full trajectory timeseries written to nc file")
+    except:
+        logger.warning("Unable to write full trajectory timeseries to nc file")
+    
+    return 0
 
 
 def amlr_write_ngdac(gdm, deployment_mode, glider_path):
@@ -249,6 +255,8 @@ def amlr_write_ngdac(gdm, deployment_mode, glider_path):
     #     nc_path = os.path.join(nc_ngdac_path, nc_name)
     #     logging.info('Writing {:}'.format(nc_path))
     #     pro_ds.to_netcdf(nc_path)
+
+    return 0
         
 
 
