@@ -260,14 +260,18 @@ def amlr_write_ngdac(gdm, deployment_mode, glider_path):
         
 
 
-def amlr_acoustics(
-    gdm, glider_path, deployment, mode,  
-    pitch_column = 'ipitch', roll_column = 'iroll', depth_column = 'idepth', 
-    lat_column = 'ilatitude', lon_column = 'ilongitude'
-):
+def amlr_acoustics(gdm, glider_path, deployment, mode):
     """
     Create files for acoustics data processing
+    Use ilatitude and ilongitude because using the gdm file, not dataset
     """
+
+    lat_column = 'ilatitude'
+    lon_column = 'ilongitude'
+    pitch_column = 'impitch'
+    roll_column = 'imroll'
+    depth_column = 'idepth' 
+
 
     logger.info(f'Creating acoustics files for {deployment}')
     deployment_mode = f'{deployment}-{mode}'
