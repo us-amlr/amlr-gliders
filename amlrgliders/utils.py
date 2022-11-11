@@ -2,6 +2,16 @@ import os
 import pathlib
 
 
+def amlr_interpolate(df, var_src, var_dst):
+    if var_src in df.columns:
+        logger.info(f'Creating interpolated data column ({var_dst}) from {var_src}')
+        df[var_dst] = df[var_src].interpolate(method='time', limit_direction='forward', limit_area='inside')
+    else:
+        logger.info(f'No {var_src} variable, and thus {var_dst} will not be created')
+
+    return df
+
+
 def find_extensions(dir_path): #,  excluded = ['', '.txt', '.lnk']):
     """
     Get all the file extensions in the given directory

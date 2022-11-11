@@ -10,19 +10,10 @@ import pandas as pd
 
 from gdm import GliderDataModel
 from gdm.gliders.slocum import load_slocum_dba #, get_dbas
+from amlrgliders.utils import amlr_interpolate, line_prepender
 # from gdm.utils import interpolate_timeseries
 
 logger = logging.getLogger(__name__)
-
-
-def amlr_interpolate(df, var_src, var_dst):
-    if var_src in df.columns:
-        logger.info(f'Creating interpolated data column ({var_dst}) from {var_src}')
-        df[var_dst] = df[var_src].interpolate(method='time', limit_direction='forward', limit_area='inside')
-    else:
-        logger.info(f'No {var_src} variable, and thus {var_dst} will not be created')
-
-    return df
 
 
 def amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp):
