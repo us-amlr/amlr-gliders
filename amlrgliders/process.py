@@ -241,7 +241,6 @@ def amlr_write_ngdac(gdm, deployment_mode, glider_path):
     ...
     """
     # TODO: make parallel, once applicable
-
     nc_ngdac_path = os.path.join(glider_path, 'data', 'out', 'nc', 'ngdac', mode)
 
     # if not os.path.exists(nc_ngdac_path):
