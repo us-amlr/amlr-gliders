@@ -248,7 +248,7 @@ def amlr_write_ngdac(gdm, deployment_mode, glider_path):
     #     logging.info(f'Creating directory at: {nc_ngdac_path}')
     #     os.makedirs(nc_ngdac_path)
 
-    logging.error("CANNOT CURRENTLY WRITE TO NGDAC NC FILES")
+    logging.warning("CANNOT CURRENTLY WRITE TO NGDAC NC FILES")
     # logging.info("Writing ngdac to nc files")
     # glider = dba_files.iloc[0].file.split('_')[0]
     # for profile_time, pro_ds in gdm.iter_profiles():
@@ -351,9 +351,7 @@ def solocam_filename_dt(filename, index_start):
     return solocam_dt
 
 
-def amlr_imagery(
-    gdm, glider_path, deployment, imagery_path, ext = 'jpg'  
-):
+def amlr_imagery(gdm, glider_path, deployment, imagery_path, ext = 'jpg'):
     """
     Matches up imagery files with data from gdm object by imagery filename
     Uses (hardcoded) interpolated variables
