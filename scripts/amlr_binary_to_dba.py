@@ -7,7 +7,6 @@ import argparse
 from subprocess import run
 
 from amlrgliders.utils import amlr_year_path
-import ipdb
 
 
 def main(args):
@@ -141,7 +140,7 @@ def main(args):
     # Make dba files
     logging.info(f'Running processDbds script and writing dba files to {ascii_path}')
     run_out = run([processDbds_file, "-c", cache_path, binary_path, ascii_path], 
-        capture_output=True)    
+        capture_output=True, text=True)    
     if run_out.returncode != 0:
         logging.error(f'Error running `{processDbds_file}`')
         logging.error(f'ARGS:\n{run_out.args}')
@@ -154,7 +153,6 @@ def main(args):
 
         logging.info(f'Writing `{processDbds_file}` output to {processDbds_out_file}')
         fileout = open(os.path.join(scripts_path, processDbds_out_file), 'w')
-        ipdb.set_trace()
         fileout.write(f'ARGS:\n{run_out.args}\n\n')
         fileout.write(f'STDOUT:\n{run_out.stdout}')
         fileout.close()
