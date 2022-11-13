@@ -69,7 +69,7 @@ def main(args):
     ascii_path = os.path.join(glider_data_in, 'ascii', mode)
     cache_path = os.path.join(deployments_path, 'cache')
     scripts_path = os.path.join(glider_depl_path, 'scripts')
-    processDbds_out_file = f'{deployment}_{mode}_processDbds_out.txt')
+    processDbds_out_file = f'{deployment}_{mode}_processDbds_out.txt'
 
     logging.debug(f'processDbds file: {processDbds_file}')
     logging.debug(f'Cache path: {cache_path}')
