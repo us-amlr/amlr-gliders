@@ -153,8 +153,9 @@ def main(args):
         logging.debug(f'ARGS:\n{run_out.args}')
         logging.debug(f'STDOUT:\n{run_out.stdout}')
 
-        logging.info(f'Writing `{processDbds_file}` output to {processDbds_out_file}')
-        fileout = open(os.path.join(scripts_path, processDbds_out_file), 'w')
+        fileout_path = os.path.join(scripts_path, processDbds_out_file)
+        logging.info(f'Writing `{processDbds_file}` output to {fileout_path}')
+        fileout = open(fileout_path, 'w')
         fileout.write(f'ARGS PASSED TO processDbds SCRIPT:\n{run_out.args}\n\n\n')
         fileout.write(f'STDOUT:\n{run_out.stdout}')
         fileout.close()
