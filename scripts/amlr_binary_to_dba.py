@@ -7,6 +7,7 @@ import argparse
 from subprocess import run
 
 from amlrgliders.utils import amlr_year_path
+import ipdb
 
 
 def main(args):
@@ -67,14 +68,15 @@ def main(args):
     binary_path = os.path.join(glider_data_in, 'binary', mode)
     ascii_path = os.path.join(glider_data_in, 'ascii', mode)
     cache_path = os.path.join(deployments_path, 'cache')
-    processDbds_out = os.path.join(glider_depl_path, 'scripts', 
-        f'{deployment}_{mode}_processDbds_out.txt')
+    scripts_path = os.path.join(glider_depl_path, 'scripts')
+    processDbds_out_file = f'{deployment}_{mode}_processDbds_out.txt')
 
     logging.debug(f'processDbds file: {processDbds_file}')
     logging.debug(f'Cache path: {cache_path}')
     logging.debug(f'Binary path: {binary_path}')
     logging.debug(f'Ascii path: {ascii_path}')
-    logging.debug(f'Script output path: {processDbds_out}')
+    logging.debug(f'Scripts path: {scripts_path}')
+    logging.debug(f'ProcessDbds_out file: {processDbds_out_file}')
 
     if not os.path.isdir(cache_path):
         logging.error(f'cache_path ({cache_path}) does not exist')
@@ -88,6 +90,9 @@ def main(args):
         logging.info(f'Making path at: {ascii_path}')
         os.makedirs(ascii_path)
 
+    if not os.path.isdir(scripts_path):
+        logging.info(f'Making path at: {scripts_path}')
+        os.makedirs(scripts_path)
 
     #--------------------------------------------
     # Make sure cache files are lowercase
@@ -147,9 +152,10 @@ def main(args):
         logging.debug(f'ARGS:\n{run_out.args}')
         logging.debug(f'STDOUT:\n{run_out.stdout}')
 
-        logging.info(f'Writing `{processDbds_file}` output to {processDbds_out}')
-        fileout = open(processDbds_out, 'w')
-        fileout.write(f'ARGS:\n{run_out.args}')
+        logging.info(f'Writing `{processDbds_file}` output to {processDbds_out_file}')
+        fileout = open(os.path.join(scripts_path, processDbds_out_file), 'w')
+        ipdb.set_trace()
+        fileout.write(f'ARGS:\n{run_out.args}\n\n')
         fileout.write(f'STDOUT:\n{run_out.stdout}')
         fileout.close()
 
