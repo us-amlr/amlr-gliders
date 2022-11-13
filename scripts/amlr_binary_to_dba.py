@@ -100,7 +100,8 @@ def main(args):
 
     if len(files_list_CAC) > 0:
         logging.info(f'{len(files_list_CAC)} .CAC files will be renamed')
-        run_out = run([cac2lower_file, os.path.join(cache_path, "*")])
+        run_out = run([cac2lower_file, os.path.join(cache_path, "*")], 
+            capture_output=True, text=True)
 
         if run_out.returncode != 0:
             logging.error(f'Error running `{cac2lower_file}`')
@@ -129,7 +130,8 @@ def main(args):
             logging.info(f"{len(files_list_CAC)} uppercase .CAC files were deleted")
         else:
             logging.warn("Not all '.CAC' files have a corresponding '.cac' file, " + 
-                "and thus the .CAC files were not deleted")
+                "and thus the .CAC files were not deleted. " + 
+                "Please inspect by hand.")
 
             del run_out
 
@@ -153,7 +155,7 @@ def main(args):
 
         logging.info(f'Writing `{processDbds_file}` output to {processDbds_out_file}')
         fileout = open(os.path.join(scripts_path, processDbds_out_file), 'w')
-        fileout.write(f'ARGS:\n{run_out.args}\n\n')
+        fileout.write(f'ARGS PASSED TO processDbds SCRIPT:\n{run_out.args}\n\n\n')
         fileout.write(f'STDOUT:\n{run_out.stdout}')
         fileout.close()
 
