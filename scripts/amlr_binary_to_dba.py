@@ -51,7 +51,8 @@ def main(args):
 
     deployment_split = deployment.split('-')
     if len(deployment_split[1]) != 8:
-        logging.error("The deployment string format must be 'glider-YYYYmmdd', eg amlr03-20220101")
+        logging.error("The deployment string format must be 'glider-YYYYmmdd', " + 
+            "eg amlr03-20220101")
         return
 
     #--------------------------------------------
@@ -94,8 +95,14 @@ def main(args):
         run_out = run([cac2lower_file, os.path.join(cache_path, "*")])
 
         if run_out.returncode != 0:
-            logging.error(f'Error running `{cac2lower_file} {os.path.join(cache_path, "*")}`')
+            logging.error(f'Error running `{cac2lower_file}`')
+            logging.error(f'ARGS:\n{run_out.args}')
+            logging.error(f'STDERR:\n{run_out.stderr}')
             return
+        else:
+            logging.info(f'Successfully completed run of `{cac2lower_file}`')
+            logging.debug(f'ARGS:\n{run_out.args}')
+            logging.debug(f'STDOUT:\n{run_out.stdout}')
 
         # Make sure that all .CAC files have corresponding .cac files before deleting
         delete_ok = True
@@ -113,7 +120,10 @@ def main(args):
 
             logging.info(f"{len(files_list_CAC)} uppercase .CAC files were deleted")
         else:
-            logging.warn("Not all '.CAC' files have a corresponding '.cac' file, and thus the .CAC files were not deleted")
+            logging.warn("Not all '.CAC' files have a corresponding '.cac' file, " + 
+                "and thus the .CAC files were not deleted")
+
+            del run_out
 
     else:
         logging.info('There are no .CAC files to rename')
@@ -125,13 +135,13 @@ def main(args):
         capture_output=True)    
     if run_out.returncode != 0:
         logging.error(f'Error running `{processDbds_file}`')
-        logging.error(f'Args: {run_out.args}')
-        logging.error(f'stderr: {run_out.stderr}')
+        logging.error(f'ARGS:\n{run_out.args}')
+        logging.error(f'STDERR:\n{run_out.stderr}')
         return
     else:
         logging.info(f'Successfully completed run of `{processDbds_file}`')
-        logging.info(f'Args: {run_out.args}')
-        logging.info(f'Args: {run_out.stdout}')
+        logging.debug(f'ARGS:\n{run_out.args}')
+        logging.debug(f'STDOUT:\n{run_out.stdout}')
 
 
     #--------------------------------------------
@@ -163,9 +173,10 @@ if __name__ == '__main__':
         help='Path to glider deployments directory. ' + 
             'In GCP, this will be the mounted bucket path')
 
-    arg_parser.add_argument('processDbds_file', 
+    arg_parser.add_argument('--processDbds_file', 
         type=str,
-        help='Path to processDbds shell script')
+        help='Path to processDbds shell script', 
+        default = '/opt/amlr-gliders/resources/processDbds_usamlr.sh')
 
     arg_parser.add_argument('--cac2lower_file', 
         type=str, 
