@@ -61,16 +61,20 @@ def main(args):
     glider = deployment_split[0]
     year = amlr_year_path(project, deployment_split)
 
-    glider_data_in = os.path.join(deployments_path, project, year, deployment, 
-        'glider', 'data', 'in')
+    glider_depl_path = os.path.join(deployments_path, project, year, deployment)
+    glider_data_in = os.path.join(glider_depl_path, 'glider', 'data', 'in')
+    
     binary_path = os.path.join(glider_data_in, 'binary', mode)
     ascii_path = os.path.join(glider_data_in, 'ascii', mode)
     cache_path = os.path.join(deployments_path, 'cache')
+    processDbds_out = os.path.join(glider_depl_path, 'scripts', 
+        f'{deployment}_{mode}_processDbds_out.txt')
 
     logging.debug(f'processDbds file: {processDbds_file}')
     logging.debug(f'Cache path: {cache_path}')
     logging.debug(f'Binary path: {binary_path}')
     logging.debug(f'Ascii path: {ascii_path}')
+    logging.debug(f'Script output path: {processDbds_out}')
 
     if not os.path.isdir(cache_path):
         logging.error(f'cache_path ({cache_path}) does not exist')
@@ -142,6 +146,12 @@ def main(args):
         logging.info(f'Successfully completed run of `{processDbds_file}`')
         logging.debug(f'ARGS:\n{run_out.args}')
         logging.debug(f'STDOUT:\n{run_out.stdout}')
+
+        logging.info(f'Writing `{processDbds_file}` output to {processDbds_out}')
+        fileout = open(processDbds_out, 'w')
+        fileout.write(f'ARGS:\n{run_out.args}')
+        fileout.write(f'STDOUT:\n{run_out.stdout}')
+        fileout.close()
 
 
     #--------------------------------------------
