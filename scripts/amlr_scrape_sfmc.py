@@ -27,7 +27,7 @@ def main(args):
     project = args.project
 
     sfmc_path = args.sfmc_path
-    sfmc_pwd_file = args.sfmc_pwd_file
+    sfmc_pwd_file_name = args.sfmc_pwd_file_name
     gcpproject_id = args.gcpproject_id
     bucket = args.bucket
     secret_id = args.secret_id
@@ -69,7 +69,8 @@ def main(args):
         # os.mkdir(os.path.join(sfmc_local_path, name_cam))
 
     logging.debug('SFMC ssh password')
-    if not os.path.isfile(sfmc_pwd_file):
+    sfmc_pwd_file = os.path.join(sfmc_local_path, sfmc_pwd_file_name)
+    if not os.path.isfile():
         logging.info('Writing SFMC ssh pwd to file')
         file = open(sfmc_pwd_file, 'w+')
         file.write(access_secret_version(gcpproject_id, secret_id))
@@ -167,9 +168,9 @@ if __name__ == '__main__':
 
     arg_parser.add_argument('--sfmcpwd', 
         type=str,
-        dest='sfmc_pwd_file', 
+        dest='sfmc_pwd_file_name', 
         help='The file that contains the SFMC password for the rsync', 
-        default='/home/sam_woodman_noaa_gov/sfmc/.sfmcpwd.txt')
+        default='.sfmcpwd.txt')
 
     arg_parser.add_argument('--gcpproject', 
         type=str,
