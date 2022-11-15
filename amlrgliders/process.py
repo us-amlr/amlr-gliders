@@ -58,7 +58,7 @@ def amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp):
         return 
     
     # Handle script default value
-    if numcores = 0 then:
+    if numcores == 0 then:
         numcores = mp.cpu_count()
 
     if not (1 <= numcores and numcores <= mp.cpu_count()):
