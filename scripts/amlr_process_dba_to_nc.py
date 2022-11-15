@@ -146,8 +146,9 @@ if __name__ == '__main__':
             'If greater than 1, parallel processing via mp.Pool.map will ' + 
             'be used for load_slocum_dbas and ' + 
             '(todo) writing individual (profile) nc files. ' +
-            'This argument must be between 1 and mp.cpu_count()',
-        default=1)
+            'This argument must be between 1 and mp.cpu_count(). ' + 
+            'If 0 (the default), all possible cores will be used'
+        default=0)
 
     arg_parser.add_argument('--loadfromtmp',
         help='flag; indicates gdm object should be loaded from ' + 

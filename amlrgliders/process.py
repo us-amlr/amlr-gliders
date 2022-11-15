@@ -57,6 +57,10 @@ def amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp):
         logger.error(f"project must be one of {', '.join(prj_list)}")
         return 
     
+    # Handle script default value
+    if numcores = 0 then:
+        numcores = mp.cpu_count()
+
     if not (1 <= numcores and numcores <= mp.cpu_count()):
         logger.error(f'numcores must be between 1 and {mp.cpu_count()}')
         return 
