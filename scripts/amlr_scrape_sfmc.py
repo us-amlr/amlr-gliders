@@ -163,7 +163,7 @@ if __name__ == '__main__':
         dest='sfmc_path', 
         help='The SFMC directory on the local machine ' + 
             'where the files from the SFMC will be copied', 
-        default='/home/sam_woodman_noaa_gov/sfmc')
+        default='/var/sfmc')
 
     arg_parser.add_argument('--sfmcpwd', 
         type=str,
