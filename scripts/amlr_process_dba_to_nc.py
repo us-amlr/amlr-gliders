@@ -147,7 +147,7 @@ if __name__ == '__main__':
             'be used for load_slocum_dbas and ' + 
             '(todo) writing individual (profile) nc files. ' +
             'This argument must be between 1 and mp.cpu_count(). ' + 
-            'If 0 (the default), all possible cores will be used'
+            'If 0 (the default), all possible cores will be used',
         default=0)
 
     arg_parser.add_argument('--loadfromtmp',
