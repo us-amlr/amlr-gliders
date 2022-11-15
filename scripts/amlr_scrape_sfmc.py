@@ -70,7 +70,7 @@ def main(args):
 
     logging.debug('SFMC ssh password')
     sfmc_pwd_file = os.path.join(sfmc_local_path, sfmc_pwd_file_name)
-    if not os.path.isfile():
+    if not os.path.isfile(sfmc_pwd_file):
         logging.info('Writing SFMC ssh pwd to file')
         file = open(sfmc_pwd_file, 'w+')
         file.write(access_secret_version(gcpproject_id, secret_id))
