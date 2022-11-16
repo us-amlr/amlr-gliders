@@ -1,0 +1,11 @@
+FREEBYRD
+These data are part of the U.S. Antarctic Marine Living Resources (AMLR) Program Operation FREEBYRD. 
+FREEBYRD is a long term program to replace ship-based surveys with autonomous vehicles to 
+estimate Antarctic krill biomass in support of the 
+Convention for the Conservation of Antarctic Marine Living Resources (CCAMLR). 
+This delayed dataset contains CTD, oxygen, chlorophyll a, CDOM and optical backscatter measurements.
+
+SAN DIEGO
+These data are part of the U.S. Antarctic Marine Living Resources (AMLR) Program Operation SANDIEGO. 
+SANDIEGO is for deployments off San Diego in the Southern California waters 
+of the Pacific Ocean to test, e.g., new gliders and new sensors.

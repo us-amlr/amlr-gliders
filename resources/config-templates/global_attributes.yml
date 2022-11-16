@@ -61,9 +61,7 @@ references:
 sea_name: 'Pacific Ocean'
 source: 'Observational data from a profiling glider'
 standard_name_vocabulary: 'CF Standard Name Table v73'
-summary: 'These data are part of the U.S. Antarctic Marine Living Resources (AMLR) Program Operation SANDIEGO. 
-  SANDIEGO is for deployments off San Diego in the Southern California waters 
-  of the Pacific Ocean to test, e.g., new gliders and new sensors.'
+summary: 'TODO'
 time_coverage_duration: ' '
 time_coverage_end: ' '
 time_coverage_resolution: ' '
