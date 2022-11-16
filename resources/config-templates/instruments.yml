@@ -84,8 +84,24 @@
     comment: ""
     deployment: ' '
     factory_calibrated: 2011-08-05
-    long_name: 'Williamson and Associates Shadowgraph camera (11cm)'
-    make_model: 'Williamson and Associates Shadowgraph camera (11cm)'
+    long_name: 'Williamson and Associates Shadowgraph Camera (11cm)'
+    make_model: 'Williamson and Associates Shadowgraph Camera (11cm)'
+    owner: 'NOAA NMFS SWFSC Antarctic Ecosystem Research Division'
+    platform: platform
+    serial_number: 0000
+    type: instrument
+    user_calibrated: ""
+  cfg_file: ""
+  nc_var_name: instrument_solocam
+  type: i4
+- attrs:
+    calibration_date: 2011-08-05
+    calibration_report: ""
+    comment: ""
+    deployment: ' '
+    factory_calibrated: 2011-08-05
+    long_name: 'Williamson and Associates Glidercam'
+    make_model: 'Williamson and Associates Glidercam'
     owner: 'NOAA NMFS SWFSC Antarctic Ecosystem Research Division'
     platform: platform
     serial_number: 0000
