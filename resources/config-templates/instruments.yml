@@ -1,7 +1,7 @@
 - attrs:
     calibration_date: 2011-04-21
     calibration_report: ""
-    comment: Pumped
+    comment: 'Pumped'
     deployment: ' '
     factory_calibrated: 2011-04-21
     long_name: 'Conductivity, Temperature, Depth (CTD) Sensor'
@@ -17,7 +17,7 @@
 - attrs:
     calibration_date: 2011-08-05
     calibration_report: ""
-    comment: ""
+    comment: ''
     deployment: ' '
     factory_calibrated: 2011-08-05
     long_name: 'Oxygen Optode'
@@ -49,7 +49,7 @@
 - attrs:
     calibration_date: 2011-08-05
     calibration_report: ""
-    comment: ""
+    comment: '38kHz, 67.5kHz, 125kHz'
     deployment: ' '
     factory_calibrated: 2011-08-05
     long_name: 'ASL Environmental Sciences AZFP 3 Frequency'
@@ -65,7 +65,7 @@
 - attrs:
     calibration_date: 2011-08-05
     calibration_report: ""
-    comment: ""
+    comment: ''
     deployment: ' '
     factory_calibrated: 2011-08-05
     long_name: 'NORTEK Inc Signature 100 Compact Echsounder'
@@ -81,7 +81,7 @@
 - attrs:
     calibration_date: 2011-08-05
     calibration_report: ""
-    comment: ""
+    comment: ''
     deployment: ' '
     factory_calibrated: 2011-08-05
     long_name: 'Williamson and Associates Shadowgraph Camera (11cm)'
@@ -97,7 +97,7 @@
 - attrs:
     calibration_date: 2011-08-05
     calibration_report: ""
-    comment: ""
+    comment: ''
     deployment: ' '
     factory_calibrated: 2011-08-05
     long_name: 'Williamson and Associates Glidercam'
