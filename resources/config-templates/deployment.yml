@@ -1,15 +1,15 @@
 glider: amlr08
 global_attributes:
-  deployment_name: amlr08-20220504THHMM
+  deployment_name: amlr08-YYYYmmddThhmm
   wmo_platform_code: ' '
 platform:
   comment: ''
   depth_rating: 1000m
   glider_type: 'Teledyne Webb Research Slocum G3 glider'
   id: amlr06
-  instrument: instrument_ctd,instrument_flbbcd,instrument_optode
+  instrument: instrument_ctd,instrument_flbbcd,instrument_optode,instrument_azfp,instrument_ad2cp,instrument_solocam
   long_name: 'Teledyne Webb Research Slocum G3 glider'
   os_version: '8.5'
   type: platform
   wmo_platform_code: 
-trajectory_name: amlr08-20220504THHMM
+trajectory_name: amlr08-YYYYmmddThhmm

@@ -46,7 +46,51 @@
   cfg_file: ""
   nc_var_name: instrument_flbbcd
   type: i4
-
-#TODO: glidercam&shadowgraph: instrument_solocam
-#TODO: AZFP: instrument_azfp
-#TODO: Nortek Echosounder: instrument_echodroid
+- attrs:
+    calibration_date: 2011-08-05
+    calibration_report: ""
+    comment: ""
+    deployment: ' '
+    factory_calibrated: 2011-08-05
+    long_name: 'ASL Environmental Sciences AZFP 3 Frequency'
+    make_model: 'ASL Environmental Sciences AZFP 3 Frequency'
+    owner: 'NOAA NMFS SWFSC Antarctic Ecosystem Research Division'
+    platform: platform
+    serial_number: 0000
+    type: instrument
+    user_calibrated: ""
+  cfg_file: ""
+  nc_var_name: instrument_azfp
+  type: i4
+- attrs:
+    calibration_date: 2011-08-05
+    calibration_report: ""
+    comment: ""
+    deployment: ' '
+    factory_calibrated: 2011-08-05
+    long_name: 'NORTEK Inc Signature 100 Compact Echsounder'
+    make_model: 'NORTEK Inc Signature 100 Compact Echsounder'
+    owner: 'NOAA NMFS SWFSC Antarctic Ecosystem Research Division'
+    platform: platform
+    serial_number: 0000
+    type: instrument
+    user_calibrated: ""
+  cfg_file: ""
+  nc_var_name: instrument_ad2cp
+  type: i4
+- attrs:
+    calibration_date: 2011-08-05
+    calibration_report: ""
+    comment: ""
+    deployment: ' '
+    factory_calibrated: 2011-08-05
+    long_name: 'Williamson and Associates Shadowgraph camera (11cm)'
+    make_model: 'Williamson and Associates Shadowgraph camera (11cm)'
+    owner: 'NOAA NMFS SWFSC Antarctic Ecosystem Research Division'
+    platform: platform
+    serial_number: 0000
+    type: instrument
+    user_calibrated: ""
+  cfg_file: ""
+  nc_var_name: instrument_solocam
+  type: i4
