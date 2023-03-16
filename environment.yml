@@ -3,9 +3,8 @@ channels:
   - conda-forge
   - default
 dependencies:
-  - python < 3.10
+  - python<3.10
   - pip
-  #- spyder>=5.0 #for local devlopment
 
   # Used in amlr-gliders scripts
   - google-crc32c=1.1.0
@@ -29,6 +28,6 @@ dependencies:
   - xarray
   - pyyaml
 
-  # - pip:
+  - pip:
     - -e git+https://github.com/kerfoot/gdm.git#egg=gdm
     # - -e git+https://github.com/us-amlr/amlr-gliders.git#egg=amlr_gliders
