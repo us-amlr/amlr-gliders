@@ -68,7 +68,7 @@ y.file<-rep("solocam.cfg",length(listcfg))
 cfg.args<-cbind(y.date,y.time,y.file,cfg.args)
 
 #add column names
-solocam.fields<-c("date","time","file-type","settings","resolution","awb-redgain","awb-bluegain","monochrome","exposure","auto-exp","iso","frame-rate","shutter-speed","file-manager","file-type","file-name","timestamp","storage-shutdown","lamp-manager","lamp","lamp-pwm","lamp-duration","lamp-schedule","sys-param","warmup","flash-duration","none1","none2","timelapse","timelapse-interval","timelapse-images","lamp","lamp-pwm")
+solocam.fields<-c("date","time","cfg-source","settings","resolution","awb-redgain","awb-bluegain","monochrome","exposure","auto-exp","iso","frame-rate","shutter-duration","file-manager","file-type","file-name","timestamp","storage-shutdown","lamp-manager","lamp","lamp-pwm","lamp-duration","lamp-schedule","sys-param","warmup","flash-duration","none1","none2","timelapse","timelapse-interval","timelapse-images","lamp","lamp-pwm")
 colnames(cfg.args)<-solocam.fields
 
 #make table
