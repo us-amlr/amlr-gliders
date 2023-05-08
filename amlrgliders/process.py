@@ -124,27 +124,30 @@ def amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp):
             pool = mp.Pool(numcores)
             load_slocum_dba_list = pool.map(load_slocum_dba, dba_files_list)
             pool.close()   
+            pool.join()
             logger.debug('Pool closed')
             
+            logger.debug('Zipping Pool.map output')
+            dba_zip_list = list(zip(*load_slocum_dba_list))
+            del load_slocum_dba_list, pool
+
+            # logger.debug('Concatenating pool output into trajectory data frame')
+            # # dba = dd.concat(dba_zip_list[0])
+            # logger.debug('Converting from dask to pandas')
+            # dba.compute()
+            
+            # logger.debug('Concatenating pool output into profile data frame')
+            # pro_meta = dd.concat(dba_zip_list[0])
+            # # pro_meta = dd.concat([x[1] for x in load_slocum_dba_list])
+            # logger.debug('Converting from dask to pandas')
+            # pro_meta.compute()
+            
             logger.debug('Concatenating pool output into trajectory data frame')
-            dba = dd.concat([x[0] for x in load_slocum_dba_list])
-            logger.debug('Converting from dask to pandas')
-            dba.compute()
+            dba = pd.concat(dba_zip_list[0])
+            gdm.data = dba 
             
             logger.debug('Concatenating pool output into profile data frame')
-            pro_meta = dd.concat([x[0] for x in load_slocum_dba_list])
-            logger.debug('Converting from dask to pandas')
-            pro_meta.compute()
-            
-            # logger.debug('Zipping Pool.map output')
-            # load_slocum_dba_list_unzipped = list(zip(*load_slocum_dba_list))
-            # logger.debug('Concatenating pool output into trajectory data frame')
-            # dba = pd.concat(load_slocum_dba_list_unzipped[0]).sort_index()
-            # logger.debug('Concatenating pool output into profile data frame')
-            # pro_meta = pd.concat(load_slocum_dba_list_unzipped[1]).sort_index()            
-            
-            logger.debug('Adding data frames to gdm object')
-            gdm.data = dba 
+            pro_meta = pd.concat(dba_zip_list[1])
             gdm.profiles = pro_meta
 
         else :        
