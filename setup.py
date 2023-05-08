@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='amlr-gliders',
-      version='0.1.0a1',
+      version='0.1.0b1',
       description='Process and organize AMLR glider data, primarily in GCP',
       url='http://github.com/us-amlr/amlr-gliders',
       author='Sam Woodman',

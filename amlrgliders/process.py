@@ -7,6 +7,7 @@ import math
 import multiprocessing as mp
 import numpy as np
 import pandas as pd
+import dask.dataframe as dd
 
 from gdm import GliderDataModel
 from gdm.gliders.slocum import load_slocum_dba #, get_dbas
@@ -126,12 +127,12 @@ def amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp):
             logger.debug('Pool closed')
             
             logger.debug('Concatenating pool output into trajectory data frame')
-            dba = pd.concat([x[0] for x in load_slocum_dba_list])
-            dba.sort_index()
+            dba = dd.concat([x[0] for x in load_slocum_dba_list])
+            dba.compute().sort_index()
             
             logger.debug('Concatenating pool output into profile data frame')
-            pro_meta = pd.concat([x[0] for x in load_slocum_dba_list])
-            pro_meta.sort_index()
+            pro_meta = dd.concat([x[0] for x in load_slocum_dba_list])
+            pro_meta.compute().sort_index()
             
             # logger.debug('Zipping Pool.map output')
             # load_slocum_dba_list_unzipped = list(zip(*load_slocum_dba_list))
