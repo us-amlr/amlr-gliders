@@ -82,7 +82,7 @@ def amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp):
     pq_data_file = os.path.join(tmp_path, f'{deployment_mode}-data.parquet')
     pq_profiles_file = os.path.join(tmp_path, f'{deployment_mode}-profiles.parquet')
     
-    # This is for GCP because buckets don't do implicit directories well on upload
+    # Confirm direcotry exists as GCS buckets don't do implicit directories
     if not os.path.exists(tmp_path):
         logger.info(f'Creating directory at: {tmp_path}')
         os.makedirs(tmp_path)
@@ -118,10 +118,12 @@ def amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp):
             return
         
         if numcores > 1:
+            logger.debug('Running load_slocum_dba in parallel')
             # If numcores is greater than 1, run load_slocum_dba in parallel
             pool = mp.Pool(numcores)
             load_slocum_dba_list = pool.map(load_slocum_dba, dba_files_list)
             pool.close()   
+            logger.debug('Pool closed')
             
             load_slocum_dba_list_unzipped = list(zip(*load_slocum_dba_list))
             dba = pd.concat(load_slocum_dba_list_unzipped[0]).sort_index()
@@ -131,6 +133,7 @@ def amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp):
             gdm.profiles = pro_meta
 
         else :        
+            logger.debug('Running load_slocum_dba in for loop')
             # If numcores == 1, run load_slocum_dba in normal for loop
             for index, row in dba_files.iterrows():
                 # dba_file = os.path.join(row['path'], row['file'])
