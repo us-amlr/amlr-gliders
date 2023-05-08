@@ -128,11 +128,13 @@ def amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp):
             
             logger.debug('Concatenating pool output into trajectory data frame')
             dba = dd.concat([x[0] for x in load_slocum_dba_list])
-            dba.compute().sort_index()
+            logger.debug('Converting from dask to pandas')
+            dba.compute()
             
             logger.debug('Concatenating pool output into profile data frame')
             pro_meta = dd.concat([x[0] for x in load_slocum_dba_list])
-            pro_meta.compute().sort_index()
+            logger.debug('Converting from dask to pandas')
+            pro_meta.compute()
             
             # logger.debug('Zipping Pool.map output')
             # load_slocum_dba_list_unzipped = list(zip(*load_slocum_dba_list))
