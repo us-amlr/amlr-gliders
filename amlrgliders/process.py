@@ -126,9 +126,11 @@ def amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp):
             logger.debug('Pool closed')
             
             load_slocum_dba_list_unzipped = list(zip(*load_slocum_dba_list))
+            logger.debug('Concatenating pool output into data frames')
             dba = pd.concat(load_slocum_dba_list_unzipped[0]).sort_index()
             pro_meta = pd.concat(load_slocum_dba_list_unzipped[1]).sort_index()            
             
+            logger.debug('Adding data frames to gdm object')
             gdm.data = dba 
             gdm.profiles = pro_meta
 
