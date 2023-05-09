@@ -110,7 +110,7 @@ def amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp):
         # Add data from dba files to gdm
         dba_files_list = list(map(lambda x: os.path.join(ascii_path, x), os.listdir(ascii_path)))
         dba_files = pd.DataFrame(dba_files_list, columns = ['dba_file'])
-        logger.info(f'Reading ascii data from {len(dba.files.index)} files ' + 
+        logger.info(f'Reading ascii data from {len(dba_files.index)} files ' + 
                     'into gdm object using {numcores} core(s)')
 
         if len(dba_files) == 0:
@@ -149,7 +149,7 @@ def amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp):
             #     dba = pd.concat([dba, i])
             for idx_start in range(0, total_len, chunksize):
                 idx_end = min(idx_start+chunksize, total_len)
-                print(idx_start, idx_end)
+                logger.debug(f'Concatenating from index {idx_start} to {idx_end}')
                 dba = pd.concat([dba] + dba_list[idx_start:idx_end])
             gdm.data = dba 
             del dba_zip, dba_list, chunksize, total_len
