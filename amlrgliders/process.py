@@ -107,11 +107,11 @@ def amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp):
         logger.info(f'gdm from parquet files:\n {gdm}')
 
     else:    
-        logger.info(f'Reading ascii data into gdm object using {numcores} core(s)')
-
         # Add data from dba files to gdm
         dba_files_list = list(map(lambda x: os.path.join(ascii_path, x), os.listdir(ascii_path)))
         dba_files = pd.DataFrame(dba_files_list, columns = ['dba_file'])
+        logger.info(f'Reading ascii data from {len(dba.files.index)} files ' + 
+                    'into gdm object using {numcores} core(s)')
 
         if len(dba_files) == 0:
             logger.error(f'There are no dba files in the expected directory ' + 
@@ -131,30 +131,36 @@ def amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp):
             dba_zip, pro_meta_zip = zip(*load_slocum_dba_list)
             del load_slocum_dba_list, pool
                         
+            logger.debug('Concatenating pool output into profile data frame')
+            # pro_meta = pd.concat(pro_meta_zip)
+            pro_meta = pd.concat(pro_meta_zip)
+            gdm.profiles = pro_meta
+            del pro_meta_zip
+            
             logger.debug('Concatenating pool output into trajectory data frame')
-            logger.debug(f'There are {len(list(dba_zip))} dba zip elements')
+            dba_list = list(dba_zip)
+            chunksize = 50
+            total_len = len(dba_list)
+            logger.debug(f'There are {total_len} dba zip elements')
             # dba = pd.concat(dba_zip)
             dba = pd.DataFrame()
-            for idx, i in enumerate(dba_zip):
-                logger.debug(f'dba df {idx}')
-                dba = pd.concat([dba, i])
+            # for idx, i in enumerate(dba_zip):
+            #     logger.debug(f'dba df {idx}')
+            #     dba = pd.concat([dba, i])
+            for idx_start in range(0, total_len, chunksize):
+                idx_end = min(idx_start+chunksize, total_len)
+                print(idx_start, idx_end)
+                dba = pd.concat([dba] + dba_list[idx_start:idx_end])
             gdm.data = dba 
-            
-            logger.debug('Concatenating pool output into profile data frame')
-            logger.debug(f'There are {len(list(pro_meta_zip))} pro_meta zip elements')
-            # pro_meta = pd.concat(pro_meta_zip)
-            pro_meta = pd.DataFrame()
-            for i in pro_meta_zip:
-                pro_meta = pd.concat([pro_meta, i])
-            gdm.profiles = pro_meta
+            del dba_zip, dba_list, chunksize, total_len
 
         else :        
-            logger.debug('Running load_slocum_dba in for loop')
+            logger.debug(f'Running load_slocum_dba sequentially')
             # If numcores == 1, run load_slocum_dba in normal for loop
-            for index, row in dba_files.iterrows():
+            for idx, index, row in enumerate(dba_files.iterrows()):
+                logger.debug(f'dba file {idx}')
                 # dba_file = os.path.join(row['path'], row['file'])
-                dba, pro_meta = load_slocum_dba(row['dba_file'])
-                
+                dba, pro_meta = load_slocum_dba(row['dba_file'])                
                 gdm.data = pd.concat([gdm.data, dba])
                 gdm.profiles = pd.concat([gdm.profiles, pro_meta])
             
