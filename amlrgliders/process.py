@@ -132,13 +132,16 @@ def amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp):
             del load_slocum_dba_list, pool
                         
             logger.debug('Concatenating pool output into trajectory data frame')
+            logger.debug(f'There are {len(list(dba_zip))} dba zip elements')
             # dba = pd.concat(dba_zip)
             dba = pd.DataFrame()
-            for i in dba_zip:
+            for idx, i in enumerate(dba_zip):
+                logger.debug(f'dba df {idx}')
                 dba = pd.concat([dba, i])
             gdm.data = dba 
             
             logger.debug('Concatenating pool output into profile data frame')
+            logger.debug(f'There are {len(list(pro_meta_zip))} pro_meta zip elements')
             # pro_meta = pd.concat(pro_meta_zip)
             pro_meta = pd.DataFrame()
             for i in pro_meta_zip:
