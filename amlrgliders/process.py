@@ -123,31 +123,26 @@ def amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp):
             # If numcores is greater than 1, run load_slocum_dba in parallel
             pool = mp.Pool(numcores)
             load_slocum_dba_list = pool.map(load_slocum_dba, dba_files_list)
-            pool.close()   
+            pool.close()
             pool.join()
-            logger.debug('Pool closed')
             
-            logger.debug('Zipping Pool.map output')
-            dba_zip_list = list(zip(*load_slocum_dba_list))
+            logger.debug('Pool closed, Zipping Pool.map output')
+            # dba_zip_list = list(zip(*load_slocum_dba_list))
+            dba_zip, pro_meta_zip = zip(*load_slocum_dba_list)
             del load_slocum_dba_list, pool
-
-            # logger.debug('Concatenating pool output into trajectory data frame')
-            # # dba = dd.concat(dba_zip_list[0])
-            # logger.debug('Converting from dask to pandas')
-            # dba.compute()
-            
-            # logger.debug('Concatenating pool output into profile data frame')
-            # pro_meta = dd.concat(dba_zip_list[0])
-            # # pro_meta = dd.concat([x[1] for x in load_slocum_dba_list])
-            # logger.debug('Converting from dask to pandas')
-            # pro_meta.compute()
-            
+                        
             logger.debug('Concatenating pool output into trajectory data frame')
-            dba = pd.concat(dba_zip_list[0])
+            # dba = pd.concat(dba_zip)
+            dba = pd.DataFrame()
+            for i in dba_zip:
+                dba = pd.concat([dba, i])
             gdm.data = dba 
             
             logger.debug('Concatenating pool output into profile data frame')
-            pro_meta = pd.concat(dba_zip_list[1])
+            # pro_meta = pd.concat(pro_meta_zip)
+            pro_meta = pd.DataFrame()
+            for i in pro_meta_zip:
+                pro_meta = pd.concat([pro_meta, i])
             gdm.profiles = pro_meta
 
         else :        
