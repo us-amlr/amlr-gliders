@@ -14,6 +14,7 @@ dependencies:
   - google-crc32c=1.1.0
   - google-cloud-secret-manager=2.12.0
   - pyarrow=9.0
+  - polars=0.17
 
   # # packages for glidertools
   # - glidertools

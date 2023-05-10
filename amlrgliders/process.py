@@ -7,7 +7,8 @@ import math
 import multiprocessing as mp
 import numpy as np
 import pandas as pd
-import dask.dataframe as dd
+import polars as pl
+import tempfile
 
 from gdm import GliderDataModel
 from gdm.gliders.slocum import load_slocum_dba #, get_dbas
@@ -27,7 +28,8 @@ def amlr_interpolate(df, var_src, var_dst):
     return df
 
 
-def amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp):
+def amlr_gdm(deployment, project, mode, glider_path, 
+             numcores=1, chunksize=50, loadfromtmp=False):
     """
     Create gdm object from dba files. 
     Note the data stored in the tmp files has not 
@@ -88,7 +90,6 @@ def amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp):
         logger.info(f'Creating directory at: {tmp_path}')
         os.makedirs(tmp_path)
 
-
     #--------------------------------------------
     # # Read dba files - not necessary
     # dba_files = get_dbas(ascii_path)
@@ -110,7 +111,8 @@ def amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp):
         # Add data from dba files to gdm
         dba_files_list = list(map(lambda x: os.path.join(ascii_path, x), os.listdir(ascii_path)))
         dba_files = pd.DataFrame(dba_files_list, columns = ['dba_file'])
-        logger.info(f'Reading ascii data from {len(dba_files.index)} files ' + 
+        dba_files_count = len(dba_files.index)        
+        logger.info(f'Reading ascii data from {dba_files_count} files ' + 
                     'into gdm object using {numcores} core(s)')
 
         if len(dba_files) == 0:
@@ -132,27 +134,38 @@ def amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp):
             del load_slocum_dba_list, pool
                         
             logger.debug('Concatenating pool output into profile data frame')
-            # pro_meta = pd.concat(pro_meta_zip)
             pro_meta = pd.concat(pro_meta_zip)
             gdm.profiles = pro_meta
-            del pro_meta_zip
             
             logger.debug('Concatenating pool output into trajectory data frame')
+            
+            logger.debug('making tempdir')
+            tmppqt = tempfile.TemporaryDirectory()
+            
+            logger.debug('Writing partial parquet files')
             dba_list = list(dba_zip)
-            chunksize = 50
-            total_len = len(dba_list)
-            logger.debug(f'There are {total_len} dba zip elements')
-            # dba = pd.concat(dba_zip)
-            dba = pd.DataFrame()
-            # for idx, i in enumerate(dba_zip):
-            #     logger.debug(f'dba df {idx}')
-            #     dba = pd.concat([dba, i])
-            for idx_start in range(0, total_len, chunksize):
-                idx_end = min(idx_start+chunksize, total_len)
+            # chunksize = 50 #todo: make a user-provided argument
+            
+            for idx_start in range(0, dba_files_count, chunksize):
+                idx_end = min(idx_start+chunksize, dba_files_count)
                 logger.debug(f'Concatenating from index {idx_start} to {idx_end}')
-                dba = pd.concat([dba] + dba_list[idx_start:idx_end])
-            gdm.data = dba 
-            del dba_zip, dba_list, chunksize, total_len
+                tmp_df = pd.concat(dba_list[idx_start:idx_end])
+                tmp_file_name = os.path.join(
+                    tmppqt.name, 
+                    f'{deployment_mode}-tmp-{idx_start}-{idx_end}.parquet'
+                )
+                tmp_df.to_parquet(tmp_file_name, version="2.6", index = True)
+                
+            logger.debug('Reading partial parquet files using polars')
+            dba_df_pl = pl.read_parquet(
+                os.path.join(tmppqt.name, '*.parquet')
+            )            
+            
+            logger.debug('Converting polars to pandas, and cleaning up')
+            dba = dba_df_pl.to_pandas().set_index('time')    
+            gdm.data = dba             
+            tmppqt.cleanup()
+            del pro_meta_zip, dba_zip, dba_list, dba_df_pl
 
         else :        
             logger.debug(f'Running load_slocum_dba sequentially')
@@ -164,11 +177,11 @@ def amlr_gdm(deployment, project, mode, glider_path, numcores, loadfromtmp):
                 gdm.data = pd.concat([gdm.data, dba])
                 gdm.profiles = pd.concat([gdm.profiles, pro_meta])
             
-        logger.info('Sorting gdm data by time index')
+        logger.info('Sorting gdm data and profiles by time index')
         gdm.data.sort_index(inplace=True)
         gdm.profiles.sort_index(inplace=True)
 
-        logger.info('Writing gdm to parquet files')
+        logger.info('Writing gdmdata and profiles to parquet files')
         gdm.data.to_parquet(pq_data_file, version="2.6", index = True)
         gdm.profiles.to_parquet(pq_profiles_file, version="2.6", index = True)
 
