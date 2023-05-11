@@ -70,7 +70,13 @@ def main(args):
     glider_path = os.path.join(
         deployments_path, project, year, deployment, 'glider'
     )
-    # glider_path = os.path.join(deployment_curr_path, 'glider')   
+    # glider_path = os.path.join(deployment_curr_path, 'glider')  
+    
+    if write_imagery:
+        if not os.path.isdir(imagery_path):
+            logging.error('write_imagery is true, and thus imagery_path ' + 
+                          f'({imagery_path}) must be a valid path')
+            return
 
 
     #--------------------------------------------
@@ -104,7 +110,7 @@ def main(args):
             logging.warning('You are creating acoustic data files ' + 
                 'using real-time data. ' + 
                 'This may result in inaccurate acoustic file metadata')
-        amlrp.amlr_acoustics(gdm, glider_path, deployment, mode)
+        amlrp.amlr_acoustics(gdm, deployment_mode, glider_path)
 
     # Write imagery metadata file
     if write_imagery:
@@ -112,7 +118,7 @@ def main(args):
             logging.warning('You are creating imagery file metadata ' + 
                 'using real-time data. ' + 
                 'This may result in inaccurate imagery file metadata')
-        amlrp.amlr_imagery(gdm, glider_path, deployment, imagery_path)
+        amlrp.amlr_imagery(gdm, deployment, glider_path, imagery_path)
         
     # All done
     logging.info(f'Glider data processing complete for {deployment_mode}')
@@ -183,7 +189,7 @@ if __name__ == '__main__':
 
     arg_parser.add_argument('--imagery_path',
         type=str,
-        help='Path to imagery bucket',
+        help='Path to imagery bucket. Required if write_imagery flag is true',
         default='')
 
     arg_parser.add_argument('-l', '--loglevel',

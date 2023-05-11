@@ -131,75 +131,6 @@ def amlr_gdm(deployment, project, mode, glider_path,
     gdm.data = gdm_data
     gdm.profiles = gdm_profiles    
     logger.info(f'gdm:\n {gdm}')
-    
-        # dba_files_list = list(map(lambda x: os.path.join(ascii_path, x), os.listdir(ascii_path)))
-        # dba_files = pd.DataFrame(dba_files_list, columns = ['dba_file'])
-        # dba_files_count = len(dba_files.index)        
-        # logger.info(f'Reading ascii data from {dba_files_count} files ' + 
-        #             f'using {numcores} core(s)')
-
-        # if len(dba_files) == 0:
-        #     logger.error(f'There are no dba files in the expected directory ' + 
-        #         f'({ascii_path}), and thus the gdm object cannot be created')
-        #     return
-        
-        # if numcores > 1:
-        #     logger.debug('Reading dba files in parallel')
-        #     # If numcores is greater than 1, run load_slocum_dba in parallel
-        #     pool = mp.Pool(numcores)
-        #     load_slocum_dba_list = pool.map(load_slocum_dba, dba_files_list)
-        #     pool.close()
-        #     pool.join()
-            
-        #     logger.info('Zipping output and concatenating data')
-        #     # dba_zip_list = list(zip(*load_slocum_dba_list))
-        #     dba_zip, pro_meta_zip = zip(*load_slocum_dba_list)
-        #     del load_slocum_dba_list, pool
-                        
-        #     logger.debug('Concatenating pool output into profile data frame')
-        #     pro_meta = pd.concat(pro_meta_zip)
-        #     gdm.profiles = pro_meta
-            
-        #     logger.debug('Concatenating pool output into trajectory data frame')
-        #     dba = pd.concat(dba_zip)
-        #     gdm.data = dba 
-        #     del pro_meta_zip, dba_zip
-
-        # else :        
-        #     logger.debug(f'Reading dba files in for loop')
-        #     # If numcores == 1, run load_slocum_dba in normal for loop
-        #     for idx, index, row in enumerate(dba_files.iterrows()):
-        #         logger.debug(f'dba file {idx}')
-        #         # dba_file = os.path.join(row['path'], row['file'])
-        #         dba, pro_meta = load_slocum_dba(row['dba_file'])                
-        #         gdm.data = pd.concat([gdm.data, dba])
-        #         gdm.profiles = pd.concat([gdm.profiles, pro_meta])
-            
-        # logger.info('Sorting gdm data and profiles by time index')
-        # gdm.data.sort_index(inplace=True)
-        # gdm.profiles.sort_index(inplace=True)
-
-        # if not clobber_tmp and os.path.exists(pq_profiles_file):
-        #     logger.info(f'The parquet file for gdm profiles (pq_profiles_file) ' + 
-        #                 'already exists, and will not be clobbered')
-        # else:
-        #     logger.info('Writing gdm profiles to parquet file')
-        #     gdm.profiles.to_parquet(
-        #         pq_profiles_file, engine = 'fastparquet', 
-        #         version="2.6", index = True
-        #     )
-
-        # if not clobber_tmp and os.path.exists(pq_data_file):
-        #     logger.info(f'The parquet file for gdm data (pq_data_file) ' + 
-        #                 'already exists, and will not be clobbered')
-        # else:
-        #     logger.info('Writing gdm data to parquet file')
-        #     gdm.data.to_parquet(
-        #         pq_data_file, engine = 'fastparquet', 
-        #         version="2.6", index = True
-        #     )
-            
-        # logger.info(f'gdm with data and profiles from dbas:\n {gdm}')
 
     #--------------------------------------------
     ### Additional processing of gdm object
@@ -207,7 +138,6 @@ def amlr_gdm(deployment, project, mode, glider_path,
     # Make columns lowercase to match gdm behavior
     logger.info('Making sensor (data column) names lowercase to match gdm behavior')
     gdm.data.columns = gdm.data.columns.str.lower()
-
 
     # Remove garbage data
     #   Removing these timestamps is for situations when there is a " + 
@@ -258,7 +188,8 @@ def amlr_load_dba(ascii_path, numcores, clobber_tmp,
     Args:
         ascii_path (str): path to ascii (dba) files
         numcores (int): number of cores to use
-        clobber_tmp (boolean): Overwrite existing parquet files?
+        clobber_tmp (boolean): Overwrite existing parquet files, 
+            if they exist
         pq_data_file (str): path for data parquet file
         pq_profiles_file (str): path for profiles parquet file
     """
@@ -339,6 +270,11 @@ def amlr_write_trajectory(gdm, deployment_mode, glider_path):
     """
     From gdm file, write trajectory two nc files, 
     one with commonly used variables and the other with all variables
+    
+    Args:
+        gdm (GliderDataModel): gdm object created by amlr_gdm
+        deployment_mode (str): deployment-mode string, eg amlr##-YYYYmmdd-delayed
+        glider_path (str): path to glider folder
     """
 
     nc_trajectory_path = os.path.join(glider_path, 'data', 'out', 'nc', 'trajectory')
@@ -386,6 +322,11 @@ def amlr_write_trajectory(gdm, deployment_mode, glider_path):
 def amlr_write_ngdac(gdm, deployment_mode, glider_path):
     """
     ...
+    
+    Args:
+        gdm (GliderDataModel): gdm object created by amlr_gdm
+        deployment_mode (str): deployment-mode string, eg amlr##-YYYYmmdd-delayed
+        glider_path (str): path to glider folder
     """
     # TODO: make parallel, once applicable
     nc_ngdac_path = os.path.join(glider_path, 'data', 'out', 'nc', 'ngdac', mode)
@@ -407,10 +348,16 @@ def amlr_write_ngdac(gdm, deployment_mode, glider_path):
         
 
 
-def amlr_acoustics(gdm, glider_path, deployment, mode):
+def amlr_acoustics(gdm, deployment_mode, glider_path):
     """
     Create files for acoustics data processing
     Use ilatitude and ilongitude because using the gdm file, not dataset
+    
+    Args:
+        gdm (GliderDataModel): gdm object created by amlr_gdm
+        glider_path (str): path to glider folder
+        deployment (str): 
+        mode (str): deployment-mode string, eg amlr##-YYYYmmdd-delayed
     """
 
     lat_column = 'ilatitude'
@@ -420,8 +367,8 @@ def amlr_acoustics(gdm, glider_path, deployment, mode):
     depth_column = 'idepth' 
 
 
-    logger.info(f'Creating acoustics files for {deployment}')
-    deployment_mode = f'{deployment}-{mode}'
+    logger.info(f'Creating acoustics files for {deployment_mode}')
+    # deployment_mode = f'{deployment}-{mode}'
 
     # Check that all required variables are present
     acoustic_vars_list = [pitch_column, roll_column, depth_column, lat_column, lon_column]
@@ -482,8 +429,9 @@ def amlr_acoustics(gdm, glider_path, deployment, mode):
     line_prepender(depth_file, str(len(depth_df.index)))
     line_prepender(depth_file, 'EVBD 3 8.0.73.30735')
 
-    logger.info(f'Completed creating acoustics files for {deployment}')
+    logger.info(f'Acoustics files created for {deployment_mode}')
     return 0
+
 
 
 def solocam_filename_dt(filename, index_start):
@@ -497,7 +445,8 @@ def solocam_filename_dt(filename, index_start):
     return solocam_dt
 
 
-def amlr_imagery(gdm, glider_path, deployment, imagery_path, ext = 'jpg'):
+
+def amlr_imagery(gdm, deployment, glider_path, imagery_path, ext = 'jpg'):
     """
     Matches up imagery files with data from gdm object by imagery filename
     Uses (hardcoded) interpolated variables

@@ -44,6 +44,7 @@ if __name__ == '__main__':
 
 
     deployment_split = deployment.split('-')
+    deployment_mode = f'{deployment}-{mode}'
     year = '2022'
     # deployment_curr_path = os.path.join(deployments_path, project, year, deployment)
     deployment_curr_path = os.path.join(deployments_path, deployment)
@@ -55,7 +56,7 @@ if __name__ == '__main__':
     dba_files_list_all = list(map(lambda x: os.path.join(ascii_path, x), os.listdir(ascii_path)))
     # dba_files = pd.DataFrame(dba_files_list, columns = ['dba_file'])
 
-    dba_files_list = dba_files_list_all[:13]
+    dba_files_list = dba_files_list_all[:21]
 
     # for index, row in dba_files[:3].iterrows():
     #     # dba_file = os.path.join(row['path'], row['file'])
@@ -87,16 +88,34 @@ if __name__ == '__main__':
 
     ###
     dba_list = list(dba_zip)
-    chunksize = 3
+    chunksize = 6
     total_len = len(dba_files_list)
+    tmp_path = os.path.join('C:/Users', 'sam.woodman', 'Downloads', 'tmp')
+    pqt_file_name = []
     z1 = pd.concat(dba_zip)
-    z2 = pd.DataFrame()
+    z1.sort_index(inplace = True)
+    
     for idx_start in range(0, total_len, chunksize):
         idx_end = min(idx_start+chunksize, total_len)
-        print(idx_start, idx_end, len(dba_list[idx_start:idx_end]))
-        z2 = pd.concat([z2] + dba_list[idx_start:idx_end])
+        print(idx_start, idx_end)
+        tmp_df = pd.concat(dba_list[idx_start:idx_end])
+        tmp_file_name = os.path.join(tmp_path, f'{deployment_mode}-tmp-{idx_start}-{idx_end}.parquet')
+        pqt_file_name.append(tmp_file_name)
+        tmp_df.to_parquet(tmp_file_name, version="2.6", index = True)
+
+
+    pl_df = pl.read_parquet(
+        os.path.join(tmp_path, '*.parquet')
+    )
+    z2 = pl_df.to_pandas().set_index('time')
+    z2.sort_index(inplace=True)
     z1.equals(z2)
+    
+    t2 = pl.from_pandas(pl_df.to_pandas())
+    
+    gdm.data = pl_df
     ###
+    
 
             
         
