@@ -113,7 +113,7 @@ def amlr_gdm(deployment, project, mode, glider_path,
         dba_files = pd.DataFrame(dba_files_list, columns = ['dba_file'])
         dba_files_count = len(dba_files.index)        
         logger.info(f'Reading ascii data from {dba_files_count} files ' + 
-                    'into gdm object using {numcores} core(s)')
+                    f'into gdm object using {numcores} core(s)')
 
         if len(dba_files) == 0:
             logger.error(f'There are no dba files in the expected directory ' + 
@@ -138,34 +138,37 @@ def amlr_gdm(deployment, project, mode, glider_path,
             gdm.profiles = pro_meta
             
             logger.debug('Concatenating pool output into trajectory data frame')
+            dba = pd.concat(dba_zip)
+            gdm.data = dba
             
-            logger.debug('making tempdir')
-            tmppqt = tempfile.TemporaryDirectory()
+            # tmpdir = tempfile.TemporaryDirectory()
+            # logger.debug(f'tempdir made at {tmpdir.name}')
             
-            logger.debug('Writing partial parquet files')
-            dba_list = list(dba_zip)
-            # chunksize = 50 #todo: make a user-provided argument
+            # logger.debug('Writing partial parquet files')
+            # dba_list = list(dba_zip)
+            # # chunksize = 50 #todo: make a user-provided argument
             
-            for idx_start in range(0, dba_files_count, chunksize):
-                idx_end = min(idx_start+chunksize, dba_files_count)
-                logger.debug(f'Concatenating from index {idx_start} to {idx_end}')
-                tmp_df = pd.concat(dba_list[idx_start:idx_end])
-                tmp_file_name = os.path.join(
-                    tmppqt.name, 
-                    f'{deployment_mode}-tmp-{idx_start}-{idx_end}.parquet'
-                )
-                tmp_df.to_parquet(tmp_file_name, version="2.6", index = True)
-                
-            logger.debug('Reading partial parquet files using polars')
-            dba_df_pl = pl.read_parquet(
-                os.path.join(tmppqt.name, '*.parquet')
-            )            
+            # for idx_start in range(0, dba_files_count, chunksize):
+            #     idx_end = min(idx_start+chunksize, dba_files_count)
+            #     logger.debug(f'Concatenating from index {idx_start} to {idx_end}')
+            #     tmp_df = pd.concat(dba_list[idx_start:idx_end])
+            #     tmp_file_name = os.path.join(
+            #         tmpdir.name, 
+            #         f'{deployment_mode}-tmp-{idx_start}-{idx_end}.parquet'
+            #     )
+            #     tmp_df.to_parquet(tmp_file_name, version="2.6", index = True)
+            # del idx_start, idx_end, tmp_file_name, tmp_df
             
-            logger.debug('Converting polars to pandas, and cleaning up')
-            dba = dba_df_pl.to_pandas().set_index('time')    
-            gdm.data = dba             
-            tmppqt.cleanup()
-            del pro_meta_zip, dba_zip, dba_list, dba_df_pl
+            # logger.debug('Reading partial parquet files using polars')
+            # dba_df_pl = pl.read_parquet(
+            #     os.path.join(tmpdir.name, '*.parquet')
+            # )            
+            
+            # logger.debug('Converting polars to pandas, and cleaning up')
+            # dba = dba_df_pl.to_pandas().set_index('time')    
+            # gdm.data = dba             
+            # tmpdir.cleanup()
+            del pro_meta_zip, dba_zip #, dba_list , dba_df_pl
 
         else :        
             logger.debug(f'Running load_slocum_dba sequentially')
