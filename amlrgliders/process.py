@@ -31,7 +31,7 @@ def amlr_interpolate(df, var_src, var_dst):
 
 
 def amlr_gdm(deployment, project, mode, glider_path, 
-             numcores=1, chunksize=50, loadfromtmp=False):
+             numcores=0, loadfromtmp=False):
     """
     Create gdm object from dba files. 
     Note the data stored in the tmp files has not 
@@ -198,7 +198,11 @@ def amlr_gdm(deployment, project, mode, glider_path,
     # Create interpolated variables
     logger.info('Creating interpolated variables')
     gdm.data = amlr_interpolate(gdm.data, 'depth', 'idepth')
-    gdm.data = amlr_interpolate(gdm.data, 'm_depth', 'imdepth')
+    # gdm.data = amlr_interpolate(gdm.data, 'm_depth', 'imdepth')
+    gdm.data.loc[:, 'm_depth'] = pd.interpolate(
+        gdm.data.loc['imdepth'], 
+        method='time', limit_direction='forward', limit_area='inside'
+    )
     gdm.data = amlr_interpolate(gdm.data, 'm_pitch', 'impitch')
     gdm.data = amlr_interpolate(gdm.data, 'm_roll', 'imroll')
 

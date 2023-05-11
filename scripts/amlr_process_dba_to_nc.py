@@ -37,7 +37,6 @@ def main(args):
     deployments_path = args.deployments_path
 
     numcores = args.numcores
-    chunksize = args.chunksize
 
     loadfromtmp = args.loadfromtmp
     write_trajectory = args.write_trajectory
@@ -77,7 +76,7 @@ def main(args):
     # Create gdm object  
     logging.info(f'Creating gdm object')
     gdm = amlrp.amlr_gdm(
-        deployment, project, mode, glider_path, numcores, chunksize, loadfromtmp
+        deployment, project, mode, glider_path, numcores, loadfromtmp
     )
 
     if gdm is None:
@@ -154,16 +153,6 @@ if __name__ == '__main__':
             'This argument must be between 1 and mp.cpu_count(). ' + 
             'If 0 (the default), all possible cores will be used',
         default=0)
-    
-    arg_parser.add_argument('--chunksize',
-        type=int,
-        help='Number of files from which to concatenate dba data ' + 
-            'before writing to temporary files to avoid ' + 
-            'pandas.concat memory issues. ' + 
-            'In other words, data frames of dba data extracted from ' + 
-            'chunksize files will be concatenated and ' + 
-            'written to temporary parquet files.',
-        default=50)
 
     arg_parser.add_argument('--loadfromtmp',
         help='flag; indicates gdm object should be loaded from ' + 
