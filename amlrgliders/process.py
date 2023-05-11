@@ -8,26 +8,40 @@ import multiprocessing as mp
 import numpy as np
 import pandas as pd
 import polars as pl
-import tempfile
 
 from gdm import GliderDataModel
 from gdm.gliders.slocum import load_slocum_dba #, get_dbas
 from amlrgliders.utils import line_prepender
-# from gdm.utils import interpolate_timeseries
 
 logger = logging.getLogger(__name__)
 
 
-def amlr_interpolate(df, var_src, var_dst):
-    if var_src in df.columns:
-        logger.info(f'Creating interpolated data column ({var_dst}) from {var_src}')        
-        df.loc[:, var_dst] = df.loc[:, var_src].interpolate(
-            method='time', limit_direction='forward', limit_area='inside'
-        )
-    else:
-        logger.info(f'{var_src}does not exist, and thus {var_dst} will not be created')
+# def amlr_interpolate(df, var_src, var_dst):
+#     if var_src in df.columns:
+#         logger.info(f'Creating interpolated data column ({var_dst}) from {var_src}')        
+#         df.loc[:, var_dst] = df.loc[:, var_src].interpolate(
+#             method='time', limit_direction='forward', limit_area='inside'
+#         )
+#     else:
+#         logger.info(f'{var_src}does not exist, and thus {var_dst} will not be created')
 
-    return df
+#     return df
+
+def amlr_interpolate(df):
+    """
+    wrapper around pandas.interpolate, to standardize arguments
+
+    Args:
+        df (_type_): _description_
+        var_src (_type_): _description_
+        var_dst (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    return df.interpolate(
+        method='time', limit_direction='forward', limit_area='inside'
+    )
 
 
 def amlr_gdm(deployment, project, mode, glider_path, 
@@ -103,82 +117,90 @@ def amlr_gdm(deployment, project, mode, glider_path,
                         
     logger.info(f'Creating GliderDataModel object from configs: {config_path}')
     gdm = GliderDataModel(config_path)
+    
     if loadfromtmp:        
         logger.info(f'Loading gdm data from parquet files in: {tmp_path}')
-        gdm.data = pd.read_parquet(pq_data_file)
-        gdm.profiles = pd.read_parquet(pq_profiles_file)
+        gdm_data = pd.read_parquet(pq_data_file)
+        gdm_profiles = pd.read_parquet(pq_profiles_file)
         logger.info(f'gdm from parquet files:\n {gdm}')
 
     else:    
-        # Add data from dba files to gdm
-        dba_files_list = list(map(lambda x: os.path.join(ascii_path, x), os.listdir(ascii_path)))
-        dba_files = pd.DataFrame(dba_files_list, columns = ['dba_file'])
-        dba_files_count = len(dba_files.index)        
-        logger.info(f'Reading ascii data from {dba_files_count} files ' + 
-                    f'using {numcores} core(s)')
-
-        if len(dba_files) == 0:
-            logger.error(f'There are no dba files in the expected directory ' + 
-                f'({ascii_path}), and thus the gdm object cannot be created')
-            return
+        gdm_data, gdm_profiles = amlr_load_dba(
+            ascii_path, numcores, clobber_tmp, pq_data_file, pq_profiles_file
+        )
         
-        if numcores > 1:
-            logger.debug('Reading dba files in parallel')
-            # If numcores is greater than 1, run load_slocum_dba in parallel
-            pool = mp.Pool(numcores)
-            load_slocum_dba_list = pool.map(load_slocum_dba, dba_files_list)
-            pool.close()
-            pool.join()
+    gdm.data = gdm_data
+    gdm.profiles = gdm_profiles    
+    logger.info(f'gdm:\n {gdm}')
+    
+        # dba_files_list = list(map(lambda x: os.path.join(ascii_path, x), os.listdir(ascii_path)))
+        # dba_files = pd.DataFrame(dba_files_list, columns = ['dba_file'])
+        # dba_files_count = len(dba_files.index)        
+        # logger.info(f'Reading ascii data from {dba_files_count} files ' + 
+        #             f'using {numcores} core(s)')
+
+        # if len(dba_files) == 0:
+        #     logger.error(f'There are no dba files in the expected directory ' + 
+        #         f'({ascii_path}), and thus the gdm object cannot be created')
+        #     return
+        
+        # if numcores > 1:
+        #     logger.debug('Reading dba files in parallel')
+        #     # If numcores is greater than 1, run load_slocum_dba in parallel
+        #     pool = mp.Pool(numcores)
+        #     load_slocum_dba_list = pool.map(load_slocum_dba, dba_files_list)
+        #     pool.close()
+        #     pool.join()
             
-            logger.info('Zipping output and concatenating data')
-            # dba_zip_list = list(zip(*load_slocum_dba_list))
-            dba_zip, pro_meta_zip = zip(*load_slocum_dba_list)
-            del load_slocum_dba_list, pool
+        #     logger.info('Zipping output and concatenating data')
+        #     # dba_zip_list = list(zip(*load_slocum_dba_list))
+        #     dba_zip, pro_meta_zip = zip(*load_slocum_dba_list)
+        #     del load_slocum_dba_list, pool
                         
-            logger.debug('Concatenating pool output into profile data frame')
-            pro_meta = pd.concat(pro_meta_zip)
-            gdm.profiles = pro_meta
+        #     logger.debug('Concatenating pool output into profile data frame')
+        #     pro_meta = pd.concat(pro_meta_zip)
+        #     gdm.profiles = pro_meta
             
-            logger.debug('Concatenating pool output into trajectory data frame')
-            dba = pd.concat(dba_zip)
-            gdm.data = dba 
-            del pro_meta_zip, dba_zip
+        #     logger.debug('Concatenating pool output into trajectory data frame')
+        #     dba = pd.concat(dba_zip)
+        #     gdm.data = dba 
+        #     del pro_meta_zip, dba_zip
 
-        else :        
-            logger.debug(f'Reading dba files in for loop')
-            # If numcores == 1, run load_slocum_dba in normal for loop
-            for idx, index, row in enumerate(dba_files.iterrows()):
-                logger.debug(f'dba file {idx}')
-                # dba_file = os.path.join(row['path'], row['file'])
-                dba, pro_meta = load_slocum_dba(row['dba_file'])                
-                gdm.data = pd.concat([gdm.data, dba])
-                gdm.profiles = pd.concat([gdm.profiles, pro_meta])
+        # else :        
+        #     logger.debug(f'Reading dba files in for loop')
+        #     # If numcores == 1, run load_slocum_dba in normal for loop
+        #     for idx, index, row in enumerate(dba_files.iterrows()):
+        #         logger.debug(f'dba file {idx}')
+        #         # dba_file = os.path.join(row['path'], row['file'])
+        #         dba, pro_meta = load_slocum_dba(row['dba_file'])                
+        #         gdm.data = pd.concat([gdm.data, dba])
+        #         gdm.profiles = pd.concat([gdm.profiles, pro_meta])
             
-        logger.info('Sorting gdm data and profiles by time index')
-        gdm.data.sort_index(inplace=True)
-        gdm.profiles.sort_index(inplace=True)
+        # logger.info('Sorting gdm data and profiles by time index')
+        # gdm.data.sort_index(inplace=True)
+        # gdm.profiles.sort_index(inplace=True)
 
-        if not clobber_tmp and os.path.exists(pq_profiles_file):
-            logger.info(f'The parquet file for gdm profiles (pq_profiles_file) ' + 
-                        'already exists, and will not be clobbered')
-        else:
-            logger.info('Writing gdm profiles to parquet file')
-            gdm.profiles.to_parquet(
-                pq_profiles_file, engine = 'fastparquet', 
-                version="2.6", index = True
-            )
+        # if not clobber_tmp and os.path.exists(pq_profiles_file):
+        #     logger.info(f'The parquet file for gdm profiles (pq_profiles_file) ' + 
+        #                 'already exists, and will not be clobbered')
+        # else:
+        #     logger.info('Writing gdm profiles to parquet file')
+        #     gdm.profiles.to_parquet(
+        #         pq_profiles_file, engine = 'fastparquet', 
+        #         version="2.6", index = True
+        #     )
 
-        if not clobber_tmp and os.path.exists(pq_data_file):
-            logger.info(f'The parquet file for gdm data (pq_data_file) ' + 
-                        'already exists, and will not be clobbered')
-        else:
-            logger.info('Writing gdm data to parquet file')
-            gdm.data.to_parquet(
-                pq_data_file, engine = 'fastparquet', 
-                version="2.6", index = True
-            )
+        # if not clobber_tmp and os.path.exists(pq_data_file):
+        #     logger.info(f'The parquet file for gdm data (pq_data_file) ' + 
+        #                 'already exists, and will not be clobbered')
+        # else:
+        #     logger.info('Writing gdm data to parquet file')
+        #     gdm.data.to_parquet(
+        #         pq_data_file, engine = 'fastparquet', 
+        #         version="2.6", index = True
+        #     )
             
-        logger.info(f'gdm with data and profiles from dbas:\n {gdm}')
+        # logger.info(f'gdm with data and profiles from dbas:\n {gdm}')
 
     #--------------------------------------------
     ### Additional processing of gdm object
@@ -212,18 +234,106 @@ def amlr_gdm(deployment, project, mode, glider_path,
 
     # Create interpolated variables
     logger.info('Creating interpolated variables')
-    gdm.data = amlr_interpolate(gdm.data, 'depth', 'idepth')
+    gdm.data['idepth']  = amlr_interpolate(gdm.data['depth'])
+    gdm.data['imdepth'] = amlr_interpolate(gdm.data['m_depth'])
+    gdm.data['impitch'] = amlr_interpolate(gdm.data['m_pitch'])
+    gdm.data['imroll']  = amlr_interpolate(gdm.data['m_roll'])
+    # gdm.data = amlr_interpolate(gdm.data, 'depth', 'idepth')
     # gdm.data = amlr_interpolate(gdm.data, 'm_depth', 'imdepth')
-    gdm.data.loc[:, 'imdepth'] = gdm.data['m_depth'].interpolate(
-        method='time', limit_direction='forward', limit_area='inside'
-    )
-    gdm.data = amlr_interpolate(gdm.data, 'm_pitch', 'impitch')
-    gdm.data = amlr_interpolate(gdm.data, 'm_roll', 'imroll')
+    # gdm.data = amlr_interpolate(gdm.data, 'm_pitch', 'impitch')
+    # gdm.data = amlr_interpolate(gdm.data, 'm_roll', 'imroll')
 
     #--------------------------------------------
-    logger.info('Returning gdm object')
+    logger.info(f'Returning gdm object: {gdm}')
     return gdm
 
+
+
+def amlr_load_dba(ascii_path, numcores, clobber_tmp, 
+                  pq_data_file, pq_profiles_file):
+    """
+    Read in dba files from ascii_path using numcores cores
+    Returns dba data and profile data frames
+
+    Args:
+        ascii_path (str): path to ascii (dba) files
+        numcores (int): number of cores to use
+        clobber_tmp (boolean): Overwrite existing parquet files?
+        pq_data_file (str): path for data parquet file
+        pq_profiles_file (str): path for profiles parquet file
+    """
+    dba_files_list = list(
+        map(lambda x: os.path.join(ascii_path, x), os.listdir(ascii_path))
+    )
+    dba_files = pd.DataFrame(dba_files_list, columns = ['dba_file'])
+    dba_files_count = len(dba_files.index)        
+    logger.info(f'Reading ascii data from {dba_files_count} files ' + 
+                f'using {numcores} core(s)')
+
+    if len(dba_files) == 0:
+        logger.error(f'There are no dba files in the expected directory ' + 
+            f'({ascii_path}), and thus the gdm object cannot be created')
+        return
+    
+    # Read dba files
+    if numcores > 1:
+        logger.debug('Reading dba files in parallel')
+        # If numcores is greater than 1, run load_slocum_dba in parallel
+        pool = mp.Pool(numcores)
+        load_slocum_dba_list = pool.map(load_slocum_dba, dba_files_list)
+        pool.close()
+        pool.join()
+        
+        logger.info('Zipping output and concatenating data')
+        # dba_zip_list = list(zip(*load_slocum_dba_list))
+        dba_zip, pro_meta_zip = zip(*load_slocum_dba_list)
+        del load_slocum_dba_list, pool
+                    
+        logger.debug('Concatenating pool output into profile data frame')
+        pro_meta_df = pd.concat(pro_meta_zip)
+        
+        logger.debug('Concatenating pool output into trajectory data frame')
+        dba_df = pd.concat(dba_zip)
+        del pro_meta_zip, dba_zip
+
+    else :        
+        logger.debug(f'Reading dba files in for loop')
+        pro_meta_df = pd.DataFrame()
+        dba_df = pd.DataFrame()
+        for idx, index, row in enumerate(dba_files.iterrows()):
+            logger.debug(f'dba file {idx}')
+            dba, pro_meta = load_slocum_dba(row['dba_file'])                
+            pro_meta_df = pd.concat([pro_meta_df, pro_meta])
+            dba_df = pd.concat([dba_df, dba])
+        
+    logger.info('Sorting data and profile dataframes by time index')
+    pro_meta_df = pro_meta_df.sort_index()
+    dba_df = dba_df.sort_index()
+
+    # Write data to parquet files, if specified
+    if not clobber_tmp and os.path.exists(pq_profiles_file):
+        logger.info(f'The parquet file for gdm profiles (pq_profiles_file) ' + 
+                    'already exists, and will not be clobbered')
+    else:
+        logger.info('Writing gdm profiles to parquet file')
+        pro_meta_df.to_parquet(
+            pq_profiles_file, engine = 'fastparquet', 
+            version="2.6", index = True
+        )
+
+    if not clobber_tmp and os.path.exists(pq_data_file):
+        logger.info(f'The parquet file for gdm data (pq_data_file) ' + 
+                    'already exists, and will not be clobbered')
+    else:
+        logger.info('Writing gdm data to parquet file')
+        dba_df.to_parquet(
+            pq_data_file, engine = 'fastparquet', 
+            version="2.6", index = True
+        )
+        
+    logger.info(f'gdm with data and profiles from dbas:\n {gdm}')
+
+    return dba_df, pro_meta_df
 
 
 def amlr_write_trajectory(gdm, deployment_mode, glider_path):
