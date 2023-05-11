@@ -158,20 +158,26 @@ def amlr_gdm(deployment, project, mode, glider_path,
         gdm.data.sort_index(inplace=True)
         gdm.profiles.sort_index(inplace=True)
 
-        if not clobber_tmp and os.path.exists(pq_data_file):
-            logger.info('The parquet file for gdm data already exists, ' + 
-                        'and will not be clobbered')
-        else:
-            logger.info('Writing gdm data to parquet file')
-            gdm.data.to_parquet(pq_data_file, version="2.6", index = True)
-            
         if not clobber_tmp and os.path.exists(pq_profiles_file):
-            logger.info('The parquet file for gdm profiles already exists, ' + 
-                        'and will not be clobbered')
+            logger.info(f'The parquet file for gdm profiles (pq_profiles_file) ' + 
+                        'already exists, and will not be clobbered')
         else:
             logger.info('Writing gdm profiles to parquet file')
-            gdm.profiles.to_parquet(pq_profiles_file, version="2.6", index = True)
+            gdm.profiles.to_parquet(
+                pq_profiles_file, engine = 'fastparquet', 
+                version="2.6", index = True
+            )
 
+        if not clobber_tmp and os.path.exists(pq_data_file):
+            logger.info(f'The parquet file for gdm data (pq_data_file) ' + 
+                        'already exists, and will not be clobbered')
+        else:
+            logger.info('Writing gdm data to parquet file')
+            gdm.data.to_parquet(
+                pq_data_file, engine = 'fastparquet', 
+                version="2.6", index = True
+            )
+            
         logger.info(f'gdm with data and profiles from dbas:\n {gdm}')
 
     #--------------------------------------------
