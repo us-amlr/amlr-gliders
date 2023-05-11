@@ -199,7 +199,7 @@ def amlr_gdm(deployment, project, mode, glider_path,
     logger.info('Creating interpolated variables')
     gdm.data = amlr_interpolate(gdm.data, 'depth', 'idepth')
     # gdm.data = amlr_interpolate(gdm.data, 'm_depth', 'imdepth')
-    gdm.data.loc[:, 'im_depth'] = gdm.data['mdepth'].interpolate(
+    gdm.data.loc[:, 'imdepth'] = gdm.data['m_depth'].interpolate(
         method='time', limit_direction='forward', limit_area='inside'
     )
     gdm.data = amlr_interpolate(gdm.data, 'm_pitch', 'impitch')
