@@ -300,13 +300,13 @@ def amlr_load_dba(ascii_path, numcores, clobber_tmp,
         logger.debug(f'Reading dba files in for loop')
         pro_meta_df = pd.DataFrame()
         dba_df = pd.DataFrame()
-        for idx, index, row in enumerate(dba_files.iterrows()):
+        for idx, row in enumerate(dba_files.iterrows()):
             logger.debug(f'dba file {idx}')
             dba, pro_meta = load_slocum_dba(row['dba_file'])                
             pro_meta_df = pd.concat([pro_meta_df, pro_meta])
             dba_df = pd.concat([dba_df, dba])
         
-    logger.info('Sorting data and profile dataframes by time index')
+    logger.info('Sorting data and profile data frames by time index')
     pro_meta_df = pro_meta_df.sort_index()
     dba_df = dba_df.sort_index()
 
@@ -330,9 +330,8 @@ def amlr_load_dba(ascii_path, numcores, clobber_tmp,
             pq_data_file, engine = 'fastparquet', 
             version="2.6", index = True
         )
-        
-    logger.info(f'gdm with data and profiles from dbas:\n {gdm}')
-
+    
+    logging.info('Returning data and profiles data frames')    
     return dba_df, pro_meta_df
 
 
@@ -502,7 +501,7 @@ def amlr_imagery(gdm, glider_path, deployment, imagery_path, ext = 'jpg'):
     """
     Matches up imagery files with data from gdm object by imagery filename
     Uses (hardcoded) interpolated variables
-    Returns dataframe with metadata information
+    Returns data frame with metadata information
     """
     
     logger.info(f'Creating imagery metadata file for {deployment}')
