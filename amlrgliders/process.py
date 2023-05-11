@@ -31,7 +31,7 @@ def amlr_interpolate(df, var_src, var_dst):
 
 
 def amlr_gdm(deployment, project, mode, glider_path, 
-             numcores=0, loadfromtmp=False):
+             numcores=0, loadfromtmp=False, clobber_tmp=False):
     """
     Create gdm object from dba files. 
     Note the data stored in the tmp files has not 
@@ -123,7 +123,7 @@ def amlr_gdm(deployment, project, mode, glider_path,
             return
         
         if numcores > 1:
-            logger.debug('Running load_slocum_dba in parallel')
+            logger.debug('Reading dba files in parallel')
             # If numcores is greater than 1, run load_slocum_dba in parallel
             pool = mp.Pool(numcores)
             load_slocum_dba_list = pool.map(load_slocum_dba, dba_files_list)
@@ -131,7 +131,6 @@ def amlr_gdm(deployment, project, mode, glider_path,
             pool.join()
             
             logger.info('Zipping output and concatenating data')
-            logger.debug('Pool closed, Zipping Pool.map output')
             # dba_zip_list = list(zip(*load_slocum_dba_list))
             dba_zip, pro_meta_zip = zip(*load_slocum_dba_list)
             del load_slocum_dba_list, pool
@@ -146,7 +145,7 @@ def amlr_gdm(deployment, project, mode, glider_path,
             del pro_meta_zip, dba_zip
 
         else :        
-            logger.debug(f'Running load_slocum_dba sequentially')
+            logger.debug(f'Reading dba files in for loop')
             # If numcores == 1, run load_slocum_dba in normal for loop
             for idx, index, row in enumerate(dba_files.iterrows()):
                 logger.debug(f'dba file {idx}')
@@ -159,9 +158,19 @@ def amlr_gdm(deployment, project, mode, glider_path,
         gdm.data.sort_index(inplace=True)
         gdm.profiles.sort_index(inplace=True)
 
-        logger.info('Writing gdm data and profiles to parquet files')
-        gdm.data.to_parquet(pq_data_file, version="2.6", index = True)
-        gdm.profiles.to_parquet(pq_profiles_file, version="2.6", index = True)
+        if not clobber_tmp and os.path.exists(pq_data_file):
+            logger.info('The parquet file for gdm data already exists, ' + 
+                        'and will not be clobbered')
+        else:
+            logger.info('Writing gdm data to parquet file')
+            gdm.data.to_parquet(pq_data_file, version="2.6", index = True)
+            
+        if not clobber_tmp and os.path.exists(pq_profiles_file):
+            logger.info('The parquet file for gdm profiles already exists, ' + 
+                        'and will not be clobbered')
+        else:
+            logger.info('Writing gdm profiles to parquet file')
+            gdm.profiles.to_parquet(pq_profiles_file, version="2.6", index = True)
 
         logger.info(f'gdm with data and profiles from dbas:\n {gdm}')
 

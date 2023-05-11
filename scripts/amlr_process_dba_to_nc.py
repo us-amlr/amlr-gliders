@@ -38,7 +38,8 @@ def main(args):
 
     numcores = args.numcores
 
-    loadfromtmp = args.loadfromtmp
+    loadfrom_tmp = args.loadfromtmp
+    clobber_tmp = args.clobbertmp
     write_trajectory = args.write_trajectory
     write_ngdac = args.write_ngdac
     
@@ -76,7 +77,8 @@ def main(args):
     # Create gdm object  
     logging.info(f'Creating gdm object')
     gdm = amlrp.amlr_gdm(
-        deployment, project, mode, glider_path, numcores, loadfromtmp
+        deployment, project, mode, glider_path, numcores, 
+        loadfrom_tmp, clobber_tmp
     )
 
     if gdm is None:
@@ -157,6 +159,10 @@ if __name__ == '__main__':
     arg_parser.add_argument('--loadfromtmp',
         help='flag; indicates gdm object should be loaded from ' + 
             'parquet files in glider/data/tmp directory',
+        action='store_true')
+    
+    arg_parser.add_argument('--clobbertmp',
+        help='flag; should the tmp (parquet) files be clobbered if they exist',
         action='store_true')
 
     arg_parser.add_argument('--write_trajectory',
