@@ -122,7 +122,6 @@ def amlr_gdm(deployment, project, mode, glider_path,
         logger.info(f'Loading gdm data from parquet files in: {tmp_path}')
         gdm_data = pd.read_parquet(pq_data_file)
         gdm_profiles = pd.read_parquet(pq_profiles_file)
-        logger.info(f'gdm from parquet files:\n {gdm}')
 
     else:    
         gdm_data, gdm_profiles = amlr_load_dba(
@@ -236,8 +235,8 @@ def amlr_gdm(deployment, project, mode, glider_path,
     logger.info('Creating interpolated variables')
     gdm.data['idepth']  = amlr_interpolate(gdm.data['depth'])
     gdm.data['imdepth'] = amlr_interpolate(gdm.data['m_depth'])
-    gdm.data['impitch'] = amlr_interpolate(gdm.data['m_pitch'])
-    gdm.data['imroll']  = amlr_interpolate(gdm.data['m_roll'])
+    gdm.data.loc[:, 'impitch'] = amlr_interpolate(gdm.data['m_pitch'])
+    gdm.data.loc[:, 'imroll']  = amlr_interpolate(gdm.data['m_roll'])
     # gdm.data = amlr_interpolate(gdm.data, 'depth', 'idepth')
     # gdm.data = amlr_interpolate(gdm.data, 'm_depth', 'imdepth')
     # gdm.data = amlr_interpolate(gdm.data, 'm_pitch', 'impitch')
@@ -253,6 +252,7 @@ def amlr_load_dba(ascii_path, numcores, clobber_tmp,
                   pq_data_file, pq_profiles_file):
     """
     Read in dba files from ascii_path using numcores cores
+    Write parquet files, if appropriate
     Returns dba data and profile data frames
 
     Args:
