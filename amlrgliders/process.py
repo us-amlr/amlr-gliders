@@ -20,10 +20,12 @@ logger = logging.getLogger(__name__)
 
 def amlr_interpolate(df, var_src, var_dst):
     if var_src in df.columns:
-        logger.info(f'Creating interpolated data column ({var_dst}) from {var_src}')
-        df[var_dst] = df[var_src].interpolate(method='time', limit_direction='forward', limit_area='inside')
+        logger.info(f'Creating interpolated data column ({var_dst}) from {var_src}')        
+        df.loc[:, var_dst] = df.loc[:, var_src].interpolate(
+            method='time', limit_direction='forward', limit_area='inside'
+        )
     else:
-        logger.info(f'No {var_src} variable, and thus {var_dst} will not be created')
+        logger.info(f'{var_src}does not exist, and thus {var_dst} will not be created')
 
     return df
 
@@ -128,6 +130,7 @@ def amlr_gdm(deployment, project, mode, glider_path,
             pool.close()
             pool.join()
             
+            logger.info('Files read, zipping output and concatenating data')
             logger.debug('Pool closed, Zipping Pool.map output')
             # dba_zip_list = list(zip(*load_slocum_dba_list))
             dba_zip, pro_meta_zip = zip(*load_slocum_dba_list)
@@ -139,36 +142,8 @@ def amlr_gdm(deployment, project, mode, glider_path,
             
             logger.debug('Concatenating pool output into trajectory data frame')
             dba = pd.concat(dba_zip)
-            gdm.data = dba
-            
-            # tmpdir = tempfile.TemporaryDirectory()
-            # logger.debug(f'tempdir made at {tmpdir.name}')
-            
-            # logger.debug('Writing partial parquet files')
-            # dba_list = list(dba_zip)
-            # # chunksize = 50 #todo: make a user-provided argument
-            
-            # for idx_start in range(0, dba_files_count, chunksize):
-            #     idx_end = min(idx_start+chunksize, dba_files_count)
-            #     logger.debug(f'Concatenating from index {idx_start} to {idx_end}')
-            #     tmp_df = pd.concat(dba_list[idx_start:idx_end])
-            #     tmp_file_name = os.path.join(
-            #         tmpdir.name, 
-            #         f'{deployment_mode}-tmp-{idx_start}-{idx_end}.parquet'
-            #     )
-            #     tmp_df.to_parquet(tmp_file_name, version="2.6", index = True)
-            # del idx_start, idx_end, tmp_file_name, tmp_df
-            
-            # logger.debug('Reading partial parquet files using polars')
-            # dba_df_pl = pl.read_parquet(
-            #     os.path.join(tmpdir.name, '*.parquet')
-            # )            
-            
-            # logger.debug('Converting polars to pandas, and cleaning up')
-            # dba = dba_df_pl.to_pandas().set_index('time')    
-            # gdm.data = dba             
-            # tmpdir.cleanup()
-            del pro_meta_zip, dba_zip #, dba_list , dba_df_pl
+            gdm.data = dba 
+            del pro_meta_zip, dba_zip
 
         else :        
             logger.debug(f'Running load_slocum_dba sequentially')
@@ -184,7 +159,7 @@ def amlr_gdm(deployment, project, mode, glider_path,
         gdm.data.sort_index(inplace=True)
         gdm.profiles.sort_index(inplace=True)
 
-        logger.info('Writing gdmdata and profiles to parquet files')
+        logger.info('Writing gdm data and profiles to parquet files')
         gdm.data.to_parquet(pq_data_file, version="2.6", index = True)
         gdm.profiles.to_parquet(pq_profiles_file, version="2.6", index = True)
 
