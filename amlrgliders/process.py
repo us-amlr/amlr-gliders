@@ -248,8 +248,8 @@ def amlr_load_dba(ascii_path, numcores, clobber_tmp,
     else:
         logger.info('Writing gdm profiles to parquet file')
         pro_meta_df.to_parquet(
-            pq_profiles_file, engine = 'fastparquet'
-            # version="2.6", index = True
+            pq_profiles_file, #engine = 'fastparquet'
+            version="2.6", index = True
         )
 
     if not clobber_tmp and os.path.exists(pq_data_file):
@@ -258,8 +258,8 @@ def amlr_load_dba(ascii_path, numcores, clobber_tmp,
     else:
         logger.info('Writing gdm data to parquet file')
         dba_df.to_parquet(
-            pq_data_file, engine = 'fastparquet'
-            # version="2.6", index = True
+            pq_data_file, #engine = 'fastparquet'
+            version="2.6", index = True
         )
     
     logging.info('Returning data and profiles data frames')    
