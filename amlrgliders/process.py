@@ -115,7 +115,7 @@ def amlr_gdm(deployment, project, mode, glider_path,
         dba_files = pd.DataFrame(dba_files_list, columns = ['dba_file'])
         dba_files_count = len(dba_files.index)        
         logger.info(f'Reading ascii data from {dba_files_count} files ' + 
-                    f'into gdm object using {numcores} core(s)')
+                    f'using {numcores} core(s)')
 
         if len(dba_files) == 0:
             logger.error(f'There are no dba files in the expected directory ' + 
@@ -130,7 +130,7 @@ def amlr_gdm(deployment, project, mode, glider_path,
             pool.close()
             pool.join()
             
-            logger.info('Files read, zipping output and concatenating data')
+            logger.info('Zipping output and concatenating data')
             logger.debug('Pool closed, Zipping Pool.map output')
             # dba_zip_list = list(zip(*load_slocum_dba_list))
             dba_zip, pro_meta_zip = zip(*load_slocum_dba_list)
@@ -199,8 +199,7 @@ def amlr_gdm(deployment, project, mode, glider_path,
     logger.info('Creating interpolated variables')
     gdm.data = amlr_interpolate(gdm.data, 'depth', 'idepth')
     # gdm.data = amlr_interpolate(gdm.data, 'm_depth', 'imdepth')
-    gdm.data.loc[:, 'm_depth'] = pd.interpolate(
-        gdm.data.loc['imdepth'], 
+    gdm.data.loc[:, 'im_depth'] = gdm.data['mdepth'].interpolate(
         method='time', limit_direction='forward', limit_area='inside'
     )
     gdm.data = amlr_interpolate(gdm.data, 'm_pitch', 'impitch')
