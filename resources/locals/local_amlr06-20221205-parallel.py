@@ -10,13 +10,17 @@ Playing with how to not run out of memory in GCP VM
 """
 
 import os
+import glob
 # import sys
+
 import gdm
 from gdm import GliderDataModel
 from gdm.gliders.slocum import load_slocum_dba
 
 import multiprocessing as mp
 import pandas as pd
+import numpy as np
+from amlrgliders.process import amlr_interpolate, solocam_filename_dt
 # import dask.dataframe as dd
 
 
@@ -31,7 +35,9 @@ if __name__ == '__main__':
     deployment = 'amlr06-20221205'
     project = 'FREEBYRD'
     mode = 'delayed'
-    deployments_path = smw_gliderdir #os.path.join(smw_gliderdir, 'Glider-Data-gcp')
+    deployments_path = os.path.join(
+        smw_gliderdir, 'Glider-Data', 'FREEBYRD', '2022-23'
+    )
     # gdm_path = args.gdm_path
     numcores = 5
 
@@ -78,59 +84,72 @@ if __name__ == '__main__':
 
     dba_zip, pro_meta_zip = zip(*load_slocum_dba_list)
 
-    # # Works, for reference
-    # x1 = pd.concat(dba_zip)
-    # x2 = pd.DataFrame()
-    # for idx, i in enumerate(dba_zip):
-    #     print(f'df {idx}')
-    #     x2 = pd.concat([x2, i])
-    # print(x2.equals(x1))
+    dba_df = pd.concat(dba_zip)
+    pro_meta = pd.concat(pro_meta_zip)
 
-    ###
-    dba_list = list(dba_zip)
-    chunksize = 6
-    total_len = len(dba_files_list)
-    tmp_path = os.path.join('C:/Users', 'sam.woodman', 'Downloads', 'tmp')
-    pqt_file_name = []
-    z1 = pd.concat(dba_zip)
-    z1.sort_index(inplace = True)
-    
-    for idx_start in range(0, total_len, chunksize):
-        idx_end = min(idx_start+chunksize, total_len)
-        print(idx_start, idx_end)
-        tmp_df = pd.concat(dba_list[idx_start:idx_end])
-        tmp_file_name = os.path.join(tmp_path, f'{deployment_mode}-tmp-{idx_start}-{idx_end}.parquet')
-        pqt_file_name.append(tmp_file_name)
-        tmp_df.to_parquet(tmp_file_name, version="2.6", index = True)
+    # dba_dup = dba_df.index.duplicated(keep='last')
 
+    # tmp_pqt_path = os.path.join('C:/Users', 'sam.woodman', 'Downloads', 'tmp')
+    # tmp_pqt_file = os.path.join(tmp_pqt_path, 'dba_pqt_all.parquet')
 
-    pl_df = pl.read_parquet(
-        os.path.join(tmp_path, '*.parquet')
-    )
-    z2 = pl_df.to_pandas().set_index('time')
-    z2.sort_index(inplace=True)
-    z1.equals(z2)
-    
-    t2 = pl.from_pandas(pl_df.to_pandas())
-    
-    gdm.data = pl_df
-    ###
-    
-
-            
-        
-
-
-    tmp_pqt_path = os.path.join('C:/Users', 'sam.woodman', 'Downloads', 'tmp')
-    tmp_pqt_file = os.path.join(tmp_pqt_path, 'dba_pqt_all.parquet')
-
-        # with tmp_pqt_file 
+    # with tmp_pqt_file 
     # for i in dba_zip_list[0]:
     #     print(len(i.index))
 
-    pro_meta = pd.concat(dba_zip_list[1])
 
-    gdm.data = dba 
-    gdm.profiles = pro_meta
+    gdm.data = dba_df.sort_index()
+    gdm.profiles = pro_meta.sort_index()
+    
+    gdm.data['idepth']  = amlr_interpolate(gdm.data['depth'])
+    gdm.data['imdepth'] = amlr_interpolate(gdm.data['m_depth'])
+    gdm.data.loc[:, 'impitch'] = amlr_interpolate(gdm.data['m_pitch'])
+    gdm.data.loc[:, 'imroll']  = amlr_interpolate(gdm.data['m_roll'])
 
     print(gdm)
+    
+    ### Imagery
+    # amlr_imagery(
+    # gdm, deployment, glider_path, 
+    imagery_path = os.path.join(smw_gliderdir, 'Glider-Imagery', 'gliders', '2022', 
+                    'amlr06-20221205', 'glidercam', 'images')
+    ext = 'jpg'
+    # )
+    
+    lat_column = 'ilatitude'
+    lon_column = 'ilongitude'
+    depth_column = 'idepth'
+    pitch_column = 'impitch'
+    roll_column = 'imroll'
+    out_path = os.path.join(glider_path, 'data', 'out', 'cameras')
+    
+    imagery_filepaths = glob.glob(f'{imagery_path}/**/*.{ext}', recursive=True)
+    imagery_files = [os.path.basename(x) for x in imagery_filepaths]
+    imagery_files.sort()
+    
+    imagery_vars_list = [lat_column, lon_column, depth_column, pitch_column, roll_column]
+    imagery_vars_set = set(imagery_vars_list)
+    gdm.data = gdm.data[imagery_vars_list]
+    ds = gdm.data.sort_index().to_xarray()
+    
+    len(set([len(i) for i in imagery_files]))
+    space_index = str.index(imagery_files[0], ' ')
+    yr_index = space_index + 1   
+    imagery_file_dts = [solocam_filename_dt(i, yr_index) for i in imagery_files]
+
+    imagery_dict = {'img_file': imagery_files, 'img_dt': imagery_file_dts}
+    imagery_df = pd.DataFrame(data = imagery_dict).sort_values('img_dt')
+
+    ds_slice = ds.sel(time=imagery_df.img_dt.values, method = 'nearest')
+
+    x = (imagery_df.img_dt - imagery_df.glider_dt).astype('timedelta64[s]')
+    x = x.dt.total_seconds()
+    
+    y = (imagery_df.img_dt - imagery_df.glider_dt).dt.total_seconds()
+
+    imagery_df['glider_dt'] = ds_slice.time.values
+    imagery_df['diff_dt_seconds'] = diff_dts.dt.total_seconds()
+    imagery_df['latitude'] = ds_slice[lat_column].values
+    imagery_df['longitude'] = ds_slice[lon_column].values
+    imagery_df['depth'] = ds_slice[depth_column].values
+    imagery_df['pitch'] = ds_slice[pitch_column].values
+    imagery_df['roll'] = ds_slice[roll_column].values

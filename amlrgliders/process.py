@@ -148,10 +148,10 @@ def amlr_gdm(deployment, project, mode, glider_path,
         logger.info('No invalid (1970-01-01) timestamps to remove')
 
     # Remove duplicate timestamps
-    gdm_dup = gdm.data.index.duplicated(keep='last')
+    gdm_dup = gdm_data.index.duplicated(keep='last')
     if any(gdm_dup):
         logger.info('Removing duplicated timestamps')
-        gdm.data = gdm.data[~gdm_dup]
+        gdm_data = gdm_data[~gdm_dup]
         logger.info(f'Removed {gdm_dup.sum()} rows with duplicated timestamps')
     else:
         logger.info('No duplicated timestamps to remove')
@@ -159,10 +159,10 @@ def amlr_gdm(deployment, project, mode, glider_path,
 
     # Create interpolated variables
     logger.info('Creating interpolated variables')
-    gdm.data['idepth']  = amlr_interpolate(gdm.data['depth'])
-    gdm.data['imdepth'] = amlr_interpolate(gdm.data['m_depth'])
-    gdm.data.loc[:, 'impitch'] = amlr_interpolate(gdm.data['m_pitch'])
-    gdm.data.loc[:, 'imroll']  = amlr_interpolate(gdm.data['m_roll'])
+    gdm_data['idepth']  = amlr_interpolate(gdm_data['depth'])
+    gdm_data['imdepth'] = amlr_interpolate(gdm_data['m_depth'])
+    gdm_data.loc[:, 'impitch'] = amlr_interpolate(gdm_data['m_pitch'])
+    gdm_data.loc[:, 'imroll']  = amlr_interpolate(gdm_data['m_roll'])
     # gdm.data = amlr_interpolate(gdm.data, 'depth', 'idepth')
     # gdm.data = amlr_interpolate(gdm.data, 'm_depth', 'imdepth')
     # gdm.data = amlr_interpolate(gdm.data, 'm_pitch', 'impitch')
