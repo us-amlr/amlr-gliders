@@ -1,6 +1,5 @@
 import os
 import logging
-import copy
 import datetime as dt
 import glob
 import math
@@ -128,34 +127,31 @@ def amlr_gdm(deployment, project, mode, glider_path,
             ascii_path, numcores, clobber_tmp, pq_data_file, pq_profiles_file
         )
         
-    gdm.data = gdm_data
-    gdm.profiles = gdm_profiles    
-    logger.info(f'gdm:\n {gdm}')
-
     #--------------------------------------------
     ### Additional processing of gdm object
 
     # Make columns lowercase to match gdm behavior
     logger.info('Making sensor (data column) names lowercase to match gdm behavior')
-    gdm.data.columns = gdm.data.columns.str.lower()
+    gdm_data.columns = gdm_data.columns.str.lower()
 
     # Remove garbage data
     #   Removing these timestamps is for situations when there is a " + 
     #   'Not enough timestamps for yo interpolation' warning",
-    if any(gdm.data.index == '1970-01-01'):
-        logger.info('Removing invalid (1970-01-01) timestamps')
-        row_count_orig = len(gdm.data.index)
-        gdm.data = gdm.data[gdm.data.index != '1970-01-01']
-        num_records_diff = row_count_orig - len(gdm.data.index)
-        logger.info(f'Removed {num_records_diff} invalid timestamps of 1970-01-01')
+    if any(gdm_data.index == '1970-01-01'):
+        n_toremove = sum(gdm_data.index == '1970-01-01')
+        logger.info(f'Removing {n_toremove} invalid (1970-01-01) timestamps')
+        # row_count_orig = len(gdm_data.index)
+        gdm_data = gdm_data[gdm_data.index != '1970-01-01']
+        # num_records_diff = row_count_orig - len(gdm_data.index)
+        # logger.info(f'Removed {num_records_diff} invalid timestamps of 1970-01-01')
     else:
         logger.info('No invalid (1970-01-01) timestamps to remove')
 
     # Remove duplicate timestamps
-    gdm_dup = gdm.data.index.duplicated()
+    gdm_dup = gdm.data.index.duplicated(keep='last')
     if any(gdm_dup):
         logger.info('Removing duplicated timestamps')
-        gdm.data = gdm.data[~gdm.data.index.duplicated(keep='last')]
+        gdm.data = gdm.data[~gdm_dup]
         logger.info(f'Removed {gdm_dup.sum()} rows with duplicated timestamps')
     else:
         logger.info('No duplicated timestamps to remove')
@@ -173,7 +169,11 @@ def amlr_gdm(deployment, project, mode, glider_path,
     # gdm.data = amlr_interpolate(gdm.data, 'm_roll', 'imroll')
 
     #--------------------------------------------
-    logger.info(f'Returning gdm object: {gdm}')
+    logger.info(f'Creating and returning gdm object')    
+    gdm.data = gdm_data
+    gdm.profiles = gdm_profiles    
+    logger.info(f'gdm:\n {gdm}')
+
     return gdm
 
 
@@ -474,8 +474,8 @@ def amlr_imagery(gdm, deployment, glider_path, imagery_path, ext = 'jpg'):
                         'CSV file with imagery metadata will not be created')
         return
     else:
-        deployment_imagery_path = os.path.join(imagery_path, 'gliders', '2022', deployment)
-        imagery_filepaths = glob.glob(f'{deployment_imagery_path}/**/*.{ext}', recursive=True)
+        # deployment_imagery_path = os.path.join(imagery_path, 'gliders', '2022', deployment)
+        imagery_filepaths = glob.glob(f'{imagery_path}/**/*.{ext}', recursive=True)
         imagery_files = [os.path.basename(x) for x in imagery_filepaths]
         imagery_files.sort()
 
@@ -532,7 +532,9 @@ def amlr_imagery(gdm, deployment, glider_path, imagery_path, ext = 'jpg'):
     ds_slice = ds.sel(time=imagery_df.img_dt.values, method = 'nearest')
 
     imagery_df['glider_dt'] = ds_slice.time.values
-    imagery_df['diff_dt_seconds'] = (imagery_df.img_dt - imagery_df.glider_dt).astype('timedelta64[s]').astype(np.int32)
+    diff_dts = (imagery_df.img_dt - imagery_df.glider_dt).astype('timedelta64[s]')
+    imagery_df['diff_dt_seconds'] = diff_dts.dt.total_seconds()
+    
     imagery_df['latitude'] = ds_slice[lat_column].values
     imagery_df['longitude'] = ds_slice[lon_column].values
     imagery_df['depth'] = ds_slice[depth_column].values
@@ -540,7 +542,7 @@ def amlr_imagery(gdm, deployment, glider_path, imagery_path, ext = 'jpg'):
     imagery_df['roll'] = ds_slice[roll_column].values
 
     csv_file = os.path.join(out_path, f'{deployment}-imagery-metadata.csv')
-    logger.info(f'Writing imagery metadata CSV file to {csv_file}')
+    logger.info(f'Writing imagery metadata to: {csv_file}')
     imagery_df.to_csv(csv_file, index=False)
 
-    imagery_df
+    return imagery_df

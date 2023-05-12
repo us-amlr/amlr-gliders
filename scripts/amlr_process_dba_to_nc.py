@@ -118,7 +118,10 @@ def main(args):
             logging.warning('You are creating imagery file metadata ' + 
                 'using real-time data. ' + 
                 'This may result in inaccurate imagery file metadata')
-        amlrp.amlr_imagery(gdm, deployment, glider_path, imagery_path)
+        amlrp.amlr_imagery(
+            gdm, deployment, glider_path, 
+            os.path.join(imagery_path, 'gliders', '2022', deployment)
+        )
         
     # All done
     logging.info(f'Glider data processing complete for {deployment_mode}')
