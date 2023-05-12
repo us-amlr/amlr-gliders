@@ -28,15 +28,13 @@ logger = logging.getLogger(__name__)
 
 def amlr_interpolate(df):
     """
-    wrapper around pandas.interpolate, to standardize arguments
+    Wrapper around pandas.interpolate, to standardize arguments
 
     Args:
-        df (_type_): _description_
-        var_src (_type_): _description_
-        var_dst (_type_): _description_
+        df (DataFrame): DataFrame with column(s) to inteprolate
 
     Returns:
-        _type_: _description_
+        DataFrame: DataFrame with interpolated values
     """
     return df.interpolate(
         method='time', limit_direction='forward', limit_area='inside'
@@ -51,6 +49,21 @@ def amlr_gdm(deployment, project, mode, glider_path,
     removed 1970-01-01 timestamps or made column names lowercase. 
 
     Returns gdm object
+
+    Args:
+        deployment (str): Deployment name, eg amlr##-YYYYmmdd
+        project (str): Project name, eg FREEBYRD
+        mode (str): deployment mode; delayed or rt
+        glider_path (str): path to glider folder within deployment folder
+        numcores (int, optional): Number of cores to use to read dba files. 
+            Defaults to 0.
+        loadfromtmp (bool, optional): Load gdm data and profiles from 
+            temporary parquet files?. Defaults to False.
+        clobber_tmp (bool, optional): If they exist, should temporary 
+            parquet files be clobbered? Defaults to False.
+
+    Returns:
+        gdm: gdm object
     """
 
     #--------------------------------------------
@@ -93,8 +106,8 @@ def amlr_gdm(deployment, project, mode, glider_path,
     # Set path/file variables, and create file paths if necessary
     ascii_path  = os.path.join(glider_path, 'data', 'in', 'ascii', mode)
     config_path = os.path.join(glider_path, 'config', 'gdm')
-    nc_ngdac_path = os.path.join(glider_path, 'data', 'out', 'nc', 'ngdac', mode)
-    nc_trajectory_path = os.path.join(glider_path, 'data', 'out', 'nc', 'trajectory')
+    # nc_ngdac_path = os.path.join(glider_path, 'data', 'out', 'nc', 'ngdac', mode)
+    # nc_trajectory_path = os.path.join(glider_path, 'data', 'out', 'nc', 'trajectory')
 
     tmp_path = os.path.join(glider_path, 'data', 'tmp')
     pq_data_file = os.path.join(tmp_path, f'{deployment_mode}-data.parquet')
@@ -106,9 +119,6 @@ def amlr_gdm(deployment, project, mode, glider_path,
         os.makedirs(tmp_path)
 
     #--------------------------------------------
-    # # Read dba files - not necessary
-    # dba_files = get_dbas(ascii_path)
-
     # Create and process gdm object
     if not os.path.exists(config_path):
         logger.error(f'The config path does not exist {config_path}')
@@ -118,7 +128,7 @@ def amlr_gdm(deployment, project, mode, glider_path,
     gdm = GliderDataModel(config_path)
     
     if loadfromtmp:        
-        logger.info(f'Loading gdm data from parquet files in: {tmp_path}')
+        logger.info(f'Loading gdm data and profiles from parquet files in: {tmp_path}')
         gdm_data = pd.read_parquet(pq_data_file)
         gdm_profiles = pd.read_parquet(pq_profiles_file)
 
@@ -140,10 +150,7 @@ def amlr_gdm(deployment, project, mode, glider_path,
     if any(gdm_data.index == '1970-01-01'):
         n_toremove = sum(gdm_data.index == '1970-01-01')
         logger.info(f'Removing {n_toremove} invalid (1970-01-01) timestamps')
-        # row_count_orig = len(gdm_data.index)
         gdm_data = gdm_data[gdm_data.index != '1970-01-01']
-        # num_records_diff = row_count_orig - len(gdm_data.index)
-        # logger.info(f'Removed {num_records_diff} invalid timestamps of 1970-01-01')
     else:
         logger.info('No invalid (1970-01-01) timestamps to remove')
 
@@ -156,22 +163,17 @@ def amlr_gdm(deployment, project, mode, glider_path,
     else:
         logger.info('No duplicated timestamps to remove')
 
-
     # Create interpolated variables
     logger.info('Creating interpolated variables')
     gdm_data['idepth']  = amlr_interpolate(gdm_data['depth'])
     gdm_data['imdepth'] = amlr_interpolate(gdm_data['m_depth'])
-    gdm_data.loc[:, 'impitch'] = amlr_interpolate(gdm_data['m_pitch'])
-    gdm_data.loc[:, 'imroll']  = amlr_interpolate(gdm_data['m_roll'])
-    # gdm.data = amlr_interpolate(gdm.data, 'depth', 'idepth')
-    # gdm.data = amlr_interpolate(gdm.data, 'm_depth', 'imdepth')
-    # gdm.data = amlr_interpolate(gdm.data, 'm_pitch', 'impitch')
-    # gdm.data = amlr_interpolate(gdm.data, 'm_roll', 'imroll')
+    gdm_data.loc['impitch'] = amlr_interpolate(gdm_data['m_pitch'])
+    gdm_data.loc['imroll']  = amlr_interpolate(gdm_data['m_roll'])
 
     #--------------------------------------------
     logger.info(f'Creating and returning gdm object')    
-    gdm.data = gdm_data
-    gdm.profiles = gdm_profiles    
+    gdm.data = gdm_data.copy(deep=True)
+    gdm.profiles = gdm_profiles.copy(deep=True)
     logger.info(f'gdm:\n {gdm}')
 
     return gdm
@@ -192,6 +194,9 @@ def amlr_load_dba(ascii_path, numcores, clobber_tmp,
             if they exist
         pq_data_file (str): path for data parquet file
         pq_profiles_file (str): path for profiles parquet file
+        
+    Returns:
+        Tuple of dba (data) and profiles data frames
     """
     dba_files_list = list(
         map(lambda x: os.path.join(ascii_path, x), os.listdir(ascii_path))
@@ -275,6 +280,8 @@ def amlr_write_trajectory(gdm, deployment_mode, glider_path):
         gdm (GliderDataModel): gdm object created by amlr_gdm
         deployment_mode (str): deployment-mode string, eg amlr##-YYYYmmdd-delayed
         glider_path (str): path to glider folder
+        
+    Returns: 0
     """
 
     nc_trajectory_path = os.path.join(glider_path, 'data', 'out', 'nc', 'trajectory')
@@ -327,6 +334,8 @@ def amlr_write_ngdac(gdm, deployment_mode, glider_path):
         gdm (GliderDataModel): gdm object created by amlr_gdm
         deployment_mode (str): deployment-mode string, eg amlr##-YYYYmmdd-delayed
         glider_path (str): path to glider folder
+    
+    Returns:
     """
     # TODO: make parallel, once applicable
     nc_ngdac_path = os.path.join(glider_path, 'data', 'out', 'nc', 'ngdac', mode)
@@ -350,14 +359,16 @@ def amlr_write_ngdac(gdm, deployment_mode, glider_path):
 
 def amlr_acoustics(gdm, deployment_mode, glider_path):
     """
-    Create files for acoustics data processing
-    Use ilatitude and ilongitude because using the gdm file, not dataset
+    Create files for acoustics data processing, 
+    using the interpolated variables
     
     Args:
         gdm (GliderDataModel): gdm object created by amlr_gdm
         glider_path (str): path to glider folder
         deployment (str): 
         mode (str): deployment-mode string, eg amlr##-YYYYmmdd-delayed
+        
+    Returns: 0
     """
 
     lat_column = 'ilatitude'
@@ -449,8 +460,19 @@ def solocam_filename_dt(filename, index_start):
 def amlr_imagery(gdm, deployment, glider_path, imagery_path, ext = 'jpg'):
     """
     Matches up imagery files with data from gdm object by imagery filename
-    Uses (hardcoded) interpolated variables
+    Uses interpolated variables (hardcoded in function)
     Returns data frame with metadata information
+    
+    Args:
+        gdm (gdm): gdm object
+        deployment (str): deployment name
+        glider_path (str): path to 'glider' folder within deployment folder
+        imagery_path (str): path to folder with images, 
+            specifically the 'Dir####' folders
+        ext (str, optional): Imagery file extension. Defaults to 'jpg'.
+
+    Returns:
+        DataFrame: DataFrame of imagery metadata
     """
     
     logger.info(f'Creating imagery metadata file for {deployment}')
