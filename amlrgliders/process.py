@@ -6,7 +6,6 @@ import math
 import multiprocessing as mp
 import numpy as np
 import pandas as pd
-import polars as pl
 
 from gdm import GliderDataModel
 from gdm.gliders.slocum import load_slocum_dba #, get_dbas
