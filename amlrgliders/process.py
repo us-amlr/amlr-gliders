@@ -166,8 +166,8 @@ def amlr_gdm(deployment, project, mode, glider_path,
     logger.info('Creating interpolated variables')
     gdm_data['idepth']  = amlr_interpolate(gdm_data['depth'])
     gdm_data['imdepth'] = amlr_interpolate(gdm_data['m_depth'])
-    gdm_data.loc['impitch'] = amlr_interpolate(gdm_data['m_pitch'])
-    gdm_data.loc['imroll']  = amlr_interpolate(gdm_data['m_roll'])
+    gdm_data['impitch'] = amlr_interpolate(gdm_data['m_pitch'])
+    gdm_data['imroll']  = amlr_interpolate(gdm_data['m_roll'])
 
     #--------------------------------------------
     logger.info(f'Creating and returning gdm object')    
@@ -252,8 +252,7 @@ def amlr_load_dba(ascii_path, numcores, clobber_tmp,
     else:
         logger.info('Writing gdm profiles to parquet file')
         pro_meta_df.to_parquet(
-            pq_profiles_file, #engine = 'fastparquet'
-            version="2.6", index = True
+            pq_profiles_file, version="2.6", index = True
         )
 
     if not clobber_tmp and os.path.exists(pq_data_file):
@@ -262,8 +261,7 @@ def amlr_load_dba(ascii_path, numcores, clobber_tmp,
     else:
         logger.info('Writing gdm data to parquet file')
         dba_df.to_parquet(
-            pq_data_file, #engine = 'fastparquet'
-            version="2.6", index = True
+            pq_data_file, version="2.6", index = True
         )
     
     logging.info('Returning data and profiles data frames')    
