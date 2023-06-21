@@ -68,14 +68,14 @@ def main(args):
         os.mkdir(os.path.join(sfmc_local_path, name_ad2))
         # os.mkdir(os.path.join(sfmc_local_path, name_cam))
 
-    # logging.debug('SFMC ssh password')
-    # sfmc_pwd_file = os.path.join(sfmc_local_path, sfmc_pwd_file_name)
-    # if not os.path.isfile(sfmc_pwd_file):
-    #     logging.info('Writing SFMC ssh pwd to file')
-    #     file = open(sfmc_pwd_file, 'w+')
-    #     file.write(access_secret_version(gcpproject_id, secret_id))
-    #     file.close()
-    #     os.chmod(sfmc_pwd_file, stat.S_IREAD)
+    logging.debug('SFMC ssh password')
+    sfmc_pwd_file = os.path.join(sfmc_local_path, sfmc_pwd_file_name)
+    if not os.path.isfile(sfmc_pwd_file):
+        logging.info('Writing SFMC ssh pwd to file')
+        file = open(sfmc_pwd_file, 'w+')
+        file.write(access_secret_version(gcpproject_id, secret_id))
+        file.close()
+        os.chmod(sfmc_pwd_file, stat.S_IREAD)
 
 
     #--------------------------------------------
@@ -84,11 +84,11 @@ def main(args):
     sfmc_noaa = '/var/opt/sfmc-dockserver/stations/noaa/gliders'
     sfmc_server_path = os.path.join(sfmc_noaa, glider, 'from-glider', "*")
     sfmc_server = f'swoodman@sfmc.webbresearch.com:{sfmc_server_path}'
-    retcode = run(['sshpass', '-p', access_secret_version(gcpproject_id, secret_id), 
-               'rsync', sfmc_server, sfmc_local_path], 
-    capture_output=True)
-    # retcode = run(['sshpass', '-f', sfmc_pwd_file, 'rsync', sfmc_server, sfmc_local_path], 
-    #     capture_output=True)
+    # retcode = run(['sshpass', '-p', access_secret_version(gcpproject_id, secret_id), 
+    #            'rsync', sfmc_server, sfmc_local_path], 
+    # capture_output=True)
+    retcode = run(['sshpass', '-f', sfmc_pwd_file, 'rsync', sfmc_server, sfmc_local_path], 
+        capture_output=True)
     logging.debug(retcode.args)
 
     if retcode.returncode != 0:
