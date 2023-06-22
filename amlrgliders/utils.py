@@ -1,4 +1,5 @@
 import os
+import logging
 import pathlib
 
 
@@ -47,3 +48,32 @@ def amlr_year_path(project, deployment_split):
             year = f'{year}-{str(int(year)+1)[2:4]}'
 
     return year
+
+def amlr_logger(logfile, loglevel, logname):
+    # logfile = args.logfile
+    loglevel = getattr(logging, loglevel.upper())
+    logformat = '%(module)s:%(levelname)s:%(message)s [line %(lineno)d]'    
+    # logging.basicConfig(filename=args.logname,
+    #                     filemode='a',
+    #                     datefmt='%H:%M:%S',
+    #                     format=log_format, 
+    #                     level=getattr(logging, args.loglevel.upper()))
+    
+    logger = logging.getLogger(logname)
+    logger.setLevel(loglevel)
+    formatter = logging.Formatter(logformat)
+
+    # create console handler
+    ch = logging.StreamHandler()
+    ch.setLevel(loglevel)
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+
+    # create file handler
+    if logfile != '':
+        fh = logging.FileHandler(logfile)
+        fh.setLevel(loglevel)
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
+        
+    return logger
