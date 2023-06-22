@@ -19,8 +19,7 @@ from gdm.gliders.slocum import load_slocum_dba
 
 import multiprocessing as mp
 import pandas as pd
-import numpy as np
-from amlrgliders.process import amlr_interpolate, solocam_filename_dt
+from amlrgliders.glider import amlr_interpolate, solocam_filename_dt
 # import dask.dataframe as dd
 
 

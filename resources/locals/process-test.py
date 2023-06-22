@@ -5,7 +5,7 @@ import logging
 logging.getLogger().setLevel(logging.DEBUG)
 
 from amlrgliders.utils import amlr_year_path 
-import amlrgliders.process as amlrp
+import amlrgliders.glider as amlrp
 
 
 if __name__ == '__main__':

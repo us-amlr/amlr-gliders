@@ -30,6 +30,18 @@ def line_prepender(filename, line):
         f.write(line.rstrip('\r\n') + '\n' + content)
 
 
+def amlr_interpolate(df):
+    """
+    Wrapper around pandas.interpolate, to standardize arguments
+    Args:
+        df (DataFrame): DataFrame with column(s) to inteprolate
+    Returns:
+        DataFrame: DataFrame with interpolated values
+    """
+    return df.interpolate(
+        method='time', limit_direction='forward', limit_area='inside'
+    )
+
 def amlr_year_path(project, deployment_split):
     """
     Generate and return the year string to use in file paths

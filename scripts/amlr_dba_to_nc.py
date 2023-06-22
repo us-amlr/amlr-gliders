@@ -5,7 +5,9 @@ import sys
 import argparse
 
 from amlrgliders.utils import amlr_year_path, amlr_logger
-import amlrgliders.process as amlrp
+from amlrgliders.glider import amlr_gdm, amlr_write_trajectory, amlr_write_ngdac
+from amlrgliders.acoustics import amlr_acoustics_metadata
+from amlrgliders.imagery import amlr_imagery_metadata
 
 
 def main(args):
@@ -78,7 +80,7 @@ def main(args):
     #--------------------------------------------
     # Create gdm object  
     logger.info(f'Creating gdm object')
-    gdm = amlrp.amlr_gdm(
+    gdm = amlr_gdm(
         deployment, project, mode, glider_path, numcores, 
         loadfrom_tmp, clobber_tmp
     )
@@ -93,11 +95,11 @@ def main(args):
 
     # Convert to time series, and write trajectory data to nc file
     if write_trajectory:
-        amlrp.amlr_write_trajectory(gdm, deployment_mode, glider_path)
+        amlr_write_trajectory(gdm, deployment_mode, glider_path)
 
     # Write individual (profile) nc files
     if write_ngdac:
-        amlrp.amlr_write_ngdac(gdm, deployment_mode, glider_path)
+        amlr_write_ngdac(gdm, deployment_mode, glider_path)
 
 
     # Write acoustics files
@@ -106,7 +108,7 @@ def main(args):
             logger.warning('You are creating acoustic data files ' + 
                 'using real-time data. ' + 
                 'This may result in inaccurate acoustic file metadata')
-        amlrp.amlr_acoustics(gdm, deployment_mode, glider_path)
+        amlr_acoustics_metadata(gdm, deployment_mode, glider_path)
 
     # Write imagery metadata file
     if write_imagery:
@@ -114,7 +116,7 @@ def main(args):
             logger.warning('You are creating imagery file metadata ' + 
                 'using real-time data. ' + 
                 'This may result in inaccurate imagery file metadata')
-        amlrp.amlr_imagery(
+        amlr_imagery_metadata(
             gdm, deployment, glider_path, 
             os.path.join(imagery_path, 'gliders', '2022', deployment)
         )
