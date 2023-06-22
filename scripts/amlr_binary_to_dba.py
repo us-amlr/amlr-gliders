@@ -206,6 +206,11 @@ if __name__ == '__main__':
         help='Verbosity level',
         choices=['debug', 'info', 'warning', 'error', 'critical'],
         default='info')
+    
+    arg_parser.add_argument('--logfile',
+        type=str,
+        help='File to which to write logs',
+        default='')
 
     parsed_args = arg_parser.parse_args()
 
