@@ -2,7 +2,6 @@
 
 import os
 import sys
-import logging
 import argparse
 
 from amlrgliders.utils import amlr_year_path, amlr_logger
@@ -25,32 +24,7 @@ def main(args):
     """
 
     #--------------------------------------------
-    # Set up logger
-    # logfile = args.logfile
-    # loglevel = getattr(logging, args.loglevel.upper())
-    # logformat = '%(module)s:%(levelname)s:%(message)s [line %(lineno)d]'    
-    # # logging.basicConfig(filename=args.logname,
-    # #                     filemode='a',
-    # #                     datefmt='%H:%M:%S',
-    # #                     format=log_format, 
-    # #                     level=getattr(logging, args.loglevel.upper()))
-    
-    # logger = logging.getLogger('amlr_dba_to_nc')
-    # logger.setLevel(loglevel)
-    # formatter = logging.Formatter(logformat)
-
-    # # create console handler
-    # ch = logging.StreamHandler()
-    # ch.setLevel(loglevel)
-    # ch.setFormatter(formatter)
-    # logger.addHandler(ch)
-
-    # # create file handler
-    # if logfile != '':
-    #     fh = logging.FileHandler(logfile)
-    #     fh.setLevel(loglevel)
-    #     fh.setFormatter(formatter)
-    #     logger.addHandler(fh)
+    # Set up logger and args variables
     logger = amlr_logger(args.logfile, args.loglevel, 'amlr_dba_to_nc')
 
     deployment = args.deployment

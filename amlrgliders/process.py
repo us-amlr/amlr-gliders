@@ -4,7 +4,7 @@ import datetime as dt
 import glob
 import math
 import multiprocessing as mp
-import numpy as np
+# import numpy as np
 import pandas as pd
 
 from gdm import GliderDataModel
@@ -14,24 +14,11 @@ from amlrgliders.utils import line_prepender
 logger = logging.getLogger(__name__)
 
 
-# def amlr_interpolate(df, var_src, var_dst):
-#     if var_src in df.columns:
-#         logger.info(f'Creating interpolated data column ({var_dst}) from {var_src}')        
-#         df.loc[:, var_dst] = df.loc[:, var_src].interpolate(
-#             method='time', limit_direction='forward', limit_area='inside'
-#         )
-#     else:
-#         logger.info(f'{var_src}does not exist, and thus {var_dst} will not be created')
-
-#     return df
-
 def amlr_interpolate(df):
     """
     Wrapper around pandas.interpolate, to standardize arguments
-
     Args:
         df (DataFrame): DataFrame with column(s) to inteprolate
-
     Returns:
         DataFrame: DataFrame with interpolated values
     """
@@ -46,8 +33,6 @@ def amlr_gdm(deployment, project, mode, glider_path,
     Create gdm object from dba files. 
     Note the data stored in the tmp files has not 
     removed 1970-01-01 timestamps or made column names lowercase. 
-
-    Returns gdm object
 
     Args:
         deployment (str): Deployment name, eg amlr##-YYYYmmdd
@@ -335,7 +320,7 @@ def amlr_write_ngdac(gdm, deployment_mode, glider_path):
     Returns:
     """
     # TODO: make parallel, once applicable
-    nc_ngdac_path = os.path.join(glider_path, 'data', 'out', 'nc', 'ngdac', mode)
+    # nc_ngdac_path = os.path.join(glider_path, 'data', 'out', 'nc', 'ngdac', mode)
 
     # if not os.path.exists(nc_ngdac_path):
     #     logging.info(f'Creating directory at: {nc_ngdac_path}')
@@ -373,7 +358,6 @@ def amlr_acoustics(gdm, deployment_mode, glider_path):
     pitch_column = 'impitch'
     roll_column = 'imroll'
     depth_column = 'idepth' 
-
 
     logger.info(f'Creating acoustics files for {deployment_mode}')
     # deployment_mode = f'{deployment}-{mode}'

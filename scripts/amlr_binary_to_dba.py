@@ -2,7 +2,6 @@
 
 import os
 import sys
-import logging
 import argparse
 from subprocess import run
 
@@ -18,10 +17,7 @@ def main(args):
     """
 
     #--------------------------------------------
-    # Set up logger
-    # log_level = getattr(logging, args.loglevel.upper())
-    # log_format = '%(module)s:%(levelname)s:%(message)s [line %(lineno)d]'
-    # logging.basicConfig(format=log_format, level=log_level)
+    # Set up logger and args variables
     logger = amlr_logger(args.logfile, args.loglevel, 'amlr_binary_to_dba')
 
     deployment = args.deployment
