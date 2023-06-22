@@ -25,8 +25,8 @@
 
 PATH=/bin:/usr/bin
 
-# addition for hardened VM
-export TMPDIR=$HOME/tmp
+# # addition for hardened VM
+# export TMPDIR=$HOME/tmp
 
 # Permissions for cac files
 cacPerms=775;
