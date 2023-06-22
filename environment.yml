@@ -14,7 +14,6 @@ dependencies:
   - google-crc32c=1.1.0
   - google-cloud-secret-manager=2.12.0
   - pyarrow=9.0
-  - fastparquet
 
   # # packages for glidertools
   # - glidertools

@@ -5,7 +5,7 @@ import sys
 import logging
 import argparse
 
-from amlrgliders.utils import amlr_year_path 
+from amlrgliders.utils import amlr_year_path, amlr_logger
 import amlrgliders.process as amlrp
 
 
@@ -26,11 +26,33 @@ def main(args):
 
     #--------------------------------------------
     # Set up logger
-    log_level = getattr(logging, args.loglevel.upper())
-    log_format = '%(module)s:%(levelname)s:%(message)s [line %(lineno)d]'
-    logging.basicConfig(format=log_format, level=log_level)
-    # TODO: write ^ logs to output file
+    # logfile = args.logfile
+    # loglevel = getattr(logging, args.loglevel.upper())
+    # logformat = '%(module)s:%(levelname)s:%(message)s [line %(lineno)d]'    
+    # # logging.basicConfig(filename=args.logname,
+    # #                     filemode='a',
+    # #                     datefmt='%H:%M:%S',
+    # #                     format=log_format, 
+    # #                     level=getattr(logging, args.loglevel.upper()))
     
+    # logger = logging.getLogger('amlr_dba_to_nc')
+    # logger.setLevel(loglevel)
+    # formatter = logging.Formatter(logformat)
+
+    # # create console handler
+    # ch = logging.StreamHandler()
+    # ch.setLevel(loglevel)
+    # ch.setFormatter(formatter)
+    # logger.addHandler(ch)
+
+    # # create file handler
+    # if logfile != '':
+    #     fh = logging.FileHandler(logfile)
+    #     fh.setLevel(loglevel)
+    #     fh.setFormatter(formatter)
+    #     logger.addHandler(fh)
+    logger = amlr_logger(args.logfile, args.loglevel, 'amlr_dba_to_nc')
+
     deployment = args.deployment
     project = args.project
     mode = args.mode
@@ -53,12 +75,12 @@ def main(args):
 
     prj_list = ['FREEBYRD', 'REFOCUS', 'SANDIEGO']    
     if not os.path.isdir(deployments_path):
-        logging.error(f'deployments_path ({deployments_path}) does not exist')
+        logger.error(f'deployments_path ({deployments_path}) does not exist')
         return
     else:
         dir_expected = prj_list + ['cache']
         if not all(x in os.listdir(deployments_path) for x in dir_expected):
-            logging.error(f"The expected folders ({', '.join(dir_expected)}) " + 
+            logger.error(f"The expected folders ({', '.join(dir_expected)}) " + 
                 f'were not found in the provided directory ({deployments_path}). ' + 
                 'Did you provide the right path via deployments_path?')
             return 
@@ -74,21 +96,21 @@ def main(args):
     
     if write_imagery:
         if not os.path.isdir(imagery_path):
-            logging.error('write_imagery is true, and thus imagery_path ' + 
+            logger.error('write_imagery is true, and thus imagery_path ' + 
                           f'({imagery_path}) must be a valid path')
             return
 
 
     #--------------------------------------------
     # Create gdm object  
-    logging.info(f'Creating gdm object')
+    logger.info(f'Creating gdm object')
     gdm = amlrp.amlr_gdm(
         deployment, project, mode, glider_path, numcores, 
         loadfrom_tmp, clobber_tmp
     )
 
     if gdm is None:
-        logging.error('gdm processing failed and processing will be aborted')
+        logger.error('gdm processing failed and processing will be aborted')
         return
 
 
@@ -107,7 +129,7 @@ def main(args):
     # Write acoustics files
     if write_acoustics: 
         if mode == 'rt':
-            logging.warning('You are creating acoustic data files ' + 
+            logger.warning('You are creating acoustic data files ' + 
                 'using real-time data. ' + 
                 'This may result in inaccurate acoustic file metadata')
         amlrp.amlr_acoustics(gdm, deployment_mode, glider_path)
@@ -115,7 +137,7 @@ def main(args):
     # Write imagery metadata file
     if write_imagery:
         if mode == 'rt':
-            logging.warning('You are creating imagery file metadata ' + 
+            logger.warning('You are creating imagery file metadata ' + 
                 'using real-time data. ' + 
                 'This may result in inaccurate imagery file metadata')
         amlrp.amlr_imagery(
@@ -124,7 +146,7 @@ def main(args):
         )
         
     # All done
-    logging.info(f'Glider data processing complete for {deployment_mode}')
+    logger.info(f'Glider data processing complete for {deployment_mode}')
     return gdm
 
 
@@ -200,6 +222,11 @@ if __name__ == '__main__':
         help='Verbosity level',
         choices=['debug', 'info', 'warning', 'error', 'critical'],
         default='info')
+    
+    arg_parser.add_argument('--logfile',
+        type=str,
+        help='File to which to write logs',
+        default='')
 
     parsed_args = arg_parser.parse_args()
 

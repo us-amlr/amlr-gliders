@@ -6,7 +6,7 @@ import logging
 import argparse
 from subprocess import run
 
-from amlrgliders.utils import amlr_year_path
+from amlrgliders.utils import amlr_year_path, amlr_logger
 
 
 def main(args):
@@ -19,10 +19,11 @@ def main(args):
 
     #--------------------------------------------
     # Set up logger
-    log_level = getattr(logging, args.loglevel.upper())
-    log_format = '%(module)s:%(levelname)s:%(message)s [line %(lineno)d]'
-    logging.basicConfig(format=log_format, level=log_level)
-    
+    # log_level = getattr(logging, args.loglevel.upper())
+    # log_format = '%(module)s:%(levelname)s:%(message)s [line %(lineno)d]'
+    # logging.basicConfig(format=log_format, level=log_level)
+    logger = amlr_logger(args.logfile, args.loglevel, 'amlr_binary_to_dba')
+
     deployment = args.deployment
     project = args.project
     mode = args.mode
@@ -33,31 +34,31 @@ def main(args):
 
     # Checks
     if not os.path.isdir(deployments_path):
-        logging.error(f'deployments_path ({deployments_path}) does not exist')
+        logger.error(f'deployments_path ({deployments_path}) does not exist')
         return
 
     if not os.path.isfile(processDbds_file):
-        logging.error(f'processDbds_file ({processDbds_file}) does not exist')
+        logger.error(f'processDbds_file ({processDbds_file}) does not exist')
         return
 
     if not os.path.isfile(cac2lower_file):
-        logging.error(f'cac2lower_file ({cac2lower_file}) does not exist')
+        logger.error(f'cac2lower_file ({cac2lower_file}) does not exist')
         return
 
 
     if not (mode in ['delayed', 'rt']):
-        logging.error("mode must be either 'delayed' or 'rt'")
+        logger.error("mode must be either 'delayed' or 'rt'")
         return
 
     deployment_split = deployment.split('-')
     if len(deployment_split[1]) != 8:
-        logging.error("The deployment string format must be 'glider-YYYYmmdd', " + 
+        logger.error("The deployment string format must be 'glider-YYYYmmdd', " + 
             "eg amlr03-20220101")
         return
 
     #--------------------------------------------
     # Set/check/create file paths for processDbds script
-    logging.info(f'Writing dba files for deployment {deployment}, mode {mode}')
+    logger.info(f'Writing dba files for deployment {deployment}, mode {mode}')
     glider = deployment_split[0]
     year = amlr_year_path(project, deployment_split)
 
@@ -70,27 +71,27 @@ def main(args):
     scripts_path = os.path.join(glider_depl_path, 'scripts')
     processDbds_out_file = f'{deployment}_{mode}_processDbds_out.txt'
 
-    logging.debug(f'processDbds file: {processDbds_file}')
-    logging.debug(f'Cache path: {cache_path}')
-    logging.debug(f'Binary path: {binary_path}')
-    logging.debug(f'Ascii path: {ascii_path}')
-    logging.debug(f'Scripts path: {scripts_path}')
-    logging.debug(f'ProcessDbds_out file: {processDbds_out_file}')
+    logger.debug(f'processDbds file: {processDbds_file}')
+    logger.debug(f'Cache path: {cache_path}')
+    logger.debug(f'Binary path: {binary_path}')
+    logger.debug(f'Ascii path: {ascii_path}')
+    logger.debug(f'Scripts path: {scripts_path}')
+    logger.debug(f'ProcessDbds_out file: {processDbds_out_file}')
 
     if not os.path.isdir(cache_path):
-        logging.error(f'cache_path ({cache_path}) does not exist')
+        logger.error(f'cache_path ({cache_path}) does not exist')
         return
 
     if not os.path.isdir(binary_path):
-        logging.error(f'binary_path ({binary_path}) does not exist')
+        logger.error(f'binary_path ({binary_path}) does not exist')
         return
     
     if not os.path.isdir(ascii_path):
-        logging.info(f'Making path at: {ascii_path}')
+        logger.info(f'Making path at: {ascii_path}')
         os.makedirs(ascii_path)
 
     if not os.path.isdir(scripts_path):
-        logging.info(f'Making path at: {scripts_path}')
+        logger.info(f'Making path at: {scripts_path}')
         os.makedirs(scripts_path)
 
     #--------------------------------------------
@@ -99,19 +100,19 @@ def main(args):
     files_list_CAC = list(filter(lambda i: i.endswith(".CAC"), files_list))
 
     if len(files_list_CAC) > 0:
-        logging.info(f'{len(files_list_CAC)} .CAC files will be renamed')
+        logger.info(f'{len(files_list_CAC)} .CAC files will be renamed')
         run_out = run([cac2lower_file, os.path.join(cache_path, "*")], 
             capture_output=True, text=True)
 
         if run_out.returncode != 0:
-            logging.error(f'Error running `{cac2lower_file}`')
-            logging.error(f'ARGS:\n{run_out.args}')
-            logging.error(f'STDERR:\n{run_out.stderr}')
+            logger.error(f'Error running `{cac2lower_file}`')
+            logger.error(f'ARGS:\n{run_out.args}')
+            logger.error(f'STDERR:\n{run_out.stderr}')
             return
         else:
-            logging.info(f'Successfully completed run of `{cac2lower_file}`')
-            logging.debug(f'ARGS:\n{run_out.args}')
-            logging.debug(f'STDOUT:\n{run_out.stdout}')
+            logger.info(f'Successfully completed run of `{cac2lower_file}`')
+            logger.debug(f'ARGS:\n{run_out.args}')
+            logger.debug(f'STDOUT:\n{run_out.stdout}')
 
         # Make sure that all .CAC files have corresponding .cac files before deleting
         delete_ok = True
@@ -124,37 +125,37 @@ def main(args):
         if delete_ok: 
             run_out = run(["find", cache_path, '-name', '*.CAC', '-delete'])
             if run_out.returncode != 0:
-                logging.error(f'Error running `find {cache_path} -name *.CAC -delete`')
+                logger.error(f'Error running `find {cache_path} -name *.CAC -delete`')
                 return
 
-            logging.info(f"{len(files_list_CAC)} uppercase .CAC files were deleted")
+            logger.info(f"{len(files_list_CAC)} uppercase .CAC files were deleted")
         else:
-            logging.warn("Not all '.CAC' files have a corresponding '.cac' file, " + 
+            logger.warn("Not all '.CAC' files have a corresponding '.cac' file, " + 
                 "and thus the .CAC files were not deleted. " + 
                 "Please inspect by hand.")
 
             del run_out
 
     else:
-        logging.info('There are no .CAC files to rename')
+        logger.info('There are no .CAC files to rename')
 
 
     # Make dba files
-    logging.info(f'Running processDbds script and writing dba files to {ascii_path}')
+    logger.info(f'Running processDbds script and writing dba files to {ascii_path}')
     run_out = run([processDbds_file, "-c", cache_path, binary_path, ascii_path], 
         capture_output=True, text=True)    
     if run_out.returncode != 0:
-        logging.error(f'Error running `{processDbds_file}`')
-        logging.error(f'ARGS:\n{run_out.args}')
-        logging.error(f'STDERR:\n{run_out.stderr}')
+        logger.error(f'Error running `{processDbds_file}`')
+        logger.error(f'ARGS:\n{run_out.args}')
+        logger.error(f'STDERR:\n{run_out.stderr}')
         return
     else:
-        logging.info(f'Successfully completed run of `{processDbds_file}`')
-        logging.debug(f'ARGS:\n{run_out.args}')
-        logging.debug(f'STDOUT:\n{run_out.stdout}')
+        logger.info(f'Successfully completed run of `{processDbds_file}`')
+        logger.debug(f'ARGS:\n{run_out.args}')
+        logger.debug(f'STDOUT:\n{run_out.stdout}')
 
         fileout_path = os.path.join(scripts_path, processDbds_out_file)
-        logging.info(f'Writing `{processDbds_file}` output to {fileout_path}')
+        logger.info(f'Writing `{processDbds_file}` output to {fileout_path}')
         fileout = open(fileout_path, 'w')
         fileout.write(f'ARGS PASSED TO processDbds SCRIPT:\n{run_out.args}\n\n\n')
         fileout.write(f'STDOUT:\n{run_out.stdout}')
