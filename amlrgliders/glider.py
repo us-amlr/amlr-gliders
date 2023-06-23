@@ -43,7 +43,8 @@ def amlr_gdm(deployment, project, mode, glider_path,
     deployment_split = deployment.split('-')
     deployment_mode = f'{deployment}-{mode}'
     if len(deployment_split[1]) != 8:
-        logger.error("The deployment string format must be 'glider-YYYYmmdd', eg amlr03-20220101")
+        logger.error("The deployment string format must be 'glider-YYYYmmdd'" +
+                     ", eg amlr03-20220101")
         return
     else:
         logger.info(f'Processing glider data using gdm for deployment {deployment_mode}')
@@ -271,12 +272,14 @@ def amlr_write_trajectory(gdm, deployment_mode, glider_path):
         'oxy4_temp', 'sci_flbbcd_therm', 'ctd41cp_timestamp', 
         'm_final_water_vx', 'm_final_water_vy', 'c_wpt_lat', 'c_wpt_lon']
 
-    subset = sorted(set(vars_list).intersection(list(gdm.data.keys())), key = vars_list.index)
+    subset = sorted(set(vars_list).intersection(list(gdm.data.keys())), 
+                    key = vars_list.index)
     ds_subset = ds[subset]
     
     logger.info("Writing trajectory timeseries for most commonly used variables to nc file")
     try:
-        ds_subset.to_netcdf(os.path.join(nc_trajectory_path, f'{deployment_mode}-trajectory.nc'))
+        ds_subset.to_netcdf(
+            os.path.join(nc_trajectory_path, f'{deployment_mode}-trajectory.nc'))
         logger.info("Subset trajectory timeseries written to nc file")
     except:
         logger.warning("Unable to write subset trajectory timeseries to nc file")
@@ -284,7 +287,8 @@ def amlr_write_trajectory(gdm, deployment_mode, glider_path):
 
     logger.info("Writing full trajectory timeseries to nc file")
     try:
-        ds.to_netcdf(os.path.join(nc_trajectory_path, f'{deployment_mode}-trajectory-full.nc'))
+        ds.to_netcdf(
+            os.path.join(nc_trajectory_path, f'{deployment_mode}-trajectory-full.nc'))
         logger.info("Full trajectory timeseries written to nc file")
     except:
         logger.warning("Unable to write full trajectory timeseries to nc file")

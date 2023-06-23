@@ -3,6 +3,7 @@
 import os
 import sys
 import argparse
+from importlib.metadata import version
 
 from amlrgliders.utils import amlr_year_path, amlr_logger
 from amlrgliders.glider import amlr_gdm, amlr_write_trajectory, amlr_write_ngdac
@@ -28,6 +29,7 @@ def main(args):
     #--------------------------------------------
     # Set up logger and args variables
     logger = amlr_logger(args.logfile, args.loglevel, 'amlr_dba_to_nc')
+    logger.info(f"amlr-gliders package version: {version('amlr-gliders')}")
 
     deployment = args.deployment
     project = args.project

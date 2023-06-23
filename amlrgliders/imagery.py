@@ -19,7 +19,8 @@ def solocam_filename_dt(filename, index_start):
 
 
 
-def amlr_imagery(gdm, deployment, glider_path, imagery_path, ext = 'jpg'):
+def amlr_imagery_metadata(gdm, deployment, glider_path, imagery_path, 
+                          ext = 'jpg'):
     """
     Matches up imagery files with data from gdm object by imagery filename
     Uses interpolated variables (hardcoded in function)
