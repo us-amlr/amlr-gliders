@@ -59,7 +59,6 @@ def amlr_imagery_metadata(gdm, deployment, glider_path, imagery_path,
                         'CSV file with imagery metadata will not be created')
         return
     else:
-        # deployment_imagery_path = os.path.join(imagery_path, 'gliders', '2022', deployment)
         imagery_filepaths = glob.glob(f'{imagery_path}/**/*.{ext}', recursive=True)
         imagery_files = [os.path.basename(x) for x in imagery_filepaths]
         imagery_files.sort()
@@ -126,7 +125,11 @@ def amlr_imagery_metadata(gdm, deployment, glider_path, imagery_path,
     imagery_df['pitch'] = ds_slice[pitch_column].values
     imagery_df['roll'] = ds_slice[roll_column].values
 
-    csv_file = os.path.join(out_path, f'{deployment}-imagery-metadata.csv')
+    # csv_file = os.path.join(out_path, f'{deployment}-imagery-metadata.csv')
+    # logger.info(f'Writing imagery metadata to: {csv_file}')
+    # imagery_df.to_csv(csv_file, index=False)
+    
+    csv_file = os.path.join(imagery_path, f'{deployment}-imagery-metadata.csv')
     logger.info(f'Writing imagery metadata to: {csv_file}')
     imagery_df.to_csv(csv_file, index=False)
 

@@ -120,7 +120,7 @@ def main(args):
                 'This may result in inaccurate imagery file metadata')
         amlr_imagery_metadata(
             gdm, deployment, glider_path, 
-            os.path.join(imagery_path, 'gliders', '2022', deployment)
+            os.path.join(imagery_path, 'gliders', args.ugh_imagery_year, deployment)
         )
         
     # All done
@@ -194,6 +194,11 @@ if __name__ == '__main__':
         type=str,
         help='Path to imagery bucket. Required if write_imagery flag is true',
         default='')
+    
+    arg_parser.add_argument('--ugh_imagery_year',
+        type=str,
+        help='temporary workaround',
+        default='2023')
 
     arg_parser.add_argument('-l', '--loglevel',
         type=str,
