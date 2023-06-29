@@ -27,6 +27,7 @@ def main(args):
 
     processDbds_file = args.processDbds_file
     cac2lower_file = args.cac2lower_file    
+    linuxbin_path = args.linuxbin_path    
 
     # Checks
     if not os.path.isdir(deployments_path):
@@ -39,6 +40,10 @@ def main(args):
 
     if not os.path.isfile(cac2lower_file):
         logger.error(f'cac2lower_file ({cac2lower_file}) does not exist')
+        return
+
+    if not os.path.isdir(linuxbin_path):
+        logger.error(f'linuxbin_path ({linuxbin_path}) does not exist')
         return
 
 
@@ -69,10 +74,11 @@ def main(args):
 
     logger.debug(f'processDbds file: {processDbds_file}')
     logger.debug(f'Cache path: {cache_path}')
+    logger.debug(f'linux-bin path: {linuxbin_path}')
     logger.debug(f'Binary path: {binary_path}')
     logger.debug(f'Ascii path: {ascii_path}')
     logger.debug(f'Scripts path: {scripts_path}')
-    logger.debug(f'ProcessDbds_out file: {processDbds_out_file}')
+    logger.debug(f'processDbds_out file: {processDbds_out_file}')
 
     if not os.path.isdir(cache_path):
         logger.error(f'cache_path ({cache_path}) does not exist')
@@ -138,8 +144,9 @@ def main(args):
 
     # Make dba files
     logger.info(f'Running processDbds script and writing dba files to {ascii_path}')
-    run_out = run([processDbds_file, "-c", cache_path, binary_path, ascii_path], 
-        capture_output=True, text=True)    
+    run_out = run([processDbds_file, "-c", cache_path, "-e", linuxbin_path, 
+                   binary_path, ascii_path], 
+                capture_output=True, text=True)    
     if run_out.returncode != 0:
         logger.error(f'Error running `{processDbds_file}`')
         logger.error(f'ARGS:\n{run_out.args}')
@@ -197,6 +204,11 @@ if __name__ == '__main__':
         type=str, 
         help='Path to cac2lower shell script',
         default = '/opt/amlr-gliders/resources/slocum/cac2lower.sh')
+
+    arg_parser.add_argument('--linuxbin_path', 
+        type=str, 
+        help='Path to linux-bin directory',
+        default = '/opt/amlr-gliders/resources/slocum/linux-bin_8_6')
 
     arg_parser.add_argument('-l', '--loglevel',
         type=str,
