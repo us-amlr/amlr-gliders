@@ -12,7 +12,7 @@ def main(args):
     """
     Wrapper around cac2lower.sh and processDbds.sh; 
     Makes cac files lowercase and creates dbas;
-    Requires Linux system with kerfoot/slocum cloned to /opt;
+    Requires Linux system with amlr-gliders cloned to /opt/;
     Returns 0
     """
 
@@ -150,6 +150,7 @@ def main(args):
         logger.debug(f'ARGS:\n{run_out.args}')
         logger.debug(f'STDOUT:\n{run_out.stdout}')
 
+        # TODO: write to log directory, if applicable
         # fileout_path = os.path.join(scripts_path, processDbds_out_file)
         # logger.info(f'Writing `{processDbds_file}` output to {fileout_path}')
         # fileout = open(fileout_path, 'w')
@@ -190,12 +191,12 @@ if __name__ == '__main__':
     arg_parser.add_argument('--processDbds_file', 
         type=str,
         help='Path to processDbds shell script', 
-        default = '/opt/amlr-gliders/resources/processDbds_usamlr.sh')
+        default = '/opt/amlr-gliders/resources/slocum/processDbds-usamlr.sh')
 
     arg_parser.add_argument('--cac2lower_file', 
         type=str, 
         help='Path to cac2lower shell script',
-        default = '/opt/slocum/bin2ascii/cac2lower.sh')
+        default = '/opt/amlr-gliders/resources/slocum/cac2lower.sh')
 
     arg_parser.add_argument('-l', '--loglevel',
         type=str,
