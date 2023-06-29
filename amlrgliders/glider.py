@@ -175,7 +175,7 @@ def amlr_load_dba(ascii_path, numcores, clobber_tmp,
     logger.info(f'Reading ascii data from {len(dba_files_list)} files ' + 
                 f'using {numcores} core(s)')
 
-    if len(dba_files) == 0:
+    if len(dba_files_list) == 0:
         logger.error(f'There are no dba files in the expected directory ' + 
             f'({ascii_path}), and thus the gdm object cannot be created')
         return
