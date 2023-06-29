@@ -170,9 +170,9 @@ def amlr_load_dba(ascii_path, numcores, clobber_tmp,
     dba_files_list = list(
         map(lambda x: os.path.join(ascii_path, x), os.listdir(ascii_path))
     )
-    dba_files = pd.DataFrame(dba_files_list, columns = ['dba_file'])
-    dba_files_count = len(dba_files.index)        
-    logger.info(f'Reading ascii data from {dba_files_count} files ' + 
+    # dba_files = pd.DataFrame(dba_files_list, columns = ['dba_file'])
+    # dba_files_count = len(dba_files.index)        
+    logger.info(f'Reading ascii data from {len(dba_files_list)} files ' + 
                 f'using {numcores} core(s)')
 
     if len(dba_files) == 0:
@@ -205,9 +205,9 @@ def amlr_load_dba(ascii_path, numcores, clobber_tmp,
         logger.debug(f'Reading dba files in for loop')
         pro_meta_df = pd.DataFrame()
         dba_df = pd.DataFrame()
-        for idx, row in enumerate(dba_files.iterrows()):
-            logger.debug(f'dba file {idx}')
-            dba, pro_meta = load_slocum_dba(row['dba_file'])                
+        for i in dba_files_list:
+            logger.debug(f'dba file: {i}')
+            dba, pro_meta = load_slocum_dba(i)                
             pro_meta_df = pd.concat([pro_meta_df, pro_meta])
             dba_df = pd.concat([dba_df, dba])
         
@@ -238,7 +238,7 @@ def amlr_load_dba(ascii_path, numcores, clobber_tmp,
     return dba_df, pro_meta_df
 
 
-def amlr_write_trajectory(gdm, deployment_mode, glider_path):
+def amlr_write_trajectory(gdm, deployment_mode, glider_path, write_full = True):
     """
     From gdm file, write trajectory two nc files, 
     one with commonly used variables and the other with all variables
@@ -260,9 +260,8 @@ def amlr_write_trajectory(gdm, deployment_mode, glider_path):
     logger.info("Creating full timeseries")
     ds = gdm.to_timeseries_dataset()
 
-    # interpolated variables first. 
-    # Note to_timeseries_dataset uses nc_var_name in sensor_defs
-    #   to change ilatitude to lat and ilongitude to lon 
+    # Note: to_timeseries_dataset uses nc_var_name in sensor_defs,
+    #   hence it changes ilatitude to lat and ilongitude to lon 
     vars_list = ['time', 'latitude', 'longitude', 
         'depth', 'm_depth', 'm_heading', 'm_pitch', 'm_roll', 
         'lat', 'lon', 'idepth', 'impitch', 'imroll', 
@@ -272,8 +271,10 @@ def amlr_write_trajectory(gdm, deployment_mode, glider_path):
         'oxy4_temp', 'sci_flbbcd_therm', 'ctd41cp_timestamp', 
         'm_final_water_vx', 'm_final_water_vy', 'c_wpt_lat', 'c_wpt_lon']
 
-    subset = sorted(set(vars_list).intersection(list(gdm.data.keys())), 
+    subset = sorted(set(vars_list).intersection(list(ds.keys())), 
                     key = vars_list.index)
+    logger.debug(f"Length of vars_list: {len(vars_list)}")
+    logger.debug(f"Number of variables in subset: {len(subset)}")
     ds_subset = ds[subset]
     
     logger.info("Writing trajectory timeseries for most commonly used variables to nc file")
@@ -284,15 +285,18 @@ def amlr_write_trajectory(gdm, deployment_mode, glider_path):
     except:
         logger.warning("Unable to write subset trajectory timeseries to nc file")
 
-
-    logger.info("Writing full trajectory timeseries to nc file")
-    try:
-        ds.to_netcdf(
-            os.path.join(nc_trajectory_path, f'{deployment_mode}-trajectory-full.nc'))
-        logger.info("Full trajectory timeseries written to nc file")
-    except:
-        logger.warning("Unable to write full trajectory timeseries to nc file")
-    
+    if write_full:
+        logger.info("Writing full trajectory timeseries to nc file")
+        try:
+            ds.to_netcdf(os.path.join(
+                nc_trajectory_path, f'{deployment_mode}-trajectory-full.nc'
+            ))
+            logger.info("Full trajectory timeseries written to nc file")
+        except:
+            logger.warning("Unable to write full trajectory timeseries to nc file")
+    else:
+        logger.info("Not trying to write full trajectory timeseries to nc file")
+        
     return 0
 
 
