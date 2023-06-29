@@ -77,6 +77,7 @@ def main(args):
             logger.error('write_imagery is true, and thus imagery_path ' + 
                           f'({imagery_path}) must be a valid path')
             return
+        
 
 
     #--------------------------------------------
@@ -106,6 +107,7 @@ def main(args):
 
     # Write acoustics files
     if write_acoustics: 
+        logger.inf("write_acoustics is True, and thus writing acoustic files")
         if mode == 'rt':
             logger.warning('You are creating acoustic data files ' + 
                 'using real-time data. ' + 
@@ -114,6 +116,7 @@ def main(args):
 
     # Write imagery metadata file
     if write_imagery:
+        logger.inf("write_imagery is True, and thus writing acoustic files")
         if mode == 'rt':
             logger.warning('You are creating imagery file metadata ' + 
                 'using real-time data. ' + 
