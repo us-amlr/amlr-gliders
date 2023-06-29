@@ -105,7 +105,7 @@ shift $((OPTIND-1));
 
 script=$(realpath $0);
 work_path=$(dirname $script);
-logging_lib="${work_path}/../logging.sh";
+logging_lib="${work_path}/logging.sh";
 . $logging_lib;
 [ "$?" -ne 0 ] && exit 1;
 
