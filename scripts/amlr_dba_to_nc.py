@@ -30,8 +30,10 @@ def main(args):
     #--------------------------------------------
     # Set up logger and args variables
     # logger = amlr_logger(args.logfile, args.loglevel, 'amlr_dba_to_nc')
+    logfile = args.logfile
     loglevel = args.loglevel
-    logname = 'amlr_dba_to_nc'
+    logname='amlr_dba_to_nc'
+    
     loglevel = getattr(logging, loglevel.upper())
     logformat = '%(module)s:%(levelname)s:%(message)s [line %(lineno)d]'    
     # logging.basicConfig(filename=args.logname,
@@ -49,6 +51,13 @@ def main(args):
     ch.setLevel(loglevel)
     ch.setFormatter(formatter)
     logger.addHandler(ch)
+
+    # create file handler
+    if logfile != '':
+        fh = logging.FileHandler(logfile)
+        fh.setLevel(loglevel)
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
     
     logger.info(f"amlr-gliders package version: {version('amlr-gliders')}")
 
