@@ -48,8 +48,10 @@ def main(args):
     #                     level=getattr(logging, args.loglevel.upper()))
     
     # logger = logging.getLogger(logname)
-    logging.setLevel(loglevel)
+    # logging.setLevel(loglevel)
     formatter = logging.Formatter(logformat)
+    
+    # logging.basicConfig(format=logformat, level=loglevel)
 
     # create console handler
     ch = logging.StreamHandler()
