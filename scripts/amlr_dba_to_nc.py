@@ -30,15 +30,15 @@ def main(args):
     #--------------------------------------------
     # Set up logger and args variables
     # logger = amlr_logger(args.logfile, args.loglevel, 'amlr_dba_to_nc')
-    logfile = args.logfile
-    loglevel = args.loglevel
-    logname='amlr_dba_to_nc'
     
     log_level = args.loglevel
     log_level = getattr(logging, loglevel.upper())
     log_format = '%(asctime)s:%(module)s:%(levelname)s:%(message)s [line %(lineno)d]'
-    logging.basicConfig(format=log_format, level=loglevel)
+    logging.basicConfig(format=log_format, level=log_level)
     
+    # logfile = args.logfile
+    # loglevel = args.loglevel
+    # logname='amlr_dba_to_nc'
     # loglevel = getattr(logging, loglevel.upper())
     # logformat = '%(module)s:%(levelname)s:%(message)s [line %(lineno)d]'    
     # # logging.basicConfig(filename=args.logname,
