@@ -8,7 +8,7 @@ from gdm import GliderDataModel
 from gdm.gliders.slocum import load_slocum_dba
 from amlrgliders.utils import amlr_interpolate
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('__main__.' + __name__)
 
 
 def amlr_gdm(deployment, project, mode, glider_path, 
