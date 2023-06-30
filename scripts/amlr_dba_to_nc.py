@@ -31,33 +31,42 @@ def main(args):
     # Set up logger and args variables
     # logger = amlr_logger(args.logfile, args.loglevel, 'amlr_dba_to_nc')
     
-    # loglevel = args.loglevel
-    # log_level = getattr(logging, loglevel.upper())
-    # log_format = '%(asctime)s:%(module)s:%(levelname)s:%(message)s [line %(lineno)d]'
-    # logging.basicConfig(format=log_format, level=log_level)
-    
-    logfile = args.logfile
     loglevel = args.loglevel
-    logname='amlr_dba_to_nc'
-    loglevel = getattr(logging, loglevel.upper())
-    logformat = '%(module)s:%(levelname)s:%(message)s [line %(lineno)d]'    
-    # logging.basicConfig(filename=args.logname,
-    #                     filemode='a',
-    #                     datefmt='%H:%M:%S',
-    #                     format=log_format, 
-    #                     level=getattr(logging, args.loglevel.upper()))
+    log_level = getattr(logging, loglevel.upper())
+    log_format = '%(asctime)s:%(module)s:%(levelname)s:%(message)s [line %(lineno)d]'
+    # logging.basicConfig(format=log_format, level=log_level)
+    logging.basicConfig(
+        format=log_format, level=log_level, 
+        handlers=[
+            logging.FileHandler(args.logfile),
+            logging.StreamHandler()
+        ]
+    )
     
-    # logger = logging.getLogger(logname)
-    # logging.setLevel(loglevel)
-    formatter = logging.Formatter(logformat)
+    # logfile = args.logfile
+    # loglevel = args.loglevel
+    # logname='amlr_dba_to_nc'
+    # loglevel = getattr(logging, loglevel.upper())
+    # logformat = '%(module)s:%(levelname)s:%(message)s [line %(lineno)d]'    
     
+    # # logging.basicConfig(filename=args.logname,
+    # #                     filemode='a',
+    # #                     datefmt='%H:%M:%S',
+    # #                     format=log_format, 
+    # #                     level=getattr(logging, args.loglevel.upper()))
+    
+    # # logger = logging.getLogger(logname)
+    # # logging.setLevel(loglevel)
     # logging.basicConfig(format=logformat, level=loglevel)
+    # formatter = logging.Formatter(logformat)
+    
+    # # logging.basicConfig(format=logformat, level=loglevel)
 
-    # create console handler
-    ch = logging.StreamHandler()
-    ch.setLevel(loglevel)
-    ch.setFormatter(formatter)
-    logging.getLogger('').addHandler(ch)
+    # # create console handler
+    # ch = logging.StreamHandler()
+    # ch.setLevel(loglevel)
+    # ch.setFormatter(formatter)
+    # logging.getLogger().addHandler(ch)
 
     # # create file handler
     # if logfile != '':
