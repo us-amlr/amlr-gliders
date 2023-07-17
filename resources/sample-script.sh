@@ -10,12 +10,11 @@ MODE=delayed
 YR_DIR='2022-23'
 
 # Prep for and mount buckets
-sudo mount -o remount,exec /tmp
-BUCKET_DIR=/tmp/buckets
-PATH_DEPLOYMENTS=$BUCKET_DIR/amlr-gliders-deployments-dev
-PATH_IMAGERY=$BUCKET_DIR/amlr-imagery-raw-dev
+BUCKET_DIR=/mnt/gcs
+PATH_DEPLOYMENTS=$BUCKET_DIR/deployments
+PATH_IMAGERY=$BUCKET_DIR/imagery
 
-for i in $PATH_DEPLOYMENTS $PATH_IMAGERY
+for i in $PATH_DEPLOYMENTS $PATH_IMAGERY $HOME/tmp
 do
     if [ ! -d "$i" ]
     then
@@ -23,11 +22,12 @@ do
     fi
 done
 
+export TMPDIR=$HOME/tmp #TODO: move this to somewhere in Python
 gcsfuse --implicit-dirs amlr-gliders-deployments-dev $PATH_DEPLOYMENTS/
 gcsfuse --implicit-dirs amlr-imagery-raw-dev $PATH_IMAGERY/
 
 # Activate conda environment and run Python scripts
-source /opt/anaconda/miniconda3/etc/profile.d/conda.sh
+source /opt/miniconda3/etc/profile.d/conda.sh
 conda activate amlr-gliders
 AGSCRIPTS=/opt/amlr-gliders/scripts
 LOGDIR=/tmp/logs
