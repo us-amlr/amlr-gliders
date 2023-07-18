@@ -17,19 +17,6 @@ def find_extensions(dir_path): #,  excluded = ['', '.txt', '.lnk']):
             #     extensions.add(ext)
     return extensions
 
-
-def line_prepender(filename, line):
-    """
-    Title: prepend-line-to-beginning-of-a-file
-    https://stackoverflow.com/questions/5914627
-    """
-    
-    with open(filename, 'r+') as f:
-        content = f.read()
-        f.seek(0, 0)
-        f.write(line.rstrip('\r\n') + '\n' + content)
-
-
 def amlr_interpolate(df):
     """
     Wrapper around pandas.interpolate, to standardize arguments
@@ -61,31 +48,31 @@ def amlr_year_path(project, deployment_split):
 
     return year
 
-def amlr_logger(logfile, loglevel, logname):
-    # logfile = args.logfile
-    loglevel = getattr(logging, loglevel.upper())
-    logformat = '%(module)s:%(levelname)s:%(message)s [line %(lineno)d]'    
-    # logging.basicConfig(filename=args.logname,
-    #                     filemode='a',
-    #                     datefmt='%H:%M:%S',
-    #                     format=log_format, 
-    #                     level=getattr(logging, args.loglevel.upper()))
+# def amlr_logger(logfile, loglevel, logname):
+#     # logfile = args.logfile
+#     loglevel = getattr(logging, loglevel.upper())
+#     logformat = '%(module)s:%(levelname)s:%(message)s [line %(lineno)d]'    
+#     # logging.basicConfig(filename=args.logname,
+#     #                     filemode='a',
+#     #                     datefmt='%H:%M:%S',
+#     #                     format=log_format, 
+#     #                     level=getattr(logging, args.loglevel.upper()))
     
-    logger = logging.getLogger(logname)
-    logger.setLevel(loglevel)
-    formatter = logging.Formatter(logformat)
+#     logger = logging.getLogger(logname)
+#     logger.setLevel(loglevel)
+#     formatter = logging.Formatter(logformat)
 
-    # create console handler
-    ch = logging.StreamHandler()
-    ch.setLevel(loglevel)
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
+#     # create console handler
+#     ch = logging.StreamHandler()
+#     ch.setLevel(loglevel)
+#     ch.setFormatter(formatter)
+#     logger.addHandler(ch)
 
-    # create file handler
-    if logfile != '':
-        fh = logging.FileHandler(logfile)
-        fh.setLevel(loglevel)
-        fh.setFormatter(formatter)
-        logger.addHandler(fh)
+#     # create file handler
+#     if logfile != '':
+#         fh = logging.FileHandler(logfile)
+#         fh.setLevel(loglevel)
+#         fh.setFormatter(formatter)
+#         logger.addHandler(fh)
         
-    return logger
+#     return logger

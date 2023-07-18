@@ -12,7 +12,7 @@ logger = logging.getLogger(__file__)
 
 
 def amlr_gdm(deployment, project, mode, glider_path, 
-             numcores=0, loadfromtmp=False, clobber_tmp=False):
+             numcores=0, loadfromtmp=False, clobbertmp=False):
     """
     Create gdm object from dba files. 
     Note the data stored in the tmp files has not 
@@ -27,7 +27,7 @@ def amlr_gdm(deployment, project, mode, glider_path,
             Defaults to 0.
         loadfromtmp (bool, optional): Load gdm data and profiles from 
             temporary parquet files?. Defaults to False.
-        clobber_tmp (bool, optional): If they exist, should temporary 
+        clobbertmp (bool, optional): If they exist, should temporary 
             parquet files be clobbered? Defaults to False.
 
     Returns:
@@ -98,12 +98,12 @@ def amlr_gdm(deployment, project, mode, glider_path,
     
     if loadfromtmp:        
         logger.info(f'Loading gdm data and profiles from parquet files in: {tmp_path}')
-        gdm_data = pd.read_parquet(pq_data_file)
-        gdm_profiles = pd.read_parquet(pq_profiles_file)
+        gdm.data = pd.read_parquet(pq_data_file)
+        gdm.profiles = pd.read_parquet(pq_profiles_file)
 
     else:    
-        gdm_data, gdm_profiles = amlr_load_dba(
-            ascii_path, numcores, clobber_tmp, pq_data_file, pq_profiles_file
+        gdm.data, gdm.profiles = amlr_load_dba(
+            ascii_path, numcores, clobbertmp, pq_data_file, pq_profiles_file
         )
         
     #--------------------------------------------
@@ -111,45 +111,43 @@ def amlr_gdm(deployment, project, mode, glider_path,
 
     # Make columns lowercase to match gdm behavior
     logger.info('Making sensor (data column) names lowercase to match gdm behavior')
-    gdm_data.columns = gdm_data.columns.str.lower()
+    gdm.data.columns = gdm.data.columns.str.lower()
 
     # Remove garbage data
     #   Removing these timestamps is for situations when there is a " + 
     #   'Not enough timestamps for yo interpolation' warning",
-    if any(gdm_data.index == '1970-01-01'):
-        n_toremove = sum(gdm_data.index == '1970-01-01')
+    if any(gdm.data.index == '1970-01-01'):
+        n_toremove = sum(gdm.data.index == '1970-01-01')
         logger.info(f'Removing {n_toremove} invalid (1970-01-01) timestamps')
-        gdm_data = gdm_data[gdm_data.index != '1970-01-01']
+        gdm.data = gdm.data[gdm.data.index != '1970-01-01']
     else:
         logger.info('No invalid (1970-01-01) timestamps to remove')
 
     # Remove duplicate timestamps
-    gdm_dup = gdm_data.index.duplicated(keep='last')
+    gdm_dup = gdm.data.index.duplicated(keep='last')
     if any(gdm_dup):
         logger.info('Removing duplicated timestamps')
-        gdm_data = gdm_data[~gdm_dup]
+        gdm.data = gdm.data[~gdm_dup]
         logger.info(f'Removed {gdm_dup.sum()} rows with duplicated timestamps')
     else:
         logger.info('No duplicated timestamps to remove')
 
     # Create interpolated variables
     logger.info('Creating interpolated variables')
-    gdm_data['idepth']  = amlr_interpolate(gdm_data['depth'])
-    gdm_data['imdepth'] = amlr_interpolate(gdm_data['m_depth'])
-    gdm_data['impitch'] = amlr_interpolate(gdm_data['m_pitch'])
-    gdm_data['imroll']  = amlr_interpolate(gdm_data['m_roll'])
+    gdm.data['idepth']  = amlr_interpolate(gdm.data['depth'])
+    gdm.data['imdepth'] = amlr_interpolate(gdm.data['m_depth'])
+    gdm.data['impitch'] = amlr_interpolate(gdm.data['m_pitch'])
+    gdm.data['imroll']  = amlr_interpolate(gdm.data['m_roll'])
 
     #--------------------------------------------
-    logger.info(f'Creating and returning gdm object')    
-    gdm.data = gdm_data.copy(deep=True)
-    gdm.profiles = gdm_profiles.copy(deep=True)
+    logger.info(f'Returning gdm object')    
     logger.info(f'gdm:\n {gdm}')
 
     return gdm
 
 
 
-def amlr_load_dba(ascii_path, numcores, clobber_tmp, 
+def amlr_load_dba(ascii_path, numcores, clobbertmp, 
                   pq_data_file, pq_profiles_file):
     """
     Read in dba files from ascii_path using numcores cores
@@ -159,7 +157,7 @@ def amlr_load_dba(ascii_path, numcores, clobber_tmp,
     Args:
         ascii_path (str): path to ascii (dba) files
         numcores (int): number of cores to use
-        clobber_tmp (boolean): Overwrite existing parquet files, 
+        clobbertmp (boolean): Overwrite existing parquet files, 
             if they exist
         pq_data_file (str): path for data parquet file
         pq_profiles_file (str): path for profiles parquet file
@@ -216,7 +214,7 @@ def amlr_load_dba(ascii_path, numcores, clobber_tmp,
     dba_df = dba_df.sort_index()
 
     # Write data to parquet files, if specified
-    if not clobber_tmp and os.path.exists(pq_profiles_file):
+    if not clobbertmp and os.path.exists(pq_profiles_file):
         logger.info(f'The parquet file for gdm profiles (pq_profiles_file) ' + 
                     'already exists, and will not be clobbered')
     else:
@@ -225,7 +223,7 @@ def amlr_load_dba(ascii_path, numcores, clobber_tmp,
             pq_profiles_file, version="2.6", index = True
         )
 
-    if not clobber_tmp and os.path.exists(pq_data_file):
+    if not clobbertmp and os.path.exists(pq_data_file):
         logger.info(f'The parquet file for gdm data (pq_data_file) ' + 
                     'already exists, and will not be clobbered')
     else:
@@ -312,14 +310,17 @@ def amlr_write_ngdac(gdm, deployment_mode, glider_path):
     Returns:
     """
     # TODO: make parallel, once applicable
-    # nc_ngdac_path = os.path.join(glider_path, 'data', 'out', 'nc', 'ngdac', mode)
+    nc_ngdac_path = os.path.join(glider_path, 'data', 'out', 'nc', 'ngdac', mode)
+    if not os.path.exists(nc_ngdac_path):
+        logging.info(f'Creating directory at: {nc_ngdac_path}')
+        os.makedirs(nc_ngdac_path)
 
-    # if not os.path.exists(nc_ngdac_path):
-    #     logging.info(f'Creating directory at: {nc_ngdac_path}')
-    #     os.makedirs(nc_ngdac_path)
-
-    logging.warning("CANNOT CURRENTLY WRITE TO NGDAC NC FILES")
-    # logging.info("Writing ngdac to nc files")
+    # logging.warning("CANNOT CURRENTLY WRITE TO NGDAC NC FILES")
+    logging.warning("IN DEV")
+    
+    logging.info("Writing ngdac to nc files")
+    pro_ds = gdm.slice_profile_dataset(gdm.profiles.index[0])
+    pro_ds
     # glider = dba_files.iloc[0].file.split('_')[0]
     # for profile_time, pro_ds in gdm.iter_profiles():
     #     nc_name = '{:}-{:}-{:}.nc'.format(glider, profile_time.strftime('%Y%m%dT%H%M'), mode)

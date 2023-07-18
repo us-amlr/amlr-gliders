@@ -5,9 +5,19 @@ import math
 import multiprocessing as mp
 import pandas as pd
 
-from amlrgliders.utils import line_prepender
-
 logger = logging.getLogger(__name__)
+
+
+def line_prepender(filename, line):
+    """
+    Title: prepend-line-to-beginning-of-a-file
+    https://stackoverflow.com/questions/5914627
+    """
+    
+    with open(filename, 'r+') as f:
+        content = f.read()
+        f.seek(0, 0)
+        f.write(line.rstrip('\r\n') + '\n' + content)
 
 
 def amlr_acoustics_metadata(gdm, deployment_mode, glider_path):

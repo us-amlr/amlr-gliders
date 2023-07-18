@@ -33,7 +33,7 @@ def main(args):
     
     loglevel = args.loglevel
     log_level = getattr(logging, loglevel.upper())
-    log_format = '%(asctime)s:%(module)s:%(levelname)s:%(message)s [line %(lineno)d]'
+    log_format = '%(module)s:%(levelname)s:%(message)s [line %(lineno)d]'
     logging.basicConfig(format=log_format, level=log_level)
     # logging.basicConfig(
     #     format=log_format, level=log_level, 
