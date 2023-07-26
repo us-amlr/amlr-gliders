@@ -6,7 +6,7 @@ import logging
 import argparse
 from importlib.metadata import version
 
-from amlrgliders.utils import amlr_year_path, amlr_logger
+from amlrgliders.utils import amlr_year_path
 from amlrgliders.glider import amlr_gdm, amlr_write_trajectory, amlr_write_ngdac
 from amlrgliders.acoustics import amlr_acoustics_metadata
 from amlrgliders.imagery import amlr_imagery_metadata
@@ -144,11 +144,12 @@ def main(args):
 
     # Convert to time series, and write trajectory data to nc file
     if write_trajectory:
-        amlr_write_trajectory(gdm, deployment_mode, glider_path)
+        amlr_write_trajectory(gdm, deployment, mode, glider_path)
 
     # Write individual (profile) nc files
     if write_ngdac:
-        amlr_write_ngdac(gdm, deployment_mode, glider_path)
+        nc_ngdac_path = os.path.join(glider_path, 'data', 'out', 'nc', 'ngdac', mode)
+        amlr_write_ngdac(gdm, deployment, mode, nc_ngdac_path)
 
 
     # Write acoustics files
