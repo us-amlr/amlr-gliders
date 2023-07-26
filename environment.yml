@@ -15,22 +15,35 @@ dependencies:
   - google-cloud-secret-manager=2.12.0
   - pyarrow=9.0
 
-  # # packages for glidertools
-  # - glidertools
-  # - pykrige
-  # - plotly
-  # - cmocean
+  # packages for glidertools
+  - glidertools
+  - pykrige
+  - plotly
+  - cmocean
 
   # packages for gdm, list here to install through conda
-  - gsw=3.6 #and for glidertools
-  - netcdf4=1.6
-  - numpy=1.24
-  - pandas=2.0
-  - scipy=1.10
-  - shapely=2.0
-  - xarray=2023.4
-  - pyyaml=6.0
+  - gsw
+  - netcdf4
+  - numpy
+  - pandas
+  - scipy
+  - shapely
+  - xarray
+  - pyyaml
+
+  # # From GliderTools/setup.cfg
+  # - numexpr
+  #   # netcdf4
+  #   # pandas
+  #   # xarray
+  #   # numpy
+  # - scikit-learn
+  #   # scipy
+  # - tqdm
+  # - matplotlib
+  #   # gsw
 
   - pip:
     - -e git+https://github.com/smwoodman/gdm.git#egg=gdm
+    # - -e git+https://github.com/kerfoot/gdm.git#egg=gdm
     - -e git+https://github.com/us-amlr/amlr-gliders.git#egg=amlr_gliders

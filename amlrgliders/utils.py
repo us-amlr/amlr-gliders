@@ -1,5 +1,4 @@
 import os
-import logging
 import pathlib
 
 
@@ -19,11 +18,11 @@ def find_extensions(dir_path): #,  excluded = ['', '.txt', '.lnk']):
 
 def amlr_interpolate(df):
     """
-    Wrapper around pandas.interpolate, to standardize arguments
+    Wrapper around pandas.interpolate, to standardize passed arguments
     Args:
-        df (DataFrame): DataFrame with column(s) to inteprolate
+        df (DataFrame): DataFrame to inteprolate
     Returns:
-        DataFrame: DataFrame with interpolated values
+        Interpolated DataFrame
     """
     return df.interpolate(
         method='time', limit_direction='forward', limit_area='inside'
@@ -48,6 +47,7 @@ def amlr_year_path(project, deployment_split):
 
     return year
 
+# import logging
 # def amlr_logger(logfile, loglevel, logname):
 #     # logfile = args.logfile
 #     loglevel = getattr(logging, loglevel.upper())

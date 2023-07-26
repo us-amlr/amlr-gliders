@@ -11,6 +11,33 @@ from amlrgliders.utils import amlr_interpolate
 logger = logging.getLogger(__file__)
 
 
+# The names of AMLR-relevant variables in gdm.data object
+amlr_gdm_varnames = [
+    'time', 'latitude', 'longitude', 
+    'depth', 'm_depth', 'm_heading', 'm_pitch', 'm_roll', 
+    "ilatitude", "ilongitude", 'idepth', 'impitch', 'imroll', 
+    'sci_water_cond', 'density', 'sci_water_pressure', 
+    'salinity', 'sci_water_temp',     
+    'sci_flbbcd_bb_units', 'sci_flbbcd_chlor_units', 
+    'sci_flbbcd_cdom_units', 'sci_flbbcd_therm', 
+    'sci_oxy4_oxygen', 'sci_oxy4_saturation', 'sci_oxy4_temp', 
+    # 'sci_ctd41cp_timestamp', 'ctd41cp_timestamp', 
+    'm_final_water_vx', 'm_final_water_vy', 'c_wpt_lat', 'c_wpt_lon'
+]
+
+# The names of AMLR-relevant variables in timeseries object
+amlr_ds_varnames = [
+    'time', 'latitude', 'longitude', 
+    'depth', 'm_depth', 'm_heading', 'm_pitch', 'm_roll', 
+    'lat', 'lon', 'idepth', 'impitch', 'imroll', 
+    'conductivity', 'density', 'pressure', 
+    'salinity', 'temperature', 
+    'beta700', 'chlorophyll_a', 'cdom', 'sci_flbbcd_therm', 
+    'oxy4_oxygen', 'oxy4_saturation', 'oxy4_temp', 
+    'm_final_water_vx', 'm_final_water_vy', 'c_wpt_lat', 'c_wpt_lon'
+    ]
+
+
 def amlr_gdm(deployment, project, mode, glider_path, 
              numcores=0, loadfromtmp=False, clobbertmp=False):
     """
@@ -68,7 +95,7 @@ def amlr_gdm(deployment, project, mode, glider_path,
     if not os.path.isdir(glider_path):
         logger.error(f'glider_path ({glider_path}) does not exist')
         return
-    logging.info(f'Glider deployment path: {glider_path}')
+    logger.info(f'Glider deployment path: {glider_path}')
 
 
     #--------------------------------------------
@@ -88,7 +115,7 @@ def amlr_gdm(deployment, project, mode, glider_path,
         os.makedirs(tmp_path)
 
     #--------------------------------------------
-    # Create and process gdm object
+    # Create gdm object, and load in data
     if not os.path.exists(config_path):
         logger.error(f'The config path does not exist {config_path}')
         return 
@@ -102,15 +129,32 @@ def amlr_gdm(deployment, project, mode, glider_path,
         gdm.profiles = pd.read_parquet(pq_profiles_file)
 
     else:    
-        gdm.data, gdm.profiles = amlr_load_dba(
-            ascii_path, numcores, clobbertmp, pq_data_file, pq_profiles_file
-        )
+        gdm.data, gdm.profiles = amlr_load_dba(ascii_path, numcores)
+        
+        # Write data to parquet files, if specified
+        if not clobbertmp and os.path.exists(pq_profiles_file):
+            logger.info(f'The parquet file for gdm profiles {pq_profiles_file} ' + 
+                        'already exists, and will not be clobbered')
+        else:
+            logger.info('Writing gdm profiles to parquet file')
+            gdm.profiles.to_parquet(
+                pq_profiles_file, version="2.6", index = True
+            )
+
+        if not clobbertmp and os.path.exists(pq_data_file):
+            logger.info(f'The parquet file for gdm data {pq_data_file} ' + 
+                        'already exists, and will not be clobbered')
+        else:
+            logger.info('Writing gdm data to parquet file')
+            gdm.data.to_parquet(
+                pq_data_file, version="2.6", index = True
+            )
         
     #--------------------------------------------
     ### Additional processing of gdm object
 
-    # Make columns lowercase to match gdm behavior
-    logger.info('Making sensor (data column) names lowercase to match gdm behavior')
+    # Make columns lowercase to match sensor definitions yaml file
+    logger.info('Making sensor (data column) names lowercase')
     gdm.data.columns = gdm.data.columns.str.lower()
 
     # Remove garbage data
@@ -147,20 +191,14 @@ def amlr_gdm(deployment, project, mode, glider_path,
 
 
 
-def amlr_load_dba(ascii_path, numcores, clobbertmp, 
-                  pq_data_file, pq_profiles_file):
+def amlr_load_dba(ascii_path, numcores):
     """
     Read in dba files from ascii_path using numcores cores
-    Write parquet files, if appropriate
     Returns dba data and profile data frames
 
     Args:
         ascii_path (str): path to ascii (dba) files
         numcores (int): number of cores to use
-        clobbertmp (boolean): Overwrite existing parquet files, 
-            if they exist
-        pq_data_file (str): path for data parquet file
-        pq_profiles_file (str): path for profiles parquet file
         
     Returns:
         Tuple of dba (data) and profiles data frames
@@ -212,43 +250,26 @@ def amlr_load_dba(ascii_path, numcores, clobbertmp,
     logger.info('Sorting data and profile data frames by time index')
     pro_meta_df = pro_meta_df.sort_index()
     dba_df = dba_df.sort_index()
-
-    # Write data to parquet files, if specified
-    if not clobbertmp and os.path.exists(pq_profiles_file):
-        logger.info(f'The parquet file for gdm profiles (pq_profiles_file) ' + 
-                    'already exists, and will not be clobbered')
-    else:
-        logger.info('Writing gdm profiles to parquet file')
-        pro_meta_df.to_parquet(
-            pq_profiles_file, version="2.6", index = True
-        )
-
-    if not clobbertmp and os.path.exists(pq_data_file):
-        logger.info(f'The parquet file for gdm data (pq_data_file) ' + 
-                    'already exists, and will not be clobbered')
-    else:
-        logger.info('Writing gdm data to parquet file')
-        dba_df.to_parquet(
-            pq_data_file, version="2.6", index = True
-        )
-    
-    logging.info('Returning data and profiles data frames')    
+   
+    logger.info('Returning data and profiles data frames')    
     return dba_df, pro_meta_df
 
 
-def amlr_write_trajectory(gdm, deployment_mode, glider_path, write_full = True):
+def amlr_write_trajectory(gdm, deployment, mode, glider_path, write_full = True):
     """
     From gdm file, write trajectory two nc files, 
     one with commonly used variables and the other with all variables
     
     Args:
         gdm (GliderDataModel): gdm object created by amlr_gdm
-        deployment_mode (str): deployment-mode string, eg amlr##-YYYYmmdd-delayed
+        deployment (str): deployment string, eg amlr##-YYYYmmdd
+        mode (str): mode string, eg delayed
         glider_path (str): path to glider folder
         
     Returns: 0
     """
 
+    deployment_mode = f'{deployment}-{mode}'
     nc_trajectory_path = os.path.join(glider_path, 'data', 'out', 'nc', 'trajectory')
 
     if not os.path.exists(nc_trajectory_path):
@@ -258,20 +279,20 @@ def amlr_write_trajectory(gdm, deployment_mode, glider_path, write_full = True):
     logger.info("Creating full timeseries")
     ds = gdm.to_timeseries_dataset()
 
-    # Note: to_timeseries_dataset uses nc_var_name in sensor_defs,
-    #   hence it changes ilatitude to lat and ilongitude to lon 
-    vars_list = ['time', 'latitude', 'longitude', 
-        'depth', 'm_depth', 'm_heading', 'm_pitch', 'm_roll', 
-        'lat', 'lon', 'idepth', 'impitch', 'imroll', 
-        'cdom', 'conductivity', 'density', 'pressure', 
-        'salinity', 'temperature', 'beta700', 'chlorophyll_a', 
-        'oxy4_oxygen', 'oxy4_saturation', 
-        'oxy4_temp', 'sci_flbbcd_therm', 'ctd41cp_timestamp', 
-        'm_final_water_vx', 'm_final_water_vy', 'c_wpt_lat', 'c_wpt_lon']
+    # # Note: to_timeseries_dataset uses nc_var_name in sensor_defs,
+    # #   hence it changes ilatitude to lat and ilongitude to lon 
+    # vars_list = ['time', 'latitude', 'longitude', 
+    #     'depth', 'm_depth', 'm_heading', 'm_pitch', 'm_roll', 
+    #     'lat', 'lon', 'idepth', 'impitch', 'imroll', 
+    #     'cdom', 'conductivity', 'density', 'pressure', 
+    #     'salinity', 'temperature', 'beta700', 'chlorophyll_a', 
+    #     'oxy4_oxygen', 'oxy4_saturation', 
+    #     'oxy4_temp', 'sci_flbbcd_therm', 'ctd41cp_timestamp', 
+    #     'm_final_water_vx', 'm_final_water_vy', 'c_wpt_lat', 'c_wpt_lon']
 
-    subset = sorted(set(vars_list).intersection(list(ds.keys())), 
-                    key = vars_list.index)
-    logger.debug(f"Length of vars_list: {len(vars_list)}")
+    subset = sorted(set(amlr_ds_varnames).intersection(list(ds.keys())), 
+                    key = amlr_ds_varnames.index)
+    logger.debug(f"Length of vars_list: {len(amlr_ds_varnames)}")
     logger.debug(f"Number of variables in subset: {len(subset)}")
     ds_subset = ds[subset]
     
@@ -298,34 +319,40 @@ def amlr_write_trajectory(gdm, deployment_mode, glider_path, write_full = True):
     return 0
 
 
-def amlr_write_ngdac(gdm, deployment_mode, glider_path):
+def amlr_write_ngdac(gdm, deployment, mode, nc_path):
     """
-    ...
+    From gdm object, 
     
     Args:
-        gdm (GliderDataModel): gdm object created by amlr_gdm
-        deployment_mode (str): deployment-mode string, eg amlr##-YYYYmmdd-delayed
-        glider_path (str): path to glider folder
+        gdm (GliderDataModel): gdm object
+        deployment (str): deployment string, eg amlr##-YYYYmmdd
+        mode (str): mode string, eg delayed
+        nc_path (str): path to which to write the profile nc files
     
     Returns:
     """
-    # TODO: make parallel, once applicable
-    nc_ngdac_path = os.path.join(glider_path, 'data', 'out', 'nc', 'ngdac', mode)
-    if not os.path.exists(nc_ngdac_path):
-        logging.info(f'Creating directory at: {nc_ngdac_path}')
-        os.makedirs(nc_ngdac_path)
-
-    # logging.warning("CANNOT CURRENTLY WRITE TO NGDAC NC FILES")
-    logging.warning("IN DEV")
     
-    logging.info("Writing ngdac to nc files")
-    pro_ds = gdm.slice_profile_dataset(gdm.profiles.index[0])
-    pro_ds
-    # glider = dba_files.iloc[0].file.split('_')[0]
-    # for profile_time, pro_ds in gdm.iter_profiles():
-    #     nc_name = '{:}-{:}-{:}.nc'.format(glider, profile_time.strftime('%Y%m%dT%H%M'), mode)
-    #     nc_path = os.path.join(nc_ngdac_path, nc_name)
-    #     logging.info('Writing {:}'.format(nc_path))
-    #     pro_ds.to_netcdf(nc_path)
+    # nc_ngdac_path = os.path.join(glider_path, 'data', 'out', 'nc', 'ngdac', mode)
+    logger.debug(f'NGDAC nc path: {nc_path}')
+    if not os.path.exists(nc_path):
+        logger.info(f'Creating directory at: {nc_path}')
+        os.makedirs(nc_path)
+
+    subset = sorted(set(amlr_gdm_varnames).intersection(list(gdm.data.columns)), 
+                        key = amlr_gdm_varnames.index)
+    gdm.data = gdm.data[subset]
+    
+    # TODO: make parallel, once applicable
+    # NOTE: requires local gdm install with altered iter_profiles
+    logger.info("Writing ngdac to nc files")
+    for profile_time, row, pro_ds in gdm.iter_profiles():
+        logger.debug(f"profile time: {profile_time}")
+        pro_ds['profile_direction'] = row.direction
+        nc_file = os.path.join(
+            nc_path, 
+            f"{deployment}_{profile_time.strftime('%Y%m%dT%H%M%S')}_{mode}.nc"
+        )
+        logger.debug('Writing {:}'.format(nc_file))
+        pro_ds.to_netcdf(nc_file)
 
     return 0
