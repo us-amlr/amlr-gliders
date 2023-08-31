@@ -122,21 +122,24 @@ if __name__ == '__main__':
     ### Code
     storage_client = storage.Client()
     bucket_name    = "amlr-imagery-proc-dev"
-    file_prefix    = "gliders/2022/amlr07-20221204/shadowgraph/images/Dir0001"
+    file_prefix    = "gliders/2022/amlr07-20221204/shadowgraph/images/Dir0003"
     file_substr    = "-ffPCG"
     # file_prefix_new = "amlr04 "
     # prefix="sam-tmp/img/2017_*"
     # delimiter=None
 
-    file_list = list_blobs_with_prefix(
+    file_list_orig = list_blobs_with_prefix(
         bucket_name, file_prefix, delimiter=None, file_substr=file_substr
-    )
+    )    
+    print(f"there are {len(file_list_orig)} files with {file_substr} " +
+          f"in {bucket_name}/{file_prefix}")
+    
+    # Remove Dir016* paths
+    file_list = [i for i in file_list_orig if not ('Dir016' in i)]
+    
     print(f"there are {len(file_list)} files with {file_substr} " +
-        f"in {bucket_name}/{file_prefix}")
-    # print(" ")
-    # # print(file_list[0:9], sep="\n")
-    # print(*file_list[0:9], sep='\n')
-
+          f"in {bucket_name}/{file_prefix}, after removing 'Dir016'")
+ 
 
     print("Moving:")
     # for file_old in file_list:
