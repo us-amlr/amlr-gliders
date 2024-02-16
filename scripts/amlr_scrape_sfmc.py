@@ -117,7 +117,8 @@ def main(args):
 
     logger.info('Starting file management')
     bucket_deployment = f'gs://{bucket}/{project}/{year}/{deployment}'
-    bucket_stbd = os.path.join(bucket_deployment, 'glider', 'data', 'in', 'binary', 'rt')
+    bucket_stbd = os.path.join(bucket_deployment, 'data', 'binary', 'rt')
+    # TODO: update to acoustics bucket
     bucket_ad2 = os.path.join(bucket_deployment, 'sensors', 'nortek', 'data', 'in', 'rt')
     # bucket_cam = os.path.join(bucket_deployment, 'sensors', 'glidercam', 'data', 'in', 'rt')
     logger.debug(f"GCP bucket deployment folder: {bucket_deployment}")

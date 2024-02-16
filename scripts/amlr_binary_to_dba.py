@@ -64,7 +64,8 @@ def main(args):
     year = amlr_year_path(project, deployment_split)
 
     glider_depl_path = os.path.join(deployments_path, project, year, deployment)
-    glider_data_in = os.path.join(glider_depl_path, 'glider', 'data', 'in')
+    # glider_data_in = os.path.join(glider_depl_path, 'glider', 'data', 'in')
+    glider_data_in = os.path.join(glider_depl_path, 'data')
     
     binary_path = os.path.join(glider_data_in, 'binary', mode)
     ascii_path = os.path.join(glider_data_in, 'ascii', mode)

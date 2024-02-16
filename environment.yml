@@ -3,7 +3,7 @@ channels:
   - conda-forge
   - default
 dependencies:
-  - python=3.9
+  - python
   - pip
   
   # Misc
@@ -13,7 +13,7 @@ dependencies:
   # Used in amlr-gliders scripts
   - google-crc32c=1.1.0
   - google-cloud-secret-manager=2.12.0
-  - pyarrow=9.0
+  - pyarrow>=9.0
 
   # packages for glidertools
   - glidertools
@@ -43,7 +43,7 @@ dependencies:
   # - matplotlib
   #   # gsw
 
-  - pip:
-    - -e git+https://github.com/smwoodman/gdm.git#egg=gdm
-    # - -e git+https://github.com/kerfoot/gdm.git#egg=gdm
-    - -e git+https://github.com/us-amlr/amlr-gliders.git#egg=amlr_gliders
+  # - pip:
+  #   - -e git+https://github.com/smwoodman/gdm.git#egg=gdm
+  #   # - -e git+https://github.com/kerfoot/gdm.git#egg=gdm
+  #   - -e git+https://github.com/us-amlr/amlr-gliders.git#egg=amlr_gliders

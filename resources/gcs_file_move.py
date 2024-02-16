@@ -120,9 +120,9 @@ def move_blob_wrapper(file_old):
 if __name__ == '__main__':
                     # freeze_support()
     ### Code
-    storage_client = storage.Client()
+    storage_client = storage.Client(project = "ggn-nmfs-usamlr-dev-7b99")
     bucket_name    = "amlr-imagery-proc-dev"
-    file_prefix    = "gliders/2022/amlr07-20221204/shadowgraph/images/Dir0003"
+    file_prefix    = "gliders/2022/amlr07-20221204/shadowgraph/images/Dir"
     file_substr    = "-ffPCG"
     # file_prefix_new = "amlr04 "
     # prefix="sam-tmp/img/2017_*"
@@ -153,14 +153,14 @@ if __name__ == '__main__':
     #         (bucket_name, file_old, file_old.replace("/images/", f"/images{file_substr}/").replace("/output/", "/"))
     #     )
                
-    from datetime import datetime
-    print(datetime.now())
+    # from datetime import datetime
+    # print(datetime.now())
 
-    import multiprocessing as mp
-    numcores = mp.cpu_count() - 1
-    print(f"numcores: {numcores}")
-    with mp.Pool(numcores) as pool:
-        y = pool.map(move_blob_wrapper, file_list)
+    # import multiprocessing as mp
+    # numcores = mp.cpu_count() - 1
+    # print(f"numcores: {numcores}")
+    # with mp.Pool(numcores) as pool:
+    #     y = pool.map(move_blob_wrapper, file_list)
 
-    print(datetime.now())
-    # print(y)
+    # print(datetime.now())
+    # # print(y)

@@ -113,9 +113,7 @@ def main(args):
     deployment_mode = f'{deployment}-{mode}'
     year = amlr_year_path(project, deployment_split)
 
-    glider_path = os.path.join(
-        deployments_path, project, year, deployment, 'glider'
-    )
+    glider_path = os.path.join(deployments_path, project, year, deployment)
     # glider_path = os.path.join(deployment_curr_path, 'glider')  
     
     if write_imagery:
@@ -148,7 +146,7 @@ def main(args):
 
     # Write individual (profile) nc files
     if write_ngdac:
-        nc_ngdac_path = os.path.join(glider_path, 'data', 'out', 'nc', 'ngdac', mode)
+        nc_ngdac_path = os.path.join(glider_path, 'data', 'nc', 'ngdac', mode)
         amlr_write_ngdac(gdm, deployment, mode, nc_ngdac_path)
 
 

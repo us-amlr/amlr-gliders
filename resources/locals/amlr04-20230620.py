@@ -29,7 +29,7 @@ smw_gliderdir = 'C:/SMW/Gliders_Moorings/Gliders'
 # from amlr import amlr_gdm, amlr_acoustics, amlr_imagery, amlr_year_path
 
 
-deployment = 'amlr03-20230620'
+deployment = 'amlr04-20230620'
 project = 'SANDIEGO'
 mode = 'delayed'
 deployments_path = os.path.join(smw_gliderdir, 'Glider-Data')
@@ -135,3 +135,8 @@ ds = xr.open_mfdataset(
     os.path.join(nc_ngdac_path, '*.nc'), 
     combine_attrs="drop_conflicts"
 )
+
+
+
+
+ts_path = os.path.join(glider_path, 'data', 'out', 'nc', "trajectory")

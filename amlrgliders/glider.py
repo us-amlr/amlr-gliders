@@ -3,6 +3,7 @@ import logging
 import multiprocessing as mp
 # import numpy as np
 import pandas as pd
+from itertools import repeat
 
 from gdm import GliderDataModel
 from gdm.gliders.slocum import load_slocum_dba
@@ -100,8 +101,8 @@ def amlr_gdm(deployment, project, mode, glider_path,
 
     #--------------------------------------------
     # Set path/file variables, and create file paths if necessary
-    ascii_path  = os.path.join(glider_path, 'data', 'in', 'ascii', mode)
-    config_path = os.path.join(glider_path, 'config', 'gdm')
+    ascii_path  = os.path.join(glider_path, 'data', 'ascii', mode)
+    config_path = os.path.join(glider_path, 'data-config')
     # nc_ngdac_path = os.path.join(glider_path, 'data', 'out', 'nc', 'ngdac', mode)
     # nc_trajectory_path = os.path.join(glider_path, 'data', 'out', 'nc', 'trajectory')
 
@@ -220,10 +221,12 @@ def amlr_load_dba(ascii_path, numcores):
     if numcores > 1:
         logger.debug('Reading dba files in parallel')
         # If numcores is greater than 1, run load_slocum_dba in parallel
-        pool = mp.Pool(numcores)
-        load_slocum_dba_list = pool.map(load_slocum_dba, dba_files_list)
-        pool.close()
-        pool.join()
+        with mp.Pool(numcores) as pool:
+            load_slocum_dba_list = pool.map(load_slocum_dba, dba_files_list)
+        # pool = mp.Pool(numcores)
+        # load_slocum_dba_list = pool.map(load_slocum_dba, dba_files_list)
+        # pool.close()
+        # pool.join()
         
         logger.info('Zipping output and concatenating data')
         # dba_zip_list = list(zip(*load_slocum_dba_list))
@@ -270,7 +273,7 @@ def amlr_write_trajectory(gdm, deployment, mode, glider_path, write_full = True)
     """
 
     deployment_mode = f'{deployment}-{mode}'
-    nc_trajectory_path = os.path.join(glider_path, 'data', 'out', 'nc', 'trajectory')
+    nc_trajectory_path = os.path.join(glider_path, 'data', 'nc', 'trajectory')
 
     if not os.path.exists(nc_trajectory_path):
             logger.info(f'Creating directory at: {nc_trajectory_path}')
@@ -328,8 +331,8 @@ def amlr_write_ngdac(gdm, deployment, mode, nc_path):
         deployment (str): deployment string, eg amlr##-YYYYmmdd
         mode (str): mode string, eg delayed
         nc_path (str): path to which to write the profile nc files
-    
-    Returns:
+
+    Returns: 0
     """
     
     # nc_ngdac_path = os.path.join(glider_path, 'data', 'out', 'nc', 'ngdac', mode)
@@ -342,17 +345,33 @@ def amlr_write_ngdac(gdm, deployment, mode, nc_path):
                         key = amlr_gdm_varnames.index)
     gdm.data = gdm.data[subset]
     
-    # TODO: make parallel, once applicable
+    # TODO: make parallel?
+    # if numcores > 1:
+    #     logger.info("Writing ngdac to nc files, in parallel")    
+    #     def write_ngdac_file(profile_time, row, pro_ds):
+    #         pro_ds['profile_direction'] = row.direction
+    #         nc_file = os.path.join(
+    #             nc_path, 
+    #             f"{test}_{profile_time.strftime('%Y%m%dT%H%M%S')}_{test}.nc"
+    #         )
+    #         pro_ds.to_netcdf(nc_file)
+                        
+    #     with mp.Pool(numcores) as pool:
+    #         pool.starmap(
+    #             write_ngdac_file, gdm.iter_profiles()
+    #             # zip(gdm.iter_profiles(), repeat(deployment), repeat(mode))
+    #         )
+
+    # else:
     # NOTE: requires local gdm install with altered iter_profiles
-    logger.info("Writing ngdac to nc files")
+    logger.info(f"Writing {len(gdm.profiles.index)} ngdac nc files, serially")
     for profile_time, row, pro_ds in gdm.iter_profiles():
         logger.debug(f"profile time: {profile_time}")
         pro_ds['profile_direction'] = row.direction
-        nc_file = os.path.join(
-            nc_path, 
-            f"{deployment}_{profile_time.strftime('%Y%m%dT%H%M%S')}_{mode}.nc"
-        )
-        logger.debug('Writing {:}'.format(nc_file))
-        pro_ds.to_netcdf(nc_file)
 
+        nc_name = f"{deployment}_{profile_time.strftime('%Y%m%dT%H%M%S')}_{mode}.nc"
+        nc_file = os.path.join(nc_path, nc_name)
+        logger.info('Writing {:}'.format(nc_file))
+        pro_ds.to_netcdf(nc_file)
+            
     return 0
