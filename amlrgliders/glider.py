@@ -102,7 +102,7 @@ def amlr_gdm(deployment, project, mode, glider_path,
     #--------------------------------------------
     # Set path/file variables, and create file paths if necessary
     ascii_path  = os.path.join(glider_path, 'data', 'ascii', mode)
-    config_path = os.path.join(glider_path, 'data-config')
+    config_path = os.path.join(glider_path, 'data', 'data-config')
     # nc_ngdac_path = os.path.join(glider_path, 'data', 'out', 'nc', 'ngdac', mode)
     # nc_trajectory_path = os.path.join(glider_path, 'data', 'out', 'nc', 'trajectory')
 
