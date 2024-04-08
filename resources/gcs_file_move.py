@@ -1,6 +1,7 @@
 """
 Run in env py-gcs:
-conda create --name py-gcs python=3.11 google-cloud-storage ipykernel
+conda create --name py-gcs python=3.12 google-cloud-storage ipykernel
+conda create --name py-gcs python=3.12 google-cloud-storage ipykernel
 
 References:
 https://cloud.google.com/storage/docs/copying-renaming-moving-objects#storage-move-object-python
@@ -47,10 +48,15 @@ def list_blobs_with_prefix(bucket_name, prefix, delimiter=None, file_substr=None
     # Note: The call returns a response only when the iterator is consumed.
     # print("Blobs:")
     file_list = []
-    for blob in blobs:
-        # print(blob.name)
-        if file_substr in blob.name:
+    if file_substr is None:
+        for blob in blobs:
+            print(blob.name)
             file_list.append(blob.name)
+    else:
+        for blob in blobs:
+            # print(blob.name)
+            if file_substr in blob.name:
+                file_list.append(blob.name)
 
     # if delimiter:
     #     print("Prefixes:")
@@ -122,15 +128,19 @@ if __name__ == '__main__':
     ### Code
     storage_client = storage.Client(project = "ggn-nmfs-usamlr-dev-7b99")
     bucket_name    = "amlr-imagery-proc-dev"
+    # file_prefix    = "gliders/2022/amlr08-20220513/shadowgraph/images"
     file_prefix    = "gliders/2022/amlr07-20221204/shadowgraph/images/Dir"
-    file_substr    = "-ffPCG"
+    file_substr    = None
     # file_prefix_new = "amlr04 "
     # prefix="sam-tmp/img/2017_*"
     # delimiter=None
+    
+    blobs = storage_client.list_blobs(bucket_name, prefix=file_prefix)
+    for blob in blobs:
+        print(blob.name)
+    
 
-    file_list_orig = list_blobs_with_prefix(
-        bucket_name, file_prefix, delimiter=None, file_substr=file_substr
-    )    
+    file_list_orig = list_blobs_with_prefix(bucket_name, file_prefix)    
     print(f"there are {len(file_list_orig)} files with {file_substr} " +
           f"in {bucket_name}/{file_prefix}")
     
