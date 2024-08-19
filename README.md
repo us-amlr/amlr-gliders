@@ -1,5 +1,7 @@
 # amlr-gliders
 
+**NOTE: this repo has been superceded by https://github.com/SWFSC/glider-utils. Please use this new repo for all ESD glider data processing utilities.**
+
 A repository for processing AMLR glider data, primarily in US AMLR Google Cloud Platform projects.
 
 View the [wiki](https://github.com/us-amlr/amlr-gliders/wiki) for full documentation and examples.
